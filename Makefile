@@ -58,5 +58,5 @@ release-test:
 release:
 	make tidy
 	make shoulders
-	release -y 
+	release 
 	make tidy
