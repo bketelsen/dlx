@@ -1,4 +1,4 @@
-// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -16,7 +16,13 @@ package cmd
 
 import (
 	"log"
+	"os"
+	"syscall"
 
+	"github.com/buger/goterm"
+	lxd "github.com/lxc/lxd/client"
+	"github.com/lxc/lxd/shared/api"
+	"github.com/lxc/lxd/shared/termios"
 	"github.com/spf13/cobra"
 )
 
@@ -25,9 +31,58 @@ var connectCmd = &cobra.Command{
 	Use:   "connect",
 	Short: "connect to a running container",
 	Long:  `Connect to a running container.`,
-
+	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		log.Println("Nope")
+		name = args[0]
+		// Connect to LXD over the Unix socket
+		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		if err != nil {
+			log.Fatal("Connect:", err)
+		}
+		terminalHeight := goterm.Height()
+		terminalWidth := goterm.Width()
+		// Setup the exec request
+		environ := make(map[string]string)
+		environ["TERM"] = os.Getenv("TERM")
+		req := api.ContainerExecPost{
+			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login"},
+			WaitForWS:   true,
+			Interactive: true,
+			Width:       terminalWidth,
+			Height:      terminalHeight,
+			Environment: environ,
+		}
+
+		// Setup the exec arguments (fds)
+		largs := lxd.ContainerExecArgs{
+			Stdin:  os.Stdin,
+			Stdout: os.Stdout,
+			Stderr: os.Stderr,
+		}
+
+		// Setup the terminal (set to raw mode)
+		if req.Interactive {
+			cfd := int(syscall.Stdin)
+			oldttystate, err := termios.MakeRaw(cfd)
+			if err != nil {
+				log.Fatal("Make Raw Terminal", err)
+			}
+
+			defer termios.Restore(cfd, oldttystate)
+		}
+
+		// Get the current state
+		op, err := c.ExecContainer(name, req, &largs)
+		if err != nil {
+			log.Fatal("Exec:", err)
+		}
+
+		// Wait for it to complete
+		err = op.Wait()
+		if err != nil {
+			log.Fatal("Wait:", err)
+		}
+
 	},
 }
 

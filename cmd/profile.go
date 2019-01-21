@@ -15,46 +15,34 @@
 package cmd
 
 import (
-	"log"
+	"fmt"
 
-	lxd "github.com/lxc/lxd/client"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
-// removeCmd represents the remove command
-var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "remove a container",
-	Long:  `Remove deletes a container.  It will fail if the container is running.`,
-	Args:  cobra.MinimumNArgs(1),
+// profileCmd represents the profile command
+var profileCmd = &cobra.Command{
+	Use:   "profile",
+	Short: "create or replace the provisioning profile for lxdev",
+	Long: `Profile creates or replaces the 'gui', 'cli', and 'util' profiles in lxc that allows you
+to connect to running containers and possibly display X11 applications on the host.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		name = args[0]
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
-		if err != nil {
-			log.Fatal("Connect:", err)
-		}
-		op, err := c.DeleteContainer(name)
-		if err != nil {
-			log.Fatal("Delete Container:", err)
-		}
-		// Wait for the operation to complete
-		err = op.Wait()
-		if err != nil {
-			log.Fatal("Wait:", err)
-		}
+		fmt.Println("TODO: profile called", viper.GetString("ethernet"))
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(profileCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// removeCmd.PersistentFlags().String("foo", "", "A help for foo")
+	profileCmd.PersistentFlags().String("ethernet", "", "the name of your ethernet device e.g. 'enp5s0'")
+	viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// profileCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

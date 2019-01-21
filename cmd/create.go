@@ -1,4 +1,4 @@
-// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,17 @@ import (
 var (
 	name     string
 	skipkeys bool
+	clionly  bool
+	gui      bool
+	util     bool
 )
+var guiimage string
+var cliimage string
+var utilimage string
+
+var guiinit string
+var cliinit string
+var utilinit string
 
 type sourceFile struct {
 	path        string
@@ -48,6 +58,7 @@ var createCmd = &cobra.Command{
 development tools.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
 		name = args[0]
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
@@ -60,16 +71,16 @@ development tools.`,
 		req := api.ContainersPost{
 			Name: name,
 			ContainerPut: api.ContainerPut{
-				Profiles: []string{"default", "gui"},
+				Profiles: getProfiles(),
 			},
 			Source: api.ContainerSource{
 				Type:     "image",
 				Server:   "https://cloud-images.ubuntu.com/daily",
-				Alias:    "18.10",
+				Alias:    getImage(),
 				Protocol: "simplestreams",
 			},
 		}
-
+		log.Printf("Creating container with image: %s, profile(s): %v\n", getImage(), getProfiles())
 		// Get LXD to create the container (background operation)
 		op, err := c.CreateContainer(req)
 		if err != nil {
@@ -98,6 +109,7 @@ development tools.`,
 		if err != nil {
 			log.Fatal("Wait:", err)
 		}
+
 		if !skipkeys {
 			err = copyFiles(c, name)
 			if err != nil {
@@ -107,6 +119,28 @@ development tools.`,
 	},
 }
 
+func getProfiles() []string {
+	profiles := []string{}
+	profiles = append(profiles, "default")
+	if clionly {
+		profiles = append(profiles, "cli")
+		return profiles
+	}
+	if util {
+		profiles = append(profiles, "util")
+		return profiles
+	}
+	return append(profiles, "gui")
+}
+func getImage() string {
+	if clionly {
+		return viper.GetString("cliimage")
+	}
+	if util {
+		return viper.GetString("utilimage")
+	}
+	return viper.GetString("guiimage")
+}
 func copyFiles(c lxd.ContainerServer, name string) error {
 	// HACK: Find out when provisioning is done??
 	time.Sleep(5 * time.Second)
@@ -121,6 +155,7 @@ func copyFiles(c lxd.ContainerServer, name string) error {
 		var f *os.File
 		var err error
 		log.Printf("[Creating] %s\n", file.destination)
+
 		args := lxd.ContainerFileArgs{}
 		if file.filetype == "file" {
 
@@ -173,5 +208,32 @@ func init() {
 	// is called directly, e.g.:
 	createCmd.Flags().BoolP("skipkeys", "s", false, "Skip copy of ssh keys")
 	viper.BindPFlag("skipkeys", createCmd.PersistentFlags().Lookup("skipkeys"))
+
+	createCmd.Flags().BoolP("cli", "c", false, "Use CLI-only profile, no X Windows support.")
+	viper.BindPFlag("clionly", createCmd.PersistentFlags().Lookup("cli"))
+
+	createCmd.Flags().BoolP("gui", "g", true, "Use GUI profile, with X Windows support. (default)")
+	viper.BindPFlag("gui", createCmd.PersistentFlags().Lookup("gui"))
+
+	createCmd.Flags().BoolP("util", "u", false, "Use UTIL profile, with X Windows support.")
+	viper.BindPFlag("util", createCmd.PersistentFlags().Lookup("util"))
+
+	createCmd.PersistentFlags().StringVar(&guiimage, "guiimage", "18.10", "Ubuntu version for GUI instances")
+	viper.BindPFlag("guiimage", createCmd.PersistentFlags().Lookup("guiimage"))
+
+	createCmd.PersistentFlags().StringVar(&cliimage, "cliimage", "18.10", "Ubuntu version for CLI instances")
+	viper.BindPFlag("cliimage", createCmd.PersistentFlags().Lookup("cliimage"))
+
+	createCmd.PersistentFlags().StringVar(&utilimage, "utilimage", "18.10", "Ubuntu version for UTIL instances")
+	viper.BindPFlag("utilimage", createCmd.PersistentFlags().Lookup("utilimage"))
+
+	createCmd.PersistentFlags().StringVar(&guiinit, "guiinit", "go.yaml", "cloud-init for GUI instances")
+	viper.BindPFlag("guiinit", createCmd.PersistentFlags().Lookup("guiinit"))
+
+	createCmd.PersistentFlags().StringVar(&cliinit, "cliinit", "go.yaml", "cloud-init for CLI instances")
+	viper.BindPFlag("cliinit", createCmd.PersistentFlags().Lookup("cliinit"))
+
+	createCmd.PersistentFlags().StringVar(&utilinit, "utilinit", "go.yaml", "cloud-init for UTIL instances")
+	viper.BindPFlag("utilinit", createCmd.PersistentFlags().Lookup("utilinit"))
 
 }

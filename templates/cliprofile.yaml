@@ -1,0 +1,11 @@
+config:
+  raw.idmap: both 1000 1000
+description: GUI LXD profile
+devices:
+  eth0:
+    nictype: macvlan
+    parent: enp5s0
+    type: nic
+name: cli
+used_by:
+

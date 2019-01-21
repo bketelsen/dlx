@@ -1,4 +1,4 @@
-// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
+// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,10 +15,12 @@
 package cmd
 
 import (
-	"fmt"
 	"log"
+	"os"
+	"strings"
 
 	lxd "github.com/lxc/lxd/client"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
@@ -37,15 +39,22 @@ var listCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal("Get Container Names:", err)
 		}
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Name", "Status", "Profile(s)"})
 
 		for _, name := range names {
 			container, _, err := c.GetContainer(name)
 			if err != nil {
 				log.Fatal("Get Container:", err)
 			}
-			fmt.Println(container.Name, "\t", container.Status)
-		}
+			table.Append([]string{container.Name, container.Status, strings.Join(container.Profiles, ",")})
 
+		}
+		if len(names) < 1 {
+
+			table.Append([]string{"{None Found}", "", ""})
+		}
+		table.Render()
 	},
 }
 
