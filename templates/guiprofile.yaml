@@ -13,12 +13,15 @@ config:
       - [ mkdir, -p, /usr/local/go ]
       - [ tar, xvzf, go1.12beta2.linux-amd64.tar.gz, -C, /usr/local/go, --strip-components=1 ]
       - [ rm, -f, go1.12beta2.linux-amd64.tar.gz ]
-      - [ apt, --yes, install, git, mercurial, yadm ]
       - 'echo export PATH=/usr/local/go/bin:$PATH | tee --append /home/ubuntu/.bashrc'
     packages:
       - x11-apps
       - mesa-utils
       - pulseaudio
+      - git
+      - mercurial
+      - yadm
+      - build-essential
 description: GUI LXD profile
 devices:
   eth0:
