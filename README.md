@@ -2,34 +2,54 @@
 
 `lxdev` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
 
+[Watch this DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes.
+* Install LXD
+* Install lxdev
+
+### Create configuration and template files
 
 ```
-lxdev provisions lxd containers for local development.
-
-Usage:
-  lxdev [command]
-
-Available Commands:
-  connect     connect to a running container
-  create      Create a container
-  help        Help about any command
-  list        list containers
-  remove      remove a container
-  start       start a paused container
-  stop        stop a running container
-  version     version of lxdev
-
-Flags:
-      --config string   config file (default is $HOME/.lxdev.yaml)
-  -h, --help            help for lxdev
-  -t, --toggle          Help message for toggle
-
-Use "lxdev [command] --help" for more information about a command.
+lxdev config -c
+lxdev config -t
 ```
+
+These commands write `$HOME/.lxdev.yaml` and `$HOME/.lxdev/profiles/*.yaml`, which are configuration files and templates for your containers.
+
+### Apply the profiles
+
+```
+lxdev profile -w gui
+lxdev profile -w util
+lxdev profile -w cli
+lxdev profile -w go
+```
+
+These commands write the container profiles that you'll apply to new containers you create.  Each container created must have one of `gui,util,cli` as it's base profile.  Extra profiles can be specified (the `go` profile is an extra one)
+
+### Create your first container
+
+```
+lxdev create myproject
+```
+
+With no additional flags, this project will get the `default` (lxc provided) profile, plus the `gui` profile for X11 support.  You can specify other profiles:
+
+```
+lxdev create myproject --profiles 'go'
+```
+
+This will get `default`, `gui` and `go`.
+
+```
+lxdev create slack --util
+```
+
+This will get the `util` profile, which I intend for use with things like Slack, Firefox, etc.
+
+
 
 ### Prerequisites
 
