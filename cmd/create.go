@@ -40,10 +40,6 @@ var guiimage string
 var cliimage string
 var utilimage string
 
-var guiinit string
-var cliinit string
-var utilinit string
-
 var extraprofiles *[]string
 
 type sourceFile struct {
@@ -258,15 +254,6 @@ func init() {
 
 	createCmd.PersistentFlags().StringVar(&utilimage, "utilimage", "18.10", "Ubuntu version for UTIL instances")
 	viper.BindPFlag("utilimage", createCmd.PersistentFlags().Lookup("utilimage"))
-
-	createCmd.PersistentFlags().StringVar(&guiinit, "guiinit", "go.yaml", "cloud-init for GUI instances")
-	viper.BindPFlag("guiinit", createCmd.PersistentFlags().Lookup("guiinit"))
-
-	createCmd.PersistentFlags().StringVar(&cliinit, "cliinit", "go.yaml", "cloud-init for CLI instances")
-	viper.BindPFlag("cliinit", createCmd.PersistentFlags().Lookup("cliinit"))
-
-	createCmd.PersistentFlags().StringVar(&utilinit, "utilinit", "go.yaml", "cloud-init for UTIL instances")
-	viper.BindPFlag("utilinit", createCmd.PersistentFlags().Lookup("utilinit"))
 
 	extraprofiles = createCmd.PersistentFlags().StringSlice("profiles", []string{}, "Comma separated list of extra profiles to add. e.g. 'go,neovim'")
 
