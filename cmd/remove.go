@@ -15,7 +15,7 @@
 package cmd
 
 import (
-	"log"
+	"os"
 
 	lxd "github.com/lxc/lxd/client"
 	"github.com/spf13/cobra"
@@ -29,19 +29,25 @@ var removeCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
+
+		log.Running("Removing container " + name)
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {
-			log.Fatal("Connect:", err)
+			log.Error("Connect:" + err.Error())
 		}
 		op, err := c.DeleteContainer(name)
 		if err != nil {
-			log.Fatal("Delete Container:", err)
+			log.Error("Delete: " + err.Error())
+			os.Exit(1)
 		}
 		// Wait for the operation to complete
 		err = op.Wait()
 		if err != nil {
-			log.Fatal("Wait:", err)
+			log.Error("Wait: " + err.Error())
+			os.Exit(1)
 		}
+
+		log.Success("Removed container " + name)
 	},
 }
 

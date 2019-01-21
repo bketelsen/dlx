@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"syscall"
 
@@ -37,7 +36,7 @@ var connectCmd = &cobra.Command{
 		// Connect to LXD over the Unix socket
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {
-			log.Fatal("Connect:", err)
+			log.Error("Connect: " + err.Error())
 		}
 		terminalHeight := goterm.Height()
 		terminalWidth := goterm.Width()
@@ -65,7 +64,7 @@ var connectCmd = &cobra.Command{
 			cfd := int(syscall.Stdin)
 			oldttystate, err := termios.MakeRaw(cfd)
 			if err != nil {
-				log.Fatal("Make Raw Terminal", err)
+				log.Error("Make Raw Terminal" + err.Error())
 			}
 
 			defer termios.Restore(cfd, oldttystate)
@@ -74,13 +73,13 @@ var connectCmd = &cobra.Command{
 		// Get the current state
 		op, err := c.ExecContainer(name, req, &largs)
 		if err != nil {
-			log.Fatal("Exec:", err)
+			log.Error("Exec: " + err.Error())
 		}
 
 		// Wait for it to complete
 		err = op.Wait()
 		if err != nil {
-			log.Fatal("Wait:", err)
+			log.Error("Wait: " + err.Error())
 		}
 
 	},

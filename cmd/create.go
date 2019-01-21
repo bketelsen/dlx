@@ -18,8 +18,8 @@ import (
 	"bytes"
 	"errors"
 	"io/ioutil"
-	"log"
 	"os"
+	"strings"
 	"time"
 
 	lxd "github.com/lxc/lxd/client"
@@ -63,11 +63,12 @@ development tools.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		name = args[0]
+		log.Running("Creating container " + name)
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {
-			log.Fatal("Connect:", err)
+			log.Error("Connect: " + err.Error())
 		}
 
 		// Container creation request
@@ -83,17 +84,19 @@ development tools.`,
 				Protocol: "simplestreams",
 			},
 		}
-		log.Printf("Creating container with image: %s, profile(s): %v\n", getImage(), getProfiles())
+		log.Info("Creating container with image: " + getImage() + " profile(s): " + strings.Join(getProfiles(), ","))
 		// Get LXD to create the container (background operation)
 		op, err := c.CreateContainer(req)
 		if err != nil {
-			log.Fatal("Create:", err)
+			log.Error("Create: " + err.Error())
+			os.Exit(1)
 		}
 
 		// Wait for the operation to complete
 		err = op.Wait()
 		if err != nil {
-			log.Fatal("Wait:", err)
+			log.Error("Wait: " + err.Error())
+			os.Exit(1)
 		}
 
 		// Get LXD to start the container (background operation)
@@ -104,21 +107,26 @@ development tools.`,
 
 		op, err = c.UpdateContainerState(name, reqState, "")
 		if err != nil {
-			log.Fatal("UpdateState:", err)
+			log.Error("Start: " + err.Error())
+			os.Exit(1)
 		}
 
 		// Wait for the operation to complete
 		err = op.Wait()
 		if err != nil {
-			log.Fatal("Wait:", err)
+			log.Error("Wait: " + err.Error())
+			os.Exit(1)
 		}
 
 		if !skipkeys {
 			err = copyFiles(c, name)
 			if err != nil {
-				log.Fatal("Copy Files:", err)
+				log.Error("Copy Files: " + err.Error())
+				os.Exit(1)
 			}
 		}
+
+		log.Success("Created container " + name)
 	},
 }
 
@@ -174,7 +182,7 @@ func copyFiles(c lxd.ContainerServer, name string) error {
 	for _, file := range files {
 		var f *os.File
 		var err error
-		log.Printf("[Creating] %s\n", file.destination)
+		log.Running("Creating " + file.destination)
 
 		args := lxd.ContainerFileArgs{}
 		if file.filetype == "file" {
@@ -211,6 +219,8 @@ func copyFiles(c lxd.ContainerServer, name string) error {
 		if err != nil {
 			return errors.New("Creating destination file:" + err.Error())
 		}
+
+		log.Success("Created " + file.destination)
 	}
 	return nil
 }

@@ -15,7 +15,6 @@
 package cmd
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 
@@ -29,31 +28,40 @@ var configCmd = &cobra.Command{
 	Short: "manage global configurations",
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
+
+		log.Running("Create configuration")
 		config, err := cmd.Flags().GetBool("create")
 		if err != nil {
-			log.Fatal("Error getting flags:", err)
+			log.Error("Error getting flags: " + err.Error())
+			os.Exit(1)
 		}
 
 		templates, err := cmd.Flags().GetBool("templates")
 		if err != nil {
-			log.Fatal("Error getting flags:", err)
+			log.Error("Error getting flags: " + err.Error())
+			os.Exit(1)
 		}
 		if !config && !templates {
 			cmd.Usage()
-			log.Fatal("Please specify either one or more flags.")
+			log.Error("Please specify either one or more flags.")
+			os.Exit(1)
 		}
 		if config {
 			err := createConfig()
 			if err != nil {
-				log.Fatal("Error creating config file:", err)
+				log.Error("Error creating config file: " + err.Error())
 			}
+			log.Success("Default configuration file created")
 		}
 		if templates {
 			err := createTemplates()
 			if err != nil {
-				log.Fatal("Error creating templates:", err)
+				log.Error("Error creating templates: " + err.Error())
 			}
+			log.Success("Templates created")
 		}
+
+		log.Success("Configuration created")
 	},
 }
 

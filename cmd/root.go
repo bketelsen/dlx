@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/dixonwille/wlog"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -25,6 +26,7 @@ import (
 
 var cfgFile string
 var ver string
+var log wlog.UI
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -56,6 +58,10 @@ func init() {
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
+	log = wlog.New(os.Stdin, os.Stdout, os.Stderr)
+
+	log = wlog.AddPrefix("?", wlog.Cross, " ", "", "", "~", wlog.Check, "!", log)
+	log = wlog.AddConcurrent(log)
 }
 
 // initConfig reads in config file and ENV variables if set.
