@@ -17,7 +17,6 @@ package cmd
 import (
 	"bytes"
 	"errors"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -131,7 +130,7 @@ func getProfiles() []string {
 	c := viper.GetBool("clionly")
 	g := viper.GetBool("gui")
 	u := viper.GetBool("util")
-	fmt.Println(c, u, g)
+
 	if !c && !g && !u {
 		g = true
 	}
@@ -151,8 +150,6 @@ func getProfiles() []string {
 	for _, prof := range *extraprofiles {
 		profiles = append(profiles, prof)
 	}
-	fmt.Println(profiles)
-	os.Exit(1)
 	return profiles
 }
 func getImage() string {
