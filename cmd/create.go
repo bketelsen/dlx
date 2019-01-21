@@ -44,12 +44,8 @@ type sourceFile struct {
 var createCmd = &cobra.Command{
 	Use:   "create [name]",
 	Short: "Create a container",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long: `Create a new container for a project, provisioned with your preferred 
+development tools.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
@@ -67,10 +63,10 @@ to quickly create a Cobra application.`,
 				Profiles: []string{"default", "gui"},
 			},
 			Source: api.ContainerSource{
-				Type: "image",
-				//Server:   "https://cloud-images.ubuntu.com/daily",
-				Alias: "brian",
-				//Protocol: "simplestreams",
+				Type:     "image",
+				Server:   "https://cloud-images.ubuntu.com/daily",
+				Alias:    "18.10",
+				Protocol: "simplestreams",
 			},
 		}
 
@@ -102,16 +98,18 @@ to quickly create a Cobra application.`,
 		if err != nil {
 			log.Fatal("Wait:", err)
 		}
-		err = copyFiles(c, name)
-		if err != nil {
-			log.Fatal("Copy Files:", err)
+		if !skipkeys {
+			err = copyFiles(c, name)
+			if err != nil {
+				log.Fatal("Copy Files:", err)
+			}
 		}
 	},
 }
 
 func copyFiles(c lxd.ContainerServer, name string) error {
 	// HACK: Find out when provisioning is done??
-	time.Sleep(30 * time.Second)
+	time.Sleep(5 * time.Second)
 
 	files := []sourceFile{
 		sourceFile{path: "/home/bketelsen/.ssh", mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
