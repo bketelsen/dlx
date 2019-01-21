@@ -58,5 +58,5 @@ release-test:
 release:
 	make tidy
 	make shoulders
-	release -y -f version.go
+	release -y 
 	make tidy
