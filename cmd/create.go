@@ -25,18 +25,12 @@ import (
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var (
-	lxcpath    string
-	template   string
-	distro     string
-	release    string
-	arch       string
-	name       string
-	verbose    bool
-	flush      bool
-	validation bool
+	name     string
+	skipkeys bool
 )
 
 type sourceFile struct {
@@ -179,6 +173,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	createCmd.Flags().BoolP("skipkeys", "s", false, "Skip copy of ssh keys")
+	viper.BindPFlag("skipkeys", createCmd.PersistentFlags().Lookup("skipkeys"))
 
 }
