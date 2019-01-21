@@ -52,7 +52,7 @@ to connect to running containers and possibly display X11 applications on the ho
 		exists := true
 		prof, etag, err := c.GetProfile(name)
 		if err != nil {
-			exists = true
+			exists = false
 		}
 		if w {
 			filename := name + ".yaml"

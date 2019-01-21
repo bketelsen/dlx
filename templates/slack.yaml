@@ -1,0 +1,24 @@
+#cloud-config
+apt:
+  conf: |
+    Unattended-Upgrade {
+      Allowed-Origins {
+        "${distro_id}:${distro_codename}-updates";
+        "${distro_id}:${distro_codename}-backports";
+      };
+    };
+    APT {
+      Periodic {
+        Download-Upgradeable-Packages "1";
+      };
+    };
+packages:
+  - pulseaudio
+runcmd:
+  - [ systemctl, disable, --now, snapd, snapd.socket ]
+#  - [ snap, install, '--classic', slack ]  # Snap version of Slack wasn't working (Snap unit files were not disabled). LXD does support Snap though. See https://stgraber.org/2016/12/07/running-snaps-in-lxd-containers/
+  - [ wget, -O, slack-desktop-3.3.3-amd64.deb, 'https://downloads.slack-edge.com/linux_releases/slack-desktop-3.3.3-amd64.deb' ]
+  - [ dpkg, --install, slack-desktop-3.2.1-amd64.deb ]
+  - [ rm, -f, slack-desktop-3.2.1-amd64.deb ]
+  - [ apt, --yes, --fix-broken, install ]  # install dependencies that dpkg missed
+timezone: US/Eastern
