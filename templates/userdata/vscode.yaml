@@ -1,0 +1,4 @@
+runcmd:
+  - 'wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760865'
+  - 'dpkg -i code.deb'
+  - 'apt-get install --yes -f'

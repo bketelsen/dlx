@@ -1,0 +1,8 @@
+runcmd:
+  - [ systemctl, disable, --now, snapd, snapd.socket ]
+  - 'sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf'
+  - 'echo export PULSE_SERVER=unix:/tmp/.pulse-native | tee --append /home/ubuntu/.profile'
+packages:
+  - x11-apps
+  - mesa-utils
+  - pulseaudio

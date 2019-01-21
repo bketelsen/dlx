@@ -20,6 +20,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/bketelsen/lxdev/config"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	homedir "github.com/mitchellh/go-homedir"
@@ -41,6 +42,7 @@ var profileCmd = &cobra.Command{
 to connect to running containers and possibly display X11 applications on the host.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
 		name = args[0]
 		log.Running("Managing profile " + name)
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
@@ -63,6 +65,7 @@ to connect to running containers and possibly display X11 applications on the ho
 			}
 			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
 			f, err := os.Open(fpath)
+			defer f.Close()
 			if err != nil {
 				log.Error("Create Profile : " + err.Error())
 				log.Error("Try running `lxdev config -t` to create the templates directory.")
@@ -73,6 +76,14 @@ to connect to running containers and possibly display X11 applications on the ho
 				log.Error("Reading Profile : " + err.Error())
 				os.Exit(1)
 			}
+			log.Running("Opening " + fpath)
+			ci, err := config.Read(bb)
+			if err != nil {
+				log.Error("Parsing Cloud Init: " + err.Error())
+				os.Exit(1)
+			}
+			fmt.Println(ci)
+			os.Exit(1)
 			if exists {
 
 				log.Running("Updating profile " + name)
