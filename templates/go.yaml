@@ -1,6 +1,4 @@
 config:
-  environment.DISPLAY: :1
-  raw.idmap: both 1000 1000
   user.user-data: |
     #cloud-config
     runcmd:
