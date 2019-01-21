@@ -128,9 +128,6 @@ func init() {
 }
 
 const configTemplate = `cliimage: "18.10"
-cliinit: go.yaml
 guiimage: "18.10"
-guiinit: go.yaml
 utilimage: "18.10"
-utilinit: go.yaml
 ethernet: enp5s0`
