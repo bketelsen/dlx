@@ -18,6 +18,7 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/gobuffalo/packr/v2"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 )
@@ -84,6 +85,7 @@ func createConfig() error {
 }
 
 func createTemplates() error {
+	box := packr.New("templates", "../templates")
 	home, err := homedir.Dir()
 	if err != nil {
 		return err
@@ -93,12 +95,22 @@ func createTemplates() error {
 	if err != nil {
 		return err
 	}
-
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "cloud-init"), 0755)
-	if err != nil {
-		return err
+	for _, tpl := range box.List() {
+		bb, err := box.Find(tpl)
+		if err != nil {
+			return err
+		}
+		f, err := os.Create(filepath.Join(home, ".lxdev", "profiles", tpl))
+		if err != nil {
+			return err
+		}
+		_, err = f.Write([]byte(bb))
+		if err != nil {
+			return err
+		}
 	}
 	return nil
+
 }
 func init() {
 	rootCmd.AddCommand(configCmd)

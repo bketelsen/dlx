@@ -16,19 +16,102 @@ package cmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
+	lxd "github.com/lxc/lxd/client"
+	"github.com/lxc/lxd/shared/api"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	yaml "gopkg.in/yaml.v2"
+)
+
+var (
+	w bool
+	s bool
 )
 
 // profileCmd represents the profile command
 var profileCmd = &cobra.Command{
-	Use:   "profile",
+	Use:   "profile [name]",
 	Short: "create or replace the provisioning profile for lxdev",
 	Long: `Profile creates or replaces the 'gui', 'cli', and 'util' profiles in lxc that allows you
 to connect to running containers and possibly display X11 applications on the host.`,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("TODO: profile called", viper.GetString("ethernet"))
+		name = args[0]
+		log.Running("Managing profile " + name)
+		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		if err != nil {
+			log.Error("Connect: " + err.Error())
+			os.Exit(1)
+		}
+
+		exists := true
+		prof, etag, err := c.GetProfile(name)
+		if err != nil {
+			exists = true
+		}
+		if w {
+			filename := name + ".yaml"
+			home, err := homedir.Dir()
+			if err != nil {
+				log.Error("Create Profile : " + err.Error())
+				os.Exit(1)
+			}
+			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
+			f, err := os.Open(fpath)
+			if err != nil {
+				log.Error("Create Profile : " + err.Error())
+				log.Error("Try running `lxdev config -t` to create the templates directory.")
+				os.Exit(1)
+			}
+			bb, err := ioutil.ReadAll(f)
+			if err != nil {
+				log.Error("Reading Profile : " + err.Error())
+				os.Exit(1)
+			}
+			if exists {
+
+				log.Running("Updating profile " + name)
+				var profile api.ProfilePut
+				err = yaml.Unmarshal(bb, &profile)
+				if err != nil {
+					log.Error("Parsing Profile : " + err.Error())
+					os.Exit(1)
+				}
+				err = c.UpdateProfile(name, profile, etag)
+				if err != nil {
+					log.Error("Create Profile : " + err.Error())
+					os.Exit(1)
+				}
+
+				log.Success("Updating profile " + name)
+			} else {
+
+				log.Running("Creating profile " + name)
+				var profile api.ProfilesPost
+				err = yaml.Unmarshal(bb, &profile)
+				if err != nil {
+					log.Error("Parsing Profile : " + err.Error())
+					os.Exit(1)
+				}
+				err = c.CreateProfile(profile)
+				if err != nil {
+					log.Error("Create Profile : " + err.Error())
+					os.Exit(1)
+				}
+				log.Success("Creating profile " + name)
+			}
+		}
+
+		if s {
+			fmt.Println(prof, name)
+		}
+
+		log.Success("Managing profile " + name)
 	},
 }
 
@@ -42,6 +125,11 @@ func init() {
 	profileCmd.PersistentFlags().String("ethernet", "", "the name of your ethernet device e.g. 'enp5s0'")
 	viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
 
+	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", false, "Create or update a profile")
+	viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
+
+	profileCmd.PersistentFlags().BoolVarP(&s, "show", "s", false, "Show a profile")
+	viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// profileCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
