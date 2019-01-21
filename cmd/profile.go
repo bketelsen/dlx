@@ -98,6 +98,7 @@ to connect to running containers and possibly display X11 applications on the ho
 					log.Error("Parsing Profile : " + err.Error())
 					os.Exit(1)
 				}
+				profile.Name = name
 				err = c.CreateProfile(profile)
 				if err != nil {
 					log.Error("Create Profile : " + err.Error())
