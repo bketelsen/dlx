@@ -16,6 +16,7 @@ endif
 deps:
 	$(GO_BIN) get github.com/gobuffalo/release
 	$(GO_BIN) get github.com/gobuffalo/packr/v2/packr2
+	$(GO_BIN) get github.com/gobuffalo/shoulders
 	$(GO_BIN) get -tags ${TAGS} -t ./...
 	make tidy
 
@@ -28,6 +29,9 @@ test:
 	packr2
 	$(GO_BIN) test -tags ${TAGS} ./...
 	make tidy
+
+shoulders:
+	shoulders -n lxdev -w
 
 ci-deps:
 	$(GO_BIN) get -tags ${TAGS} -t ./...
@@ -53,5 +57,6 @@ release-test:
 
 release:
 	make tidy
+	make shoulders
 	release -y -f version.go
 	make tidy

@@ -25,7 +25,6 @@ import (
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -49,7 +48,7 @@ type sourceFile struct {
 
 // createCmd represents the create command
 var createCmd = &cobra.Command{
-	Use:   "create",
+	Use:   "create [name]",
 	Short: "Create a container",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
@@ -57,7 +56,9 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+		name = args[0]
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
@@ -72,10 +73,10 @@ to quickly create a Cobra application.`,
 				Profiles: []string{"default", "gui"},
 			},
 			Source: api.ContainerSource{
-				Type:     "image",
-				Server:   "https://cloud-images.ubuntu.com/daily",
-				Alias:    "18.10",
-				Protocol: "simplestreams",
+				Type: "image",
+				//Server:   "https://cloud-images.ubuntu.com/daily",
+				Alias: "brian",
+				//Protocol: "simplestreams",
 			},
 		}
 
@@ -116,33 +117,47 @@ to quickly create a Cobra application.`,
 
 func copyFiles(c lxd.ContainerServer, name string) error {
 	// HACK: Find out when provisioning is done??
-	time.Sleep(10 * time.Second)
+	time.Sleep(30 * time.Second)
 
 	files := []sourceFile{
-		sourceFile{path: "/home/bketelsen/.gitconfig", mode: 0744, destination: "/home/ubuntu/.gitconfig", filetype: "file"},
-		sourceFile{path: "/home/bketelsen/.ssh/id_rsa.pub", mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
+		sourceFile{path: "/home/bketelsen/.ssh", mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
+		sourceFile{path: "/home/bketelsen/.ssh/id_rsa.pub", mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
 		sourceFile{path: "/home/bketelsen/.ssh/id_rsa", mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
 	}
 
 	for _, file := range files {
+		var f *os.File
+		var err error
 		log.Printf("[Creating] %s\n", file.destination)
-		f, err := os.Open(file.path)
-		defer f.Close()
-		if err != nil {
-			return errors.New("Opening source file:" + err.Error())
-		}
-		bb, err := ioutil.ReadAll(f)
-		if err != nil {
-			return errors.New("Reading source file:" + err.Error())
-		}
+		args := lxd.ContainerFileArgs{}
+		if file.filetype == "file" {
 
-		args := lxd.ContainerFileArgs{
-			UID:       1000,
-			GID:       1001,
-			Content:   bytes.NewReader(bb),
-			Type:      file.filetype,
-			Mode:      file.mode,
-			WriteMode: "overwrite",
+			f, err = os.Open(file.path)
+			defer f.Close()
+			if err != nil {
+				return errors.New("Opening source file:" + err.Error())
+			}
+			bb, err := ioutil.ReadAll(f)
+			if err != nil {
+				return errors.New("Reading source file:" + err.Error())
+			}
+			args = lxd.ContainerFileArgs{
+				UID:       1000,
+				GID:       1000,
+				Content:   bytes.NewReader(bb),
+				Type:      file.filetype,
+				Mode:      file.mode,
+				WriteMode: "overwrite",
+			}
+		} else {
+			args = lxd.ContainerFileArgs{
+				UID: 1000,
+				GID: 1000,
+				//	Content:   bytes.NewReader(bb),
+				Type:      file.filetype,
+				Mode:      file.mode,
+				WriteMode: "overwrite",
+			}
 		}
 		err = c.CreateContainerFile(name, file.destination, args)
 
@@ -166,6 +181,4 @@ func init() {
 	// is called directly, e.g.:
 	// createCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	createCmd.Flags().StringVarP(&name, "name", "n", "mycontainer", "Container Name")
-	viper.BindPFlag("name", createCmd.PersistentFlags().Lookup("name"))
 }
