@@ -4,16 +4,14 @@ config:
   user.user-data: |
     #cloud-config
     runcmd:
+      - [ systemctl, disable, --now, snapd, snapd.socket ]
       - 'sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf'
       - 'echo export PULSE_SERVER=unix:/tmp/.pulse-native | tee --append /home/ubuntu/.profile'
-      - 'wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760865'
-      - 'dpkg -i code.deb'
-      - 'apt-get install --yes -f'
     packages:
       - x11-apps
       - mesa-utils
       - pulseaudio
-description: GUI LXD profile
+description: UTIL LXD profile
 devices:
   eth0:
     nictype: macvlan

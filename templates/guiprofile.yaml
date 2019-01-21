@@ -4,24 +4,17 @@ config:
   user.user-data: |
     #cloud-config
     runcmd:
+      - [ systemctl, disable, --now, snapd, snapd.socket ]
       - 'sed -i "s/; enable-shm = yes/enable-shm = no/g" /etc/pulse/client.conf'
       - 'echo export PULSE_SERVER=unix:/tmp/.pulse-native | tee --append /home/ubuntu/.profile'
       - 'wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760865'
       - 'dpkg -i code.deb'
       - 'apt-get install --yes -f'
       - [ wget, 'https://dl.google.com/go/go1.12beta2.linux-amd64.tar.gz' ]
-      - [ mkdir, -p, /usr/local/go ]
-      - [ tar, xvzf, go1.12beta2.linux-amd64.tar.gz, -C, /usr/local/go, --strip-components=1 ]
-      - [ rm, -f, go1.12beta2.linux-amd64.tar.gz ]
-      - 'echo export PATH=/usr/local/go/bin:$PATH | tee --append /home/ubuntu/.bashrc'
     packages:
       - x11-apps
       - mesa-utils
       - pulseaudio
-      - git
-      - mercurial
-      - yadm
-      - build-essential
 description: GUI LXD profile
 devices:
   eth0:

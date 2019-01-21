@@ -1,26 +1,39 @@
-#cloud-config
-apt:
-  conf: |
-    Unattended-Upgrade {
-      Allowed-Origins {
-        "${distro_id}:${distro_codename}-updates";
-        "${distro_id}:${distro_codename}-backports";
-      };
-    };
-    APT {
-      Periodic {
-        Download-Upgradeable-Packages "1";
-      };
-    };
-packages:
-  - pulseaudio
-runcmd:
-  - [ systemctl, disable, --now, snapd, snapd.socket ]
-#  - [ snap, install, '--classic', slack ]  # Snap version of Slack wasn't working (Snap unit files were not disabled). LXD does support Snap though. See https://stgraber.org/2016/12/07/running-snaps-in-lxd-containers/
-  - [ wget, 'https://dl.google.com/go/go1.12beta2.linux-amd64.tar.gz' ]
-  - [ mkdir, -p, /usr/local/go ]
-  - [ rm, -f, slack-desktop-3.2.1-amd64.deb ]
-  - [ tar, xvzf, go1.12beta2.linux-amd64.tar.gz, -C, /usr/local/go, --strip-components=1 ]
-  - [ rm, -f, go1.12beta2.linux-amd64.tar.gz ]
-  - [ apt, --yes, install, git, mercurial, yadm, shellinabox ]
-timezone: US/Eastern
+config:
+  environment.DISPLAY: :1
+  raw.idmap: both 1000 1000
+  user.user-data: |
+    #cloud-config
+    runcmd:
+      - 'wget -O code.deb https://go.microsoft.com/fwlink/?LinkID=760865'
+      - 'dpkg -i code.deb'
+      - 'apt-get install --yes -f'
+      - [ wget, 'https://dl.google.com/go/go1.12beta2.linux-amd64.tar.gz' ]
+      - [ mkdir, -p, /usr/local/go ]
+      - [ tar, xvzf, go1.13beta2.linux-amd64.tar.gz, -C, /usr/local/go, --strip-components=1 ]
+      - [ rm, -f, go1.12beta2.linux-amd64.tar.gz ]
+      - 'echo export PATH=/usr/local/go/bin:$PATH | tee --append /home/ubuntu/.bashrc'
+    packages:
+      - git
+      - mercurial
+      - yadm
+      - build-essential
+description: Go LXD profile
+devices:
+  eth0:
+    nictype: macvlan
+    parent: enp5s0
+    type: nic
+  PASocket:
+    path: /tmp/.pulse-native
+    source: /run/user/1000/pulse/native
+    type: disk
+  X1:
+    path: /tmp/.X11-unix/X1
+    source: /tmp/.X11-unix/X1
+    type: disk
+  mygpu:
+    type: gpu
+name: go
+used_by:
+
+

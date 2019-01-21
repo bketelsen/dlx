@@ -1,6 +1,20 @@
 config:
   raw.idmap: both 1000 1000
-description: GUI LXD profile
+  user.user-data: |
+    #cloud-config
+    runcmd:
+      - [ systemctl, disable, --now, snapd, snapd.socket ]
+      - [ wget, 'https://dl.google.com/go/go1.12beta2.linux-amd64.tar.gz' ]
+      - [ mkdir, -p, /usr/local/go ]
+      - [ tar, xvzf, go1.12beta2.linux-amd64.tar.gz, -C, /usr/local/go, --strip-components=1 ]
+      - [ rm, -f, go1.12beta2.linux-amd64.tar.gz ]
+      - 'echo export PATH=/usr/local/go/bin:$PATH | tee --append /home/ubuntu/.bashrc'
+    packages:
+      - git
+      - mercurial
+      - yadm
+      - build-essential
+description: CLI LXD profile
 devices:
   eth0:
     nictype: macvlan

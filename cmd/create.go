@@ -17,6 +17,7 @@ package cmd
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,11 +30,12 @@ import (
 )
 
 var (
-	name     string
-	skipkeys bool
-	clionly  bool
-	gui      bool
-	util     bool
+	name        string
+	skipkeys    bool
+	skipdefault bool
+	clionly     bool
+	gui         bool
+	util        bool
 )
 var guiimage string
 var cliimage string
@@ -42,6 +44,8 @@ var utilimage string
 var guiinit string
 var cliinit string
 var utilinit string
+
+var extraprofiles *[]string
 
 type sourceFile struct {
 	path        string
@@ -121,16 +125,35 @@ development tools.`,
 
 func getProfiles() []string {
 	profiles := []string{}
-	profiles = append(profiles, "default")
-	if clionly {
+
+	// default gui if nothing set
+	// probably a way to do this with some sort of set in viper/pflag?  TODO
+	c := viper.GetBool("clionly")
+	g := viper.GetBool("gui")
+	u := viper.GetBool("util")
+	fmt.Println(c, u, g)
+	if !c && !g && !u {
+		g = true
+	}
+	if !viper.GetBool("skipdefault") {
+		profiles = append(profiles, "default")
+	}
+	if c {
 		profiles = append(profiles, "cli")
-		return profiles
 	}
-	if util {
+	if u {
 		profiles = append(profiles, "util")
-		return profiles
 	}
-	return append(profiles, "gui")
+	if g {
+		profiles = append(profiles, "gui")
+	}
+
+	for _, prof := range *extraprofiles {
+		profiles = append(profiles, prof)
+	}
+	fmt.Println(profiles)
+	os.Exit(1)
+	return profiles
 }
 func getImage() string {
 	if clionly {
@@ -206,17 +229,19 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	createCmd.Flags().BoolP("skipkeys", "s", false, "Skip copy of ssh keys")
-	viper.BindPFlag("skipkeys", createCmd.PersistentFlags().Lookup("skipkeys"))
+	createCmd.Flags().BoolVar(&skipkeys, "skipkeys", false, "Skip copy of ssh keys")
+	viper.BindPFlag("skipkeys", createCmd.Flags().Lookup("skipkeys"))
 
-	createCmd.Flags().BoolP("cli", "c", false, "Use CLI-only profile, no X Windows support.")
-	viper.BindPFlag("clionly", createCmd.PersistentFlags().Lookup("cli"))
+	createCmd.Flags().BoolVar(&skipdefault, "skipdefault", false, "Skip default profile")
+	viper.BindPFlag("skipdefault", createCmd.Flags().Lookup("skipdefault"))
+	createCmd.Flags().BoolVar(&clionly, "cli", false, "Use CLI-only profile, no X Windows support.")
+	viper.BindPFlag("clionly", createCmd.Flags().Lookup("cli"))
 
-	createCmd.Flags().BoolP("gui", "g", true, "Use GUI profile, with X Windows support. (default)")
-	viper.BindPFlag("gui", createCmd.PersistentFlags().Lookup("gui"))
+	createCmd.Flags().BoolVar(&gui, "gui", false, "Use GUI profile, with X Windows support. (default)")
+	viper.BindPFlag("gui", createCmd.Flags().Lookup("gui"))
 
-	createCmd.Flags().BoolP("util", "u", false, "Use UTIL profile, with X Windows support.")
-	viper.BindPFlag("util", createCmd.PersistentFlags().Lookup("util"))
+	createCmd.Flags().BoolVar(&util, "util", false, "Use UTIL profile, with X Windows support.")
+	viper.BindPFlag("util", createCmd.Flags().Lookup("util"))
 
 	createCmd.PersistentFlags().StringVar(&guiimage, "guiimage", "18.10", "Ubuntu version for GUI instances")
 	viper.BindPFlag("guiimage", createCmd.PersistentFlags().Lookup("guiimage"))
@@ -235,5 +260,7 @@ func init() {
 
 	createCmd.PersistentFlags().StringVar(&utilinit, "utilinit", "go.yaml", "cloud-init for UTIL instances")
 	viper.BindPFlag("utilinit", createCmd.PersistentFlags().Lookup("utilinit"))
+
+	extraprofiles = createCmd.PersistentFlags().StringSlice("profiles", []string{}, "Comma separated list of extra profiles to add. e.g. 'go,neovim'")
 
 }
