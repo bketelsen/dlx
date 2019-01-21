@@ -18,21 +18,6 @@ config:
       - yadm
       - build-essential
 description: Go LXD profile
-devices:
-  eth0:
-    nictype: macvlan
-    parent: enp5s0
-    type: nic
-  PASocket:
-    path: /tmp/.pulse-native
-    source: /run/user/1000/pulse/native
-    type: disk
-  X1:
-    path: /tmp/.X11-unix/X1
-    source: /tmp/.X11-unix/X1
-    type: disk
-  mygpu:
-    type: gpu
 name: go
 used_by:
 
