@@ -5,6 +5,8 @@ builds:
 -
   goos:
     - linux
+  goarch:
+    - amd64
   env:
     - CGO_ENABLED=0
   main: ./main.go
