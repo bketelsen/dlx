@@ -1,7 +1,0 @@
-runcmd:
-  - [ systemctl, disable, --now, snapd, snapd.socket ]
-packages:
-  - git
-  - mercurial
-  - yadm
-  - build-essential

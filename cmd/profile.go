@@ -20,7 +20,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bketelsen/lxdev/config"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	homedir "github.com/mitchellh/go-homedir"
@@ -76,14 +75,6 @@ to connect to running containers and possibly display X11 applications on the ho
 				log.Error("Reading Profile : " + err.Error())
 				os.Exit(1)
 			}
-			log.Running("Opening " + fpath)
-			ci, err := config.Read(bb)
-			if err != nil {
-				log.Error("Parsing Cloud Init: " + err.Error())
-				os.Exit(1)
-			}
-			fmt.Println(ci)
-			os.Exit(1)
 			if exists {
 
 				log.Running("Updating profile " + name)

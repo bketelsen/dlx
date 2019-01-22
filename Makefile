@@ -2,6 +2,7 @@ TAGS ?= "sqlite"
 GO_BIN ?= go
 
 install:
+	@packr2 clean
 	@packr2
 	@$(GO_BIN) install -tags ${TAGS} -v ./.
 	@make tidy
