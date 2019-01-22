@@ -1,6 +1,9 @@
 config:
   environment.DISPLAY: :1
   raw.idmap: both 1000 1000
+  raw.lxc: |-
+    lxc.apparmor.profile=unconfined
+    lxc.cgroup.devices.allow=a
 description: GUI LXD profile
 devices:
   eth0:
