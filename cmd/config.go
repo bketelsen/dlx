@@ -85,18 +85,38 @@ func createConfig() error {
 }
 
 func createTemplates() error {
-	box := packr.New("templates", "../templates")
+	box := packr.New("provision", "../templates/provision")
 	home, err := homedir.Dir()
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "profiles"), 0755)
+	err = os.MkdirAll(filepath.Join(home, ".lxdev", "provision"), 0755)
 	if err != nil {
 		return err
 	}
 	for _, tpl := range box.List() {
 		bb, err := box.Find(tpl)
+		if err != nil {
+			return err
+		}
+		f, err := os.Create(filepath.Join(home, ".lxdev", "provision", tpl))
+		if err != nil {
+			return err
+		}
+		_, err = f.Write([]byte(bb))
+		if err != nil {
+			return err
+		}
+	}
+
+	pbox := packr.New("profiles", "../templates/profiles")
+	err = os.MkdirAll(filepath.Join(home, ".lxdev", "profiles"), 0755)
+	if err != nil {
+		return err
+	}
+	for _, tpl := range pbox.List() {
+		bb, err := pbox.Find(tpl)
 		if err != nil {
 			return err
 		}

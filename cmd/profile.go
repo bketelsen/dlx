@@ -41,6 +41,7 @@ var profileCmd = &cobra.Command{
 to connect to running containers and possibly display X11 applications on the host.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
 		name = args[0]
 		log.Running("Managing profile " + name)
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
@@ -63,6 +64,7 @@ to connect to running containers and possibly display X11 applications on the ho
 			}
 			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
 			f, err := os.Open(fpath)
+			defer f.Close()
 			if err != nil {
 				log.Error("Create Profile : " + err.Error())
 				log.Error("Try running `lxdev config -t` to create the templates directory.")
