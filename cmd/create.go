@@ -180,7 +180,7 @@ func provision(c lxd.ContainerServer) error {
 		environ := make(map[string]string)
 		environ["TERM"] = os.Getenv("TERM")
 		req := api.ContainerExecPost{
-			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu /bin/bash -c /tmp/" + prof + ".sh"},
+			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login /bin/bash -c /tmp/" + prof + ".sh"},
 			WaitForWS:   true,
 			Interactive: true,
 			Width:       terminalWidth,
