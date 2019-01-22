@@ -1,5 +1,6 @@
 config:
   environment.DISPLAY: :1
+  security.devlxd: false
   raw.idmap: both 1000 1000
   raw.lxc: |
     lxc.apparmor.profile=unconfined
