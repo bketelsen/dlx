@@ -74,10 +74,20 @@ to quickly create a Cobra application.`,
 		}
 
 		// snapshot the container
+		err = lxclient.ContainerSnapshot(name, "template")
 
-		// publish with alias
+		if err != nil {
+			log.Error("Creating snapshot: " + err.Error())
+			os.Exit(1)
+		}
 
-		log.Success("Created template" + name)
+		// publish the container
+		err = lxclient.ContainerPublish(name)
+		if err != nil {
+			log.Error("Publishing image: " + err.Error())
+			os.Exit(1)
+		}
+
 	},
 }
 
@@ -94,7 +104,7 @@ func init() {
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	templateCmd.PersistentFlags().StringVar(&base, "base", "gui", "Base profile (gui or cli)")
+	templateCmd.PersistentFlags().StringVar(&base, "profile", "gui", "Base profile (gui or cli)")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

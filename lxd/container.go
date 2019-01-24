@@ -2,7 +2,6 @@ package lxd
 
 import (
 	"bytes"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -167,22 +166,21 @@ func (c *Container) Exec(command string, interactive bool) error {
 func (c *Container) Provision(kind Type, provisioners []string) error {
 	events.Publish(NewContainerState(c.Name, Provisioning))
 
-	fmt.Println("Kind: ", kind)
-	fmt.Println("Provisioners: ", provisioners)
 	final := make([]string, 0)
 	if kind == "cli" {
-		fmt.Println("CLI")
 		final = append(final, "clibase")
 	}
 
 	if kind == "gui" {
-		fmt.Println("GUI")
 		final = append(final, "guibase")
 	}
 
 	final = append(final, provisioners...)
 
-	fmt.Println("Final Provisioners: ", final)
+	err := c.CopyKeys()
+	if err != nil {
+		return errors.Wrap(err, "copying ssh keys")
+	}
 	for _, prof := range final {
 		home, err := homedir.Dir()
 		if err != nil {
@@ -250,6 +248,25 @@ func (c *Container) Provision(kind Type, provisioners []string) error {
 	events.Publish(NewContainerState(c.Name, Provisioned))
 	return nil
 }
+
+func (c *Container) Snapshot(snapshotName string) error {
+
+	post := api.ContainerSnapshotsPost{
+		Name: snapshotName,
+	}
+	op, err := c.conn.CreateContainerSnapshot(c.Name, post)
+
+	if err != nil {
+		return errors.Wrap(err, "create container snapshot")
+	}
+	// Wait for it to complete
+	err = op.Wait()
+	if err != nil {
+		return errors.Wrap(err, "wait for operation")
+	}
+	return nil
+}
+
 func (c *Container) CopyFile(file sourceFile) error {
 	events.Publish(NewCopyState(c.Name, file.destination, Started))
 	var f *os.File
@@ -295,23 +312,24 @@ func (c *Container) CopyFile(file sourceFile) error {
 	return nil
 }
 
-/*
-func copyFiles(c lxd.ContainerServer, name string) error {
+func (c *Container) CopyKeys() error {
 	// HACK: Find out when provisioning is done??
-	time.Sleep(5 * time.Second)
 
+	home, err := homedir.Dir()
+	if err != nil {
+		return errors.Wrap(err, "getting home directory")
+	}
 	files := []sourceFile{
-		sourceFile{path: "/home/bketelsen/.ssh", mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
-		sourceFile{path: "/home/bketelsen/.ssh/id_rsa.pub", mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
-		sourceFile{path: "/home/bketelsen/.ssh/id_rsa", mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
+		sourceFile{path: filepath.Join(home, ".ssh"), mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
+		sourceFile{path: filepath.Join(home, ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
+		sourceFile{path: filepath.Join(home, ".ssh", "id_rsa"), mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
 	}
 
 	for _, file := range files {
-		err := copyFile(c, file)
+		err := c.CopyFile(file)
 		if err != nil {
 			return err
 		}
 	}
 	return nil
 }
-*/

@@ -1,9 +1,14 @@
 package lxd
 
 import (
+	"fmt"
+	"sort"
+
 	"github.com/bketelsen/libgo/events"
 	client "github.com/lxc/lxd/client"
+	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
+	"github.com/lxc/lxd/shared/i18n"
 	"github.com/pkg/errors"
 )
 
@@ -59,7 +64,7 @@ func (c *Client) ContainerCreate(name string, isAlias bool, image string, profil
 			Type: "image",
 			//Server:   "https://cloud-images.ubuntu.com/daily",
 			//Alias:    getImage(),
-			Alias: "name",
+			Alias: image,
 			//Protocol: "simplestreams",
 		}
 	} else {
@@ -160,4 +165,95 @@ func (c *Client) ContainerStop(name string) error {
 		return errors.Wrap(err, "getting container")
 	}
 	return cont.Stop()
+}
+func (c *Client) ContainerSnapshot(name string, snapshotName string) error {
+	cont, err := GetContainer(c.conn, name)
+	if err != nil {
+		return errors.Wrap(err, "getting container")
+	}
+	return cont.Snapshot(snapshotName)
+}
+
+func (c *Client) ContainerPublish(name string) error {
+
+	fmt.Println("Publishing: ", name)
+	// Create the image
+	req := api.ImagesPost{
+		Source: &api.ImagesPostSource{
+			Type: "container",
+			Name: name + "/template", // UGH?
+		},
+	}
+	// skipping properties, that may be a mistake?
+	req.Source.Type = "snapshot"
+	req.Public = true
+
+	alias := api.ImageAlias{}
+	alias.Name = name
+	op, err := c.conn.CreateImage(req, nil)
+	if err != nil {
+		return errors.Wrap(err, "create container image")
+	}
+	// Wait for it to complete
+	err = op.Wait()
+	if err != nil {
+		return errors.Wrap(err, "wait for operation")
+	}
+	opAPI := op.Get()
+
+	// Grab the fingerprint
+	fingerprint := opAPI.Metadata["fingerprint"].(string)
+	return ensureImageAliases(c.conn, []api.ImageAlias{alias}, fingerprint)
+
+}
+
+// Create the specified image alises, updating those that already exist
+// copied from lxd source :)
+func ensureImageAliases(client lxd.ContainerServer, aliases []api.ImageAlias, fingerprint string) error {
+	if len(aliases) == 0 {
+		return nil
+	}
+
+	names := make([]string, len(aliases))
+	for i, alias := range aliases {
+		names[i] = alias.Name
+	}
+	sort.Strings(names)
+
+	resp, err := client.GetImageAliases()
+	if err != nil {
+		return err
+	}
+
+	// Delete existing aliases that match provided ones
+	for _, alias := range GetExistingAliases(names, resp) {
+		err := client.DeleteImageAlias(alias.Name)
+		if err != nil {
+			fmt.Println(fmt.Sprintf(i18n.G("Failed to remove alias %s"), alias.Name))
+		}
+	}
+	// Create new aliases
+	for _, alias := range aliases {
+		aliasPost := api.ImageAliasesPost{}
+		aliasPost.Name = alias.Name
+		aliasPost.Target = fingerprint
+		err := client.CreateImageAlias(aliasPost)
+		if err != nil {
+			fmt.Println(fmt.Sprintf(i18n.G("Failed to create alias %s"), alias.Name))
+		}
+	}
+	return nil
+}
+
+// GetExistingAliases returns the intersection between a list of aliases and all the existing ones.
+func GetExistingAliases(aliases []string, allAliases []api.ImageAliasesEntry) []api.ImageAliasesEntry {
+	existing := []api.ImageAliasesEntry{}
+	for _, alias := range allAliases {
+		name := alias.Name
+		pos := sort.SearchStrings(aliases, name)
+		if pos < len(aliases) && aliases[pos] == name {
+			existing = append(existing, alias)
+		}
+	}
+	return existing
 }
