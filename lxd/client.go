@@ -1,15 +1,9 @@
 package lxd
 
 import (
-	"os"
-	"syscall"
-
 	"github.com/bketelsen/libgo/events"
-	"github.com/buger/goterm"
 	client "github.com/lxc/lxd/client"
-	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
-	"github.com/lxc/lxd/shared/termios"
 	"github.com/pkg/errors"
 )
 
@@ -41,58 +35,15 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-func (c *Client) Shell(name string) error {
-
-	terminalHeight := goterm.Height()
-	terminalWidth := goterm.Width()
-	// Setup the exec request
-	environ := make(map[string]string)
-	environ["TERM"] = os.Getenv("TERM")
-	// TODO: Make the command for this configurable?
-	req := api.ContainerExecPost{
-		Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login"},
-		WaitForWS:   true,
-		Interactive: true,
-		Width:       terminalWidth,
-		Height:      terminalHeight,
-		Environment: environ,
-	}
-
-	// Setup the exec arguments (fds)
-	largs := lxd.ContainerExecArgs{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
-
-	// Setup the terminal (set to raw mode)
-	if req.Interactive {
-		cfd := int(syscall.Stdin)
-		oldttystate, err := termios.MakeRaw(cfd)
-		if err != nil {
-			return errors.Wrap(err, "unable to make raw terminal")
-		}
-
-		defer termios.Restore(cfd, oldttystate)
-	}
-
-	// Get the current state
-	op, err := c.conn.ExecContainer(name, req, &largs)
+func (c *Client) ContainerShell(name string) error {
+	cont, err := GetContainer(c.conn, name)
 	if err != nil {
-		return errors.Wrap(err, "error calling exec")
+		return errors.Wrap(err, "getting container")
 	}
-
-	// Wait for it to complete
-	err = op.Wait()
-	if err != nil {
-		return errors.Wrap(err, "error waiting for completion")
-		return err
-	}
-	return nil
+	return cont.Exec("", true)
 }
 
-func (c *Client) Create(name string) error {
-
+func (c *Client) ContainerCreate(name string) error {
 	// Container creation request
 	req := api.ContainersPost{
 		Name: name,
@@ -145,56 +96,12 @@ func (c *Client) Create(name string) error {
 	events.Publish(NewContainerState(name, Started))
 	return nil
 }
-func (c *Client) Exec(name string, command string) error {
-
-	events.Publish(NewExecState(name, command, Starting))
-	terminalHeight := goterm.Height()
-	terminalWidth := goterm.Width()
-	// Setup the exec request
-	environ := make(map[string]string)
-	environ["TERM"] = os.Getenv("TERM")
-	req := api.ContainerExecPost{
-		Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login" + " " + command},
-		WaitForWS:   true,
-		Interactive: false,
-		Width:       terminalWidth,
-		Height:      terminalHeight,
-		Environment: environ,
-	}
-
-	// Setup the exec arguments (fds)
-	largs := lxd.ContainerExecArgs{
-		Stdin:  os.Stdin,
-		Stdout: os.Stdout,
-		Stderr: os.Stderr,
-	}
-
-	// Setup the terminal (set to raw mode)
-	if req.Interactive {
-		cfd := int(syscall.Stdin)
-		oldttystate, err := termios.MakeRaw(cfd)
-		if err != nil {
-			return errors.Wrap(err, "error making raw terminal")
-		}
-
-		defer termios.Restore(cfd, oldttystate)
-	}
-
-	// Get the current state
-	op, err := c.conn.ExecContainer(name, req, &largs)
+func (c *Client) ContainerExec(name string, command string) error {
+	cont, err := GetContainer(c.conn, name)
 	if err != nil {
-		errors.Wrap(err, "execution error")
+		return errors.Wrap(err, "getting container")
 	}
-
-	events.Publish(NewExecState(name, command, Started))
-	// Wait for it to complete
-	err = op.Wait()
-	if err != nil {
-		errors.Wrap(err, "error waiting for execution")
-	}
-
-	events.Publish(NewExecState(name, command, Completed))
-	return nil
+	return cont.Exec(command, false)
 }
 
 func (c *Client) ContainerList() ([]string, error) {
@@ -204,6 +111,7 @@ func (c *Client) ContainerList() ([]string, error) {
 	}
 	return names, err
 }
+
 func (c *Client) ContainerInfo(name string) (*api.Container, error) {
 	container, _, err := c.conn.GetContainer(name)
 	if err != nil {

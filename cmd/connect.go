@@ -39,7 +39,7 @@ var connectCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		err = lxclient.Shell(name)
+		err = lxclient.ContainerShell(name)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

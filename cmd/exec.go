@@ -37,7 +37,7 @@ single quotes.  e.g. exec mycontainer 'ls -la'`,
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		err = lxclient.Exec(name, strings.Join(args[1:], " "))
+		err = lxclient.ContainerExec(name, strings.Join(args[1:], " "))
 		if err != nil {
 			log.Error("Error executing command: " + err.Error())
 			os.Exit(1)

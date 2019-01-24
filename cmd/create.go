@@ -72,7 +72,7 @@ development tools.`,
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		err = lxclient.Create(name)
+		err = lxclient.ContainerCreate(name)
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
