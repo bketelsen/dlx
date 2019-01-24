@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/bketelsen/libgo/events"
 	"github.com/dixonwille/wlog"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
@@ -27,6 +28,8 @@ import (
 var cfgFile string
 var ver string
 var log wlog.UI
+var verbose bool
+var socket string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -55,13 +58,38 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lxdev.yaml)")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
+
+	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", "/var/snap/lxd/common/lxd/unix.socket", "LXD Daemon socket")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	log = wlog.New(os.Stdin, os.Stdout, os.Stderr)
 
-	log = wlog.AddPrefix("?", wlog.Cross, " ", "", "", "~", wlog.Check, "!", log)
+	log = wlog.AddPrefix("?", wlog.Cross, "i", "-", ">", "~", wlog.Check, "!", log)
 	log = wlog.AddConcurrent(log)
+	log = wlog.AddColor(wlog.None, wlog.Red, wlog.Blue, wlog.None, wlog.None, wlog.None, wlog.Cyan, wlog.Green, wlog.Magenta, log)
+
+	eh := &events.Subscriber{
+		Handler: eventHandler,
+	}
+	// Subscribe to an Event
+	events.Subscribe(eh)
+
+}
+
+func eventHandler(e events.Event) {
+	switch t := e.(type) {
+	//case *TopicStart:
+	// check the topic and create if needed
+	//	fmt.Println(t.Topic)
+	default:
+		// we don't care
+		if verbose {
+			log.Info(fmt.Sprintf("\t%T\t %s", t, e.Name()))
+		}
+	}
+
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -86,6 +114,8 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		if verbose {
+			log.Info("Using config file: " + viper.ConfigFileUsed())
+		}
 	}
 }

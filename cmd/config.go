@@ -51,6 +51,7 @@ var configCmd = &cobra.Command{
 			err := createConfig()
 			if err != nil {
 				log.Error("Error creating config file: " + err.Error())
+				os.Exit(1)
 			}
 			log.Success("Default configuration file created")
 		}

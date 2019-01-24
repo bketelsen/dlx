@@ -1,4 +1,4 @@
-// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
+// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,48 +15,36 @@
 package cmd
 
 import (
-	"os"
+	"fmt"
 
-	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
-// connectCmd represents the connect command
-var connectCmd = &cobra.Command{
-	Use:     "connect",
-	Aliases: []string{"shell"},
-	Short:   "connect to a running container",
-	Long:    `Connect to a running container.`,
-	Args:    cobra.MinimumNArgs(1),
+// createtemplateCmd represents the createtemplate command
+var createtemplateCmd = &cobra.Command{
+	Use:   "create",
+	Short: "Create a template",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
+
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		name = args[0]
-		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewConnection(socket)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
-
-		err = lxclient.Shell(name)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
-
+		fmt.Println("createtemplate called")
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(connectCmd)
+	templateCmd.AddCommand(createtemplateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// connectCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// createtemplateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// connectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	// createtemplateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

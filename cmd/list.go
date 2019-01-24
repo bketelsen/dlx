@@ -25,9 +25,10 @@ import (
 
 // listCmd represents the list command
 var listCmd = &cobra.Command{
-	Use:   "list",
-	Short: "list containers",
-	Long:  `List containers and their status.`,
+	Use:     "list",
+	Short:   "list containers",
+	Aliases: []string{"ls"},
+	Long:    `List containers and their status.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {

@@ -21,7 +21,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 	"syscall"
 	"time"
 
@@ -32,6 +31,8 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+
+	client "github.com/bketelsen/lxdev/lxd"
 )
 
 var (
@@ -66,58 +67,17 @@ development tools.`,
 		log.Running("Creating container " + name)
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		lxclient, err := client.NewConnection(socket)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
-		}
-
-		// Container creation request
-		req := api.ContainersPost{
-			Name: name,
-			ContainerPut: api.ContainerPut{
-				Profiles: getProfiles(),
-			},
-			Source: api.ContainerSource{
-				Type:     "image",
-				Server:   "https://cloud-images.ubuntu.com/daily",
-				Alias:    getImage(),
-				Protocol: "simplestreams",
-			},
-		}
-		log.Info("Creating container with image: " + getImage() + " profile(s): " + strings.Join(getProfiles(), ","))
-		// Get LXD to create the container (background operation)
-		op, err := c.CreateContainer(req)
-		if err != nil {
-			log.Error("Create: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-
-		// Wait for the operation to complete
-		err = op.Wait()
+		err = lxclient.Create(name)
 		if err != nil {
-			log.Error("Wait: " + err.Error())
+			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
 		}
-
-		// Get LXD to start the container (background operation)
-		reqState := api.ContainerStatePut{
-			Action:  "start",
-			Timeout: -1,
-		}
-
-		op, err = c.UpdateContainerState(name, reqState, "")
-		if err != nil {
-			log.Error("Start: " + err.Error())
-			os.Exit(1)
-		}
-
-		// Wait for the operation to complete
-		err = op.Wait()
-		if err != nil {
-			log.Error("Wait: " + err.Error())
-			os.Exit(1)
-		}
-
+		/* TODO: get back to this
 		if !skipkeys {
 			err = copyFiles(c, name)
 			if err != nil {
@@ -131,7 +91,7 @@ development tools.`,
 			log.Error("Provisioning: " + err.Error())
 			os.Exit(1)
 		}
-
+		*/
 		log.Success("Created container " + name)
 	},
 }
