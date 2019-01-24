@@ -7,6 +7,11 @@ install:
 	@$(GO_BIN) install -tags ${TAGS} -v ./.
 	@make tidy
 
+reset: install
+	rm -rf ~/.lxdev
+	lxdev config -t
+	lxdev profile gui -w
+
 tidy:
 ifeq ($(GO111MODULE),on)
 	@$(GO_BIN) mod tidy

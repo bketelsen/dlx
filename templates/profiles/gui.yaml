@@ -1,5 +1,5 @@
 config:
-  environment.DISPLAY: :1
+  environment.DISPLAY: :0
   security.devlxd: false
   raw.idmap: both 1000 1000
   raw.lxc: |
@@ -21,7 +21,7 @@ devices:
     type: disk
   X11Socket:
     bind: container
-    connect: unix:/tmp/X11-unix/X0
+    connect: unix:/tmp/.X11-unix/X0
     gid: "1000"
     listen: unix:/tmp/.X11-unix/X0
     mode: "0777"
