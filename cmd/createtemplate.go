@@ -14,7 +14,6 @@
 package cmd
 
 import (
-	"fmt"
 	"os"
 	"time"
 
@@ -66,7 +65,6 @@ to quickly create a Cobra application.`,
 
 		log.Running("Container starting: " + name) // need better plan here
 		time.Sleep(10 * time.Second)
-		fmt.Println(provisioners)
 		err = lxclient.ContainerProvision(name, kind, *provisioners)
 		if err != nil {
 			log.Error("Provisioning template: " + err.Error())
