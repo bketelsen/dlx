@@ -30,7 +30,7 @@ var listCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Long:    `List containers and their status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lxclient, err := client.NewConnection(socket)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

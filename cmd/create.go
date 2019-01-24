@@ -67,7 +67,7 @@ development tools.`,
 		log.Running("Creating container " + name)
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
-		lxclient, err := client.NewConnection(socket)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
@@ -77,20 +77,20 @@ development tools.`,
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
 		}
-		/* TODO: get back to this
-		if !skipkeys {
-			err = copyFiles(c, name)
+		/*
+			if !skipkeys {
+				err = copyFiles(c, name)
+				if err != nil {
+					log.Error("Copy Files: " + err.Error())
+					os.Exit(1)
+				}
+			}
+
+			err = provision(c)
 			if err != nil {
-				log.Error("Copy Files: " + err.Error())
+				log.Error("Provisioning: " + err.Error())
 				os.Exit(1)
 			}
-		}
-
-		err = provision(c)
-		if err != nil {
-			log.Error("Provisioning: " + err.Error())
-			os.Exit(1)
-		}
 		*/
 		log.Success("Created container " + name)
 	},

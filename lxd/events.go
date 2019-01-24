@@ -3,7 +3,7 @@ package lxd
 import "time"
 
 type ConnectionCreated struct {
-	conn      *Connection
+	conn      *Client
 	StartTime time.Time
 }
 
@@ -14,7 +14,7 @@ func (e ConnectionCreated) Created() time.Time {
 	return e.StartTime
 }
 
-func NewConnectionCreated(conn *Connection) *ConnectionCreated {
+func NewConnectionCreated(conn *Client) *ConnectionCreated {
 	e := &ConnectionCreated{
 		conn:      conn,
 		StartTime: time.Now(),

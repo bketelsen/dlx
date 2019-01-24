@@ -13,16 +13,16 @@ import (
 	"github.com/pkg/errors"
 )
 
-type Connection struct {
+type Client struct {
 	URL string
 
 	conn client.ContainerServer
 }
 
-// NewConnection creates a new connection to an LXD Daemon,
-// returning a Connection
-func NewConnection(url string) (*Connection, error) {
-	c := &Connection{
+// NewClient creates a new connection to an LXD Daemon,
+// returning a Client
+func NewClient(url string) (*Client, error) {
+	c := &Client{
 		URL: url,
 	}
 	err := c.Connect()
@@ -30,7 +30,7 @@ func NewConnection(url string) (*Connection, error) {
 }
 
 // Connect establishes a connection to an LXD Daemon
-func (c *Connection) Connect() error {
+func (c *Client) Connect() error {
 	var err error
 	c.conn, err = client.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 	if err != nil {
@@ -41,7 +41,7 @@ func (c *Connection) Connect() error {
 	return nil
 }
 
-func (c *Connection) Shell(name string) error {
+func (c *Client) Shell(name string) error {
 
 	terminalHeight := goterm.Height()
 	terminalWidth := goterm.Width()
@@ -91,7 +91,7 @@ func (c *Connection) Shell(name string) error {
 	return nil
 }
 
-func (c *Connection) Create(name string) error {
+func (c *Client) Create(name string) error {
 
 	// Container creation request
 	req := api.ContainersPost{
@@ -145,7 +145,7 @@ func (c *Connection) Create(name string) error {
 	events.Publish(NewContainerState(name, Started))
 	return nil
 }
-func (c *Connection) Exec(name string, command string) error {
+func (c *Client) Exec(name string, command string) error {
 
 	events.Publish(NewExecState(name, command, Starting))
 	terminalHeight := goterm.Height()
@@ -197,14 +197,14 @@ func (c *Connection) Exec(name string, command string) error {
 	return nil
 }
 
-func (c *Connection) ContainerList() ([]string, error) {
+func (c *Client) ContainerList() ([]string, error) {
 	names, err := c.conn.GetContainerNames()
 	if err != nil {
 		errors.Wrap(err, "get container names")
 	}
 	return names, err
 }
-func (c *Connection) ContainerInfo(name string) (*api.Container, error) {
+func (c *Client) ContainerInfo(name string) (*api.Container, error) {
 	container, _, err := c.conn.GetContainer(name)
 	if err != nil {
 		errors.Wrap(err, "get container names")
@@ -212,7 +212,7 @@ func (c *Connection) ContainerInfo(name string) (*api.Container, error) {
 	return container, err
 }
 
-func (c *Connection) ContainerRemove(name string) error {
+func (c *Client) ContainerRemove(name string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
 		return errors.Wrap(err, "getting container")
@@ -220,7 +220,7 @@ func (c *Connection) ContainerRemove(name string) error {
 	return cont.Remove()
 }
 
-func (c *Connection) ContainerStart(name string) error {
+func (c *Client) ContainerStart(name string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
 		return errors.Wrap(err, "getting container")
@@ -228,7 +228,7 @@ func (c *Connection) ContainerStart(name string) error {
 	return cont.Start()
 }
 
-func (c *Connection) ContainerStop(name string) error {
+func (c *Client) ContainerStop(name string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
 		return errors.Wrap(err, "getting container")

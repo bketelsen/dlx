@@ -31,7 +31,7 @@ var stopCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Stopping container " + name)
-		lxclient, err := client.NewConnection(socket)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

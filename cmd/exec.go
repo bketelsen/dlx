@@ -32,7 +32,7 @@ single quotes.  e.g. exec mycontainer 'ls -la'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
 		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewConnection(socket)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
