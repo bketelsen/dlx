@@ -17,8 +17,7 @@ package cmd
 import (
 	"os"
 
-	lxd "github.com/lxc/lxd/client"
-	"github.com/lxc/lxd/shared/api"
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -32,30 +31,14 @@ var startCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Starting container " + name)
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		lxclient, err := client.NewConnection(socket)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		_, etag, err := c.GetContainer(name)
+		err = lxclient.ContainerStart(name)
 		if err != nil {
-			log.Error("Get Container: " + err.Error())
-			os.Exit(1)
-		}
-		cs := api.ContainerStatePut{
-			Action: "start",
-		}
-
-		op, err := c.UpdateContainerState(name, cs, etag)
-		if err != nil {
-			log.Error("Start Container: " + err.Error())
-			os.Exit(1)
-		}
-
-		// Wait for the operation to complete
-		err = op.Wait()
-		if err != nil {
-			log.Error("Wait: " + err.Error())
+			log.Error("Error executing command: " + err.Error())
 			os.Exit(1)
 		}
 		log.Success("Container " + name + " started.")

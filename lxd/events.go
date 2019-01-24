@@ -8,7 +8,7 @@ type ConnectionCreated struct {
 }
 
 func (e ConnectionCreated) Name() string {
-	return "connected\t" + e.conn.URL
+	return e.conn.URL
 }
 func (e ConnectionCreated) Created() time.Time {
 	return e.StartTime
@@ -30,7 +30,10 @@ const (
 	Starting  State = "starting"
 	Started   State = "started"
 	Stopped   State = "stopped"
+	Stopping  State = "stopping"
 	Completed State = "completed"
+	Removing  State = "removing"
+	Removed   State = "removed"
 )
 
 type ContainerState struct {

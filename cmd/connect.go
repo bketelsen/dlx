@@ -30,6 +30,8 @@ var connectCmd = &cobra.Command{
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
+
+		log.Running("Connecting to container " + name)
 		// Connect to LXD over the Unix socket
 		lxclient, err := client.NewConnection(socket)
 		if err != nil {
@@ -43,6 +45,7 @@ var connectCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		log.Success("Closed connection to container " + name)
 	},
 }
 

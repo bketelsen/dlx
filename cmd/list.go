@@ -18,7 +18,7 @@ import (
 	"os"
 	"strings"
 
-	lxd "github.com/lxc/lxd/client"
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -30,22 +30,21 @@ var listCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Long:    `List containers and their status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		lxclient, err := client.NewConnection(socket)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-
-		names, err := c.GetContainerNames()
+		names, err := lxclient.ContainerList()
 		if err != nil {
-			log.Error("Get Container Name: " + err.Error())
+			log.Error("Error executing command: " + err.Error())
 			os.Exit(1)
 		}
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Status", "Profile(s)"})
 
 		for _, name := range names {
-			container, _, err := c.GetContainer(name)
+			container, err := lxclient.ContainerInfo(name)
 			if err != nil {
 				log.Error("Get Container: " + err.Error())
 				os.Exit(1)

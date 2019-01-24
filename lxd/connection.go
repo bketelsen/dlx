@@ -196,3 +196,42 @@ func (c *Connection) Exec(name string, command string) error {
 	events.Publish(NewExecState(name, command, Completed))
 	return nil
 }
+
+func (c *Connection) ContainerList() ([]string, error) {
+	names, err := c.conn.GetContainerNames()
+	if err != nil {
+		errors.Wrap(err, "get container names")
+	}
+	return names, err
+}
+func (c *Connection) ContainerInfo(name string) (*api.Container, error) {
+	container, _, err := c.conn.GetContainer(name)
+	if err != nil {
+		errors.Wrap(err, "get container names")
+	}
+	return container, err
+}
+
+func (c *Connection) ContainerRemove(name string) error {
+	cont, err := GetContainer(c.conn, name)
+	if err != nil {
+		return errors.Wrap(err, "getting container")
+	}
+	return cont.Remove()
+}
+
+func (c *Connection) ContainerStart(name string) error {
+	cont, err := GetContainer(c.conn, name)
+	if err != nil {
+		return errors.Wrap(err, "getting container")
+	}
+	return cont.Start()
+}
+
+func (c *Connection) ContainerStop(name string) error {
+	cont, err := GetContainer(c.conn, name)
+	if err != nil {
+		return errors.Wrap(err, "getting container")
+	}
+	return cont.Stop()
+}
