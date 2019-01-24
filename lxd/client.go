@@ -35,6 +35,14 @@ func (c *Client) Connect() error {
 	return nil
 }
 
+func (c *Client) ContainerProvision(name string, kind Type, provisioners []string) error {
+	cont, err := GetContainer(c.conn, name)
+	if err != nil {
+		return errors.Wrap(err, "getting container")
+	}
+	return cont.Provision(kind, provisioners)
+}
+
 func (c *Client) ContainerShell(name string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
@@ -43,21 +51,31 @@ func (c *Client) ContainerShell(name string) error {
 	return cont.Exec("", true)
 }
 
-func (c *Client) ContainerCreate(name string) error {
+func (c *Client) ContainerCreate(name string, isAlias bool, image string, profiles []string) error {
 	// Container creation request
-	req := api.ContainersPost{
-		Name: name,
-		ContainerPut: api.ContainerPut{
-			//Profiles: getProfiles(),
-			Profiles: []string{"default"},
-		},
-		Source: api.ContainerSource{
+	var source api.ContainerSource
+	if isAlias {
+		source = api.ContainerSource{
 			Type: "image",
 			//Server:   "https://cloud-images.ubuntu.com/daily",
 			//Alias:    getImage(),
-			Alias: "clibase",
+			Alias: "name",
 			//Protocol: "simplestreams",
+		}
+	} else {
+		source = api.ContainerSource{
+			Type:     "image",
+			Server:   "https://cloud-images.ubuntu.com/daily",
+			Alias:    image,
+			Protocol: "simplestreams",
+		}
+	}
+	req := api.ContainersPost{
+		Name: name,
+		ContainerPut: api.ContainerPut{
+			Profiles: profiles,
 		},
+		Source: source,
 	}
 
 	events.Publish(NewContainerState(name, Creating))

@@ -1,7 +1,11 @@
 package lxd
 
 import (
+	"bytes"
+	"fmt"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"syscall"
 
 	"github.com/bketelsen/libgo/events"
@@ -10,6 +14,7 @@ import (
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/lxc/lxd/shared/termios"
+	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 )
 
@@ -18,6 +23,19 @@ type Container struct {
 	Etag      string
 	conn      client.ContainerServer
 	container *api.Container
+}
+type Type string
+
+const (
+	GUI Type = "gui"
+	CLI Type = "cli"
+)
+
+type sourceFile struct {
+	path        string
+	mode        int
+	destination string
+	filetype    string //"file or directory"
 }
 
 // GetContainer returns the container with the given `name`.
@@ -145,3 +163,155 @@ func (c *Container) Exec(command string, interactive bool) error {
 	events.Publish(NewExecState(c.Name, command, Completed))
 	return nil
 }
+
+func (c *Container) Provision(kind Type, provisioners []string) error {
+	events.Publish(NewContainerState(c.Name, Provisioning))
+
+	fmt.Println("Kind: ", kind)
+	fmt.Println("Provisioners: ", provisioners)
+	final := make([]string, 0)
+	if kind == "cli" {
+		fmt.Println("CLI")
+		final = append(final, "clibase")
+	}
+
+	if kind == "gui" {
+		fmt.Println("GUI")
+		final = append(final, "guibase")
+	}
+
+	final = append(final, provisioners...)
+
+	fmt.Println("Final Provisioners: ", final)
+	for _, prof := range final {
+		home, err := homedir.Dir()
+		if err != nil {
+			return errors.Wrap(err, "getting home directory")
+		}
+		file := sourceFile{
+			path:        filepath.Join(home, ".lxdev", "provision", prof+".sh"),
+			mode:        0755,
+			destination: filepath.Join("/", "tmp", prof+".sh"),
+			filetype:    "file",
+		}
+
+		// copy the file in
+		err = c.CopyFile(file)
+		if err != nil {
+			return errors.Wrap(err, "copying file: "+file.path+". Perhaps the provisioning script doesn't exist?")
+		}
+		terminalHeight := goterm.Height()
+		terminalWidth := goterm.Width()
+		// Setup the exec request
+		environ := make(map[string]string)
+		environ["TERM"] = os.Getenv("TERM")
+		req := api.ContainerExecPost{
+			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login /bin/bash -c /tmp/" + prof + ".sh"},
+			WaitForWS:   true,
+			Interactive: true,
+			Width:       terminalWidth,
+			Height:      terminalHeight,
+			Environment: environ,
+		}
+
+		// Setup the exec arguments (fds)
+		largs := lxd.ContainerExecArgs{
+			Stdin:  os.Stdin,
+			Stdout: os.Stdout,
+			Stderr: os.Stderr,
+		}
+
+		// Setup the terminal (set to raw mode)
+		if req.Interactive {
+			cfd := int(syscall.Stdin)
+			oldttystate, err := termios.MakeRaw(cfd)
+			if err != nil {
+				return errors.Wrap(err, "make raw terminal")
+
+			}
+
+			defer termios.Restore(cfd, oldttystate)
+		}
+
+		// Get the current state
+		op, err := c.conn.ExecContainer(c.Name, req, &largs)
+		if err != nil {
+			return errors.Wrap(err, "exec container")
+		}
+
+		// Wait for it to complete
+		err = op.Wait()
+		if err != nil {
+			return errors.Wrap(err, "wait for operation")
+		}
+
+	}
+
+	events.Publish(NewContainerState(c.Name, Provisioned))
+	return nil
+}
+func (c *Container) CopyFile(file sourceFile) error {
+	events.Publish(NewCopyState(c.Name, file.destination, Started))
+	var f *os.File
+	var err error
+
+	args := lxd.ContainerFileArgs{}
+	if file.filetype == "file" {
+
+		f, err = os.Open(file.path)
+		defer f.Close()
+		if err != nil {
+			return errors.New("Opening source file:" + err.Error())
+		}
+		bb, err := ioutil.ReadAll(f)
+		if err != nil {
+			return errors.New("Reading source file:" + err.Error())
+		}
+		args = lxd.ContainerFileArgs{
+			UID:       1000,
+			GID:       1000,
+			Content:   bytes.NewReader(bb),
+			Type:      file.filetype,
+			Mode:      file.mode,
+			WriteMode: "overwrite",
+		}
+	} else {
+		args = lxd.ContainerFileArgs{
+			UID: 1000,
+			GID: 1000,
+			//	Content:   bytes.NewReader(bb),
+			Type:      file.filetype,
+			Mode:      file.mode,
+			WriteMode: "overwrite",
+		}
+	}
+	err = c.conn.CreateContainerFile(c.Name, file.destination, args)
+
+	if err != nil {
+		return errors.New("Creating destination file:" + err.Error())
+	}
+
+	events.Publish(NewCopyState(c.Name, file.destination, Completed))
+	return nil
+}
+
+/*
+func copyFiles(c lxd.ContainerServer, name string) error {
+	// HACK: Find out when provisioning is done??
+	time.Sleep(5 * time.Second)
+
+	files := []sourceFile{
+		sourceFile{path: "/home/bketelsen/.ssh", mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
+		sourceFile{path: "/home/bketelsen/.ssh/id_rsa.pub", mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
+		sourceFile{path: "/home/bketelsen/.ssh/id_rsa", mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
+	}
+
+	for _, file := range files {
+		err := copyFile(c, file)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+*/
