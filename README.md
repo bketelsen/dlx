@@ -28,6 +28,8 @@ Let's unwrap that:
 
 The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.lxdev/provision` directory in your $HOME.  They're created once and never again modified by `lxdev` unless you remove the directory and run `lxdev config -t` again.
 
+You can, and should, modify the existing provisioners or create new ones based on your needs.
+
 The `profile` {gui,cli} is an lxc profile that's stored in `~/.lxdev/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
 
 
