@@ -17,5 +17,5 @@ package main
 import "github.com/bketelsen/lxdev/cmd"
 
 func main() {
-	cmd.Execute(Version)
+	cmd.Execute()
 }
