@@ -62,5 +62,5 @@ release-test:
 release:
 	@make tidy
 	@make shoulders
-	@release -d
+	@release -y -f ./version.go
 	@make tidy
