@@ -19,16 +19,13 @@ devices:
     path: /tmp/.pulse-native
     source: /run/user/1000/pulse/native
     type: disk
-  X11Socket:
+  X0:
     bind: container
-    connect: unix:/tmp/.X11-unix/X0
-    gid: "1000"
-    listen: unix:/tmp/.X11-unix/X0
-    mode: "0777"
+    connect: unix:@/tmp/.X11-unix/X0
+    listen: unix:@/tmp/.X11-unix/X0
     security.gid: "1000"
     security.uid: "1000"
     type: proxy
-    uid: "1000"
   mygpu:
     type: gpu
 name: gui

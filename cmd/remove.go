@@ -17,36 +17,32 @@ package cmd
 import (
 	"os"
 
-	lxd "github.com/lxc/lxd/client"
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
-	Use:   "remove",
-	Short: "remove a container",
-	Long:  `Remove deletes a container.  It will fail if the container is running.`,
-	Args:  cobra.MinimumNArgs(1),
+	Use:     "remove",
+	Short:   "remove a container",
+	Aliases: []string{"rm"},
+	Long:    `Remove deletes a container.  It will fail if the container is running.`,
+	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
 
 		log.Running("Removing container " + name)
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
-		if err != nil {
-			log.Error("Connect:" + err.Error())
-		}
-		op, err := c.DeleteContainer(name)
-		if err != nil {
-			log.Error("Delete: " + err.Error())
-			os.Exit(1)
-		}
-		// Wait for the operation to complete
-		err = op.Wait()
-		if err != nil {
-			log.Error("Wait: " + err.Error())
-			os.Exit(1)
-		}
 
+		lxclient, err := client.NewClient(socket)
+		if err != nil {
+			log.Error("Unable to connect: " + err.Error())
+			os.Exit(1)
+		}
+		err = lxclient.ContainerRemove(name)
+		if err != nil {
+			log.Error("Error executing command: " + err.Error())
+			os.Exit(1)
+		}
 		log.Success("Removed container " + name)
 	},
 }

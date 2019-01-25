@@ -46,7 +46,7 @@ to connect to running containers and possibly display X11 applications on the ho
 		log.Running("Managing profile " + name)
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
 

@@ -17,71 +17,30 @@ package cmd
 import (
 	"os"
 	"strings"
-	"syscall"
 
-	"github.com/buger/goterm"
-	lxd "github.com/lxc/lxd/client"
-	"github.com/lxc/lxd/shared/api"
-	"github.com/lxc/lxd/shared/termios"
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
 // execCmd represents the exec command
 var execCmd = &cobra.Command{
-	Use:   "exec [container] '[commands here]'",
-	Short: "Execute a command in a container",
+	Use:     "exec [container] '[commands here]'",
+	Aliases: []string{"run"},
+	Short:   "Execute a command in a container",
 	Long: `Executes a command in the named container.  The command should be enclosed in 
 single quotes.  e.g. exec mycontainer 'ls -la'`,
 	Run: func(cmd *cobra.Command, args []string) {
 		name = args[0]
 		// Connect to LXD over the Unix socket
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
+			os.Exit(1)
 		}
-		command := strings.Join(args[1:], " ")
-		terminalHeight := goterm.Height()
-		terminalWidth := goterm.Width()
-		// Setup the exec request
-		environ := make(map[string]string)
-		environ["TERM"] = os.Getenv("TERM")
-		req := api.ContainerExecPost{
-			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login" + " " + command},
-			WaitForWS:   true,
-			Interactive: false,
-			Width:       terminalWidth,
-			Height:      terminalHeight,
-			Environment: environ,
-		}
-
-		// Setup the exec arguments (fds)
-		largs := lxd.ContainerExecArgs{
-			Stdin:  os.Stdin,
-			Stdout: os.Stdout,
-			Stderr: os.Stderr,
-		}
-
-		// Setup the terminal (set to raw mode)
-		if req.Interactive {
-			cfd := int(syscall.Stdin)
-			oldttystate, err := termios.MakeRaw(cfd)
-			if err != nil {
-				log.Error("Make Raw Terminal" + err.Error())
-			}
-
-			defer termios.Restore(cfd, oldttystate)
-		}
-
-		// Get the current state
-		op, err := c.ExecContainer(name, req, &largs)
+		err = lxclient.ContainerExec(name, strings.Join(args[1:], " "))
 		if err != nil {
-			log.Error("Exec: " + err.Error())
-		}
-
-		// Wait for it to complete
-		err = op.Wait()
-		if err != nil {
-			log.Error("Wait: " + err.Error())
+			log.Error("Error executing command: " + err.Error())
+			os.Exit(1)
 		}
 
 	},

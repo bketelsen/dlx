@@ -1,4 +1,4 @@
-// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
+// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,48 +18,61 @@ import (
 	"os"
 
 	client "github.com/bketelsen/lxdev/lxd"
+	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
 
-// connectCmd represents the connect command
-var connectCmd = &cobra.Command{
-	Use:     "connect",
-	Aliases: []string{"shell"},
-	Short:   "connect to a running container",
-	Long:    `Connect to a running container.`,
-	Args:    cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		name = args[0]
+// lsCmd represents the ls command
+var lsCmd = &cobra.Command{
+	Use:   "ls",
+	Short: "List templates",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
 
-		log.Running("Connecting to container " + name)
-		// Connect to LXD over the Unix socket
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
+	Run: func(cmd *cobra.Command, args []string) {
+
 		lxclient, err := client.NewClient(socket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-
-		err = lxclient.ContainerShell(name)
+		names, err := lxclient.ImageList()
 		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
+			log.Error("Error executing command: " + err.Error())
 			os.Exit(1)
 		}
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Name"})
 
-		log.Success("Closed connection to container " + name)
+		for _, name := range names {
+			for _, alias := range name.Aliases {
+
+			table.Append([]string{alias.Name})
+			}
+
+		}
+		if len(names) < 1 {
+
+			table.Append([]string{"{None Found}" })
+		}
+		table.Render()
+
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(connectCmd)
+	templateCmd.AddCommand(lsCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// connectCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// lsCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// connectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
+	// lsCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

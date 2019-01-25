@@ -1,4 +1,4 @@
-// Copyright © 2019 Brian Ketelsen mail@bjk.fyi
+// Copyright © 2019 NAME HERE <EMAIL ADDRESS>
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -15,46 +15,31 @@
 package cmd
 
 import (
-	"os"
-
-	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
-// startCmd represents the start command
-var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "start a paused container",
-	Long:  `Start a paused container.`,
-	Args:  cobra.MinimumNArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		name = args[0]
+// templateCmd represents the template command
+var templateCmd = &cobra.Command{
+	Use:   "template",
+	Short: "A brief description of your command",
+	Long: `A longer description that spans multiple lines and likely contains examples
+and usage of using your command. For example:
 
-		log.Running("Starting container " + name)
-		lxclient, err := client.NewClient(socket)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
-		err = lxclient.ContainerStart(name)
-		if err != nil {
-			log.Error("Error executing command: " + err.Error())
-			os.Exit(1)
-		}
-		log.Success("Container " + name + " started.")
-	},
+Cobra is a CLI library for Go that empowers applications.
+This application is a tool to generate the needed files
+to quickly create a Cobra application.`,
 }
 
 func init() {
-	rootCmd.AddCommand(startCmd)
+	rootCmd.AddCommand(templateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// startCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// templateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// startCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// templateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

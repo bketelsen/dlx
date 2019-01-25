@@ -2,7 +2,7 @@
 
 `lxdev` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
 
-[Watch this DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
+[Watch this slightly outdated DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
 
 ## Getting Started
 
@@ -18,38 +18,35 @@ lxdev config -t
 
 These commands write `$HOME/.lxdev.yaml` and `$HOME/.lxdev/profiles/*.yaml`, which are configuration files and templates for your containers.
 
-### Apply the profiles
+### Create Templates
 
 ```
-lxdev profile -w gui
-lxdev profile -w util
-lxdev profile -w cli
-lxdev profile -w go
+lxdev template create guitemplate --profile gui --provisioners vscode
+lxdev template create clitemplate --profile cli --provisioners go,yadm
 ```
+Let's unwrap that:
 
-These commands write the container profiles that you'll apply to new containers you create.  Each container created must have one of `gui,util,cli` as it's base profile.  Extra profiles can be specified (the `go` profile is an extra one)
+The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.lxdev/provision` directory in your $HOME.  They're created once and never again modified by `lxdev` unless you remove the directory and run `lxdev config -t` again.
+
+You can, and should, modify the existing provisioners or create new ones based on your needs.
+
+The `profile` {gui,cli} is an lxc profile that's stored in `~/.lxdev/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
+
 
 ### Create your first container
 
 ```
-lxdev create myproject
+lxdev create myproject --template guitemplate
 ```
+This creates a container called `myproject` from the template `guitemplate`, which has X11 and audio support by default.
 
-With no additional flags, this project will get the `default` (lxc provided) profile, plus the `gui` profile for X11 support.  You can specify other profiles:
-
-```
-lxdev create myproject --profiles 'go'
-```
-
-This will get `default`, `gui` and `go`.
+### Connect to your container
 
 ```
-lxdev create slack --util
+lxdev shell myproject
 ```
 
-This will get the `util` profile, which I intend for use with things like Slack, Firefox, etc.
-
-
+When using the shell (or its alias connect) command, you get dropped into a login shell in the container.  You can run commands just like it was an SSH session, and you can open X11 apps which will be displayed on your host's X session.  (I KNOW RIGHT??)
 
 ### Prerequisites
 

@@ -17,8 +17,7 @@ package cmd
 import (
 	"os"
 
-	lxd "github.com/lxc/lxd/client"
-	"github.com/lxc/lxd/shared/api"
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -32,30 +31,14 @@ var stopCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Stopping container " + name)
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		lxclient, err := client.NewClient(socket)
 		if err != nil {
-			log.Error("Connect: " + err.Error())
+			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		_, etag, err := c.GetContainer(name)
+		err = lxclient.ContainerStop(name)
 		if err != nil {
-			log.Error("Get Container: " + err.Error())
-			os.Exit(1)
-		}
-		cs := api.ContainerStatePut{
-			Action: "stop",
-		}
-
-		op, err := c.UpdateContainerState(name, cs, etag)
-		if err != nil {
-			log.Error("Stop: " + err.Error())
-			os.Exit(1)
-		}
-
-		// Wait for the operation to complete
-		err = op.Wait()
-		if err != nil {
-			log.Error("Wait: " + err.Error())
+			log.Error("Error stopping container: " + err.Error())
 			os.Exit(1)
 		}
 
