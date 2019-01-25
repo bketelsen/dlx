@@ -166,6 +166,11 @@ func (c *Client) ContainerStop(name string) error {
 	}
 	return cont.Stop()
 }
+
+func (c *Client) ImageList() ([]api.Image, error) {
+	return c.conn.GetImages()
+
+}
 func (c *Client) ContainerSnapshot(name string, snapshotName string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
