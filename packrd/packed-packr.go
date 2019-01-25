@@ -13,6 +13,7 @@ var _ = func() error {
 	const gk = "cb3246f72263854acef83efe3e2244a2"
 	g := packr.New(gk, "")
 	hgr, err := resolver.NewHexGzip(map[string]string{
+		"08742bcfefa9c187123b87686fbd91e4": "1f8b08000000000000ff010000ffff0000000000000000",
 		"5eab3ee78ffef5cf0545fdf4845d7a33": "1f8b08000000000000ff44c731aec2300c06e03da7f0d39b437626ae6237a6b570e308ff197a7bc4c4f249dfff1f35b1d184f328a9a0aaa5e4ea413c416b7686fe6e23c1ee54eba54917f7b37ca1cd6328d52a1148bc79d26e78ec8663c96d8bf32e2f857aea683df034d72c9f000000fffff915cf3d7a000000",
 		"786379070103921b07ff9ff3bf981b32": "1f8b08000000000000ff6ccdb14ec4300c00d0bd5f61c4709363f58418909858f90937cda511491cd90e3a557c3c0313d2cd6f78cf4f405be9b4b11d8b25074c8bcd5d401ba0de80a62955895c29cb9fb4afbd28e07864760046b8c4a915f0d3e0701ff646642eca39852c926be2512c446994a572cf94650deb754bced7504b9f77e4b6bfbe04670df9841f7056b87f9f3740c08fff2f209a6b1918a50de9a9bbbdaf97e5370000ffff03d5d9f6d8000000",
 		"86bd96ba5e575ae0af8230e9a7b2abed": "1f8b08000000000000ff8490416eb4300c85f79cc2bffeb5136618b5522fd12354213621222411363370fb8a415577d3d57bb63e5bf6fbff0f6c1fb3ed9d8c8db00272d334b252015715d64a4ef9b78e59d4a504883b0b045ff2703d0585977bf40c29f641a7ab69b13d7c2e1a87fdf6b4221dd45dc79221dc07c13e66d828e0aa31c9416c2297435dad3153f44ecbf26c08fb85152fd8368f705cf909929c9f9058262d153bd399777433bddd0c710fa36a950f6ba93c722a8ec49c3c5360e3cb6c53ccebf6b57062272cf6e5b6f37faa5300c49f085e4f2c33e0f007f31d0000ffff9be80b787c010000",
@@ -40,6 +41,7 @@ var _ = func() error {
 		b.SetResolver("firefox.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "efc858945382c318ee62dccff9dc221f"})
 		b.SetResolver("go.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "786379070103921b07ff9ff3bf981b32"})
 		b.SetResolver("guibase.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "f4af652f9d8413a14049221a23fcaaff"})
+		b.SetResolver("hiri.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "08742bcfefa9c187123b87686fbd91e4"})
 		b.SetResolver("slack.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "86bd96ba5e575ae0af8230e9a7b2abed"})
 		b.SetResolver("vscode.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "e323c2378a18a94e83fd666623fd7481"})
 		b.SetResolver("yadm.sh", packr.Pointer{ForwardBox: gk, ForwardPath: "5eab3ee78ffef5cf0545fdf4845d7a33"})

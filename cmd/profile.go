@@ -131,7 +131,7 @@ func init() {
 	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", false, "Create or update a profile")
 	viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
 
-	profileCmd.PersistentFlags().BoolVarP(&s, "show", "s", false, "Show a profile")
+	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
 	viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
