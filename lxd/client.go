@@ -182,6 +182,7 @@ func (c *Client) ContainerPublish(name string) error {
 		Source: &api.ImagesPostSource{
 			Type: "container",
 			Name: name + "/template", // UGH?
+
 		},
 	}
 	// skipping properties, that may be a mistake?
@@ -190,6 +191,7 @@ func (c *Client) ContainerPublish(name string) error {
 
 	alias := api.ImageAlias{}
 	alias.Name = name
+	alias.Description = "lxdev template: " + name
 	op, err := c.conn.CreateImage(req, nil)
 	if err != nil {
 		return errors.Wrap(err, "create container image")

@@ -86,7 +86,7 @@ func eventHandler(e events.Event) {
 	default:
 		// we don't care
 		if verbose {
-			log.Info(fmt.Sprintf("\t%T\t %s", t, e.Name()))
+			log.Info(fmt.Sprintf("\t%T\t %s\n", t, e.Name()))
 		}
 	}
 

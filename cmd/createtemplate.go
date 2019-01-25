@@ -86,6 +86,11 @@ to quickly create a Cobra application.`,
 			os.Exit(1)
 		}
 
+		err = lxclient.ContainerStop(name)
+		if err != nil {
+			log.Error("Error stopping container: " + err.Error())
+			os.Exit(1)
+		}
 	},
 }
 
