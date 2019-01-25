@@ -177,6 +177,9 @@ func (c *Container) Provision(kind Type, provisioners []string) error {
 
 	final = append(final, provisioners...)
 
+	// this will fail if cloud-init isn't done.
+	// need to make sure it's completed before running copykeys
+	// TODO
 	err := c.CopyKeys()
 	if err != nil {
 		return errors.Wrap(err, "copying ssh keys")
