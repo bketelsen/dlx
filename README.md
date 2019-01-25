@@ -2,7 +2,7 @@
 
 `lxdev` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
 
-[Watch this DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
+[Watch this slightly outdated DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
 
 ## Getting Started
 
