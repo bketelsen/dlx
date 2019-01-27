@@ -1,16 +1,20 @@
-TAGS ?= "sqlite"
 GO_BIN ?= go
 
 install:
 	@packr2 clean
 	@packr2
-	@$(GO_BIN) install -tags ${TAGS} -v ./.
+	@$(GO_BIN) install -v ./.
 	@make tidy
 
+clean:
+	@rm -rf dist/
+	@rm ./lxdev
+
 reset: install
-	rm -rf ~/.lxdev
-	lxdev config -t
-	lxdev profile gui -w
+	@rm -rf ~/.lxdev
+	@lxdev config -t
+	@lxdev profile gui -w
+	@lxdev profile cli -w
 
 tidy:
 ifeq ($(GO111MODULE),on)
@@ -21,7 +25,7 @@ deps:
 	@$(GO_BIN) get github.com/gobuffalo/release
 	@$(GO_BIN) get github.com/gobuffalo/packr/v2/packr2
 	@$(GO_BIN) get github.com/gobuffalo/shoulders
-	@$(GO_BIN) get -tags ${TAGS} -t ./...
+	@$(GO_BIN) get ./...
 	@make tidy
 
 build:
@@ -31,24 +35,24 @@ build:
 
 test:
 	@packr2
-	@$(GO_BIN) test -tags ${TAGS} ./...
+	@$(GO_BIN) test ./...
 	@make tidy
 
 shoulders:
-	@shoulders -n lxdev -w
+	@shoulders -n github.com/bketelsen/lxdev -w
 
 ci-deps:
-	$(GO_BIN) get -tags ${TAGS} -t ./...
+	$(GO_BIN) get -t ./...
 
 ci-test:
-	$(GO_BIN) test -tags ${TAGS} -race ./...
+	$(GO_BIN) test -race ./...
 
 lint:
 	@gometalinter --vendor ./... --deadline=1m --skip=internal
 	@make tidy
 
 update:
-	@$(GO_BIN) get -u -tags ${TAGS}
+	@$(GO_BIN) get -u
 	@make tidy
 	@packr2
 	@make test
@@ -56,7 +60,7 @@ update:
 	@make tidy
 
 release-test:
-	@$(GO_BIN) test -tags ${TAGS} -race ./...
+	@$(GO_BIN) test -race ./...
 	@make tidy
 
 release:

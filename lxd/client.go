@@ -1,3 +1,8 @@
+// Copyright (c) 2019 bketelsen
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 package lxd
 
 import (
@@ -31,7 +36,7 @@ func NewClient(url string) (*Client, error) {
 // Connect establishes a connection to an LXD Daemon
 func (c *Client) Connect() error {
 	var err error
-	c.conn, err = client.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+	c.conn, err = client.ConnectLXDUnix(c.URL, nil)
 	if err != nil {
 		return errors.Wrap(err, "Error connecting to LXD daemon")
 	}

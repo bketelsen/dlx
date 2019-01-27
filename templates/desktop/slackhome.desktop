@@ -1,0 +1,8 @@
+[Desktop Entry]
+Version=1.0
+Name=Personal Slack
+Comment=Chat With All The People
+Exec=lxc exec slackhome -- sudo --login --user ubuntu slack %U
+Icon=/usr/share/icons/HighContrast/scalable/apps-extra/firefox-icon.svg
+Type=Application
+Categories=Internet

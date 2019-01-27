@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	code.cloudfoundry.org/systemcerts v0.0.0-20180917154049-ca00b2f806f2 // indirect
+	github.com/bketelsen/libgo v0.0.0-20190125175717-a82299e2bbe7
 	github.com/buger/goterm v0.0.0-20181115115552-c206103e1f37
 	github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 // indirect
 	github.com/dixonwille/wlog v2.0.0+incompatible
@@ -26,10 +27,8 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/rogpeppe/fastuuid v1.0.0 // indirect
-	github.com/spf13/afero v1.2.0 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/viper v1.3.1
-	golang.org/x/crypto v0.0.0-20190103213133-ff983b9c42bc // indirect
 	gopkg.in/errgo.v1 v1.0.0 // indirect
 	gopkg.in/httprequest.v1 v1.1.3 // indirect
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
