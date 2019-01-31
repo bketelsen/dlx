@@ -17,6 +17,14 @@ lxdev config -t
 ```
 
 These commands write `$HOME/.lxdev.yaml` and `$HOME/.lxdev/profiles/*.yaml`, which are configuration files and templates for your containers.
+### Create base LXC Profiles
+
+```
+lxdev profile -w gui
+lxdev profile -w cli
+```
+
+These commands create the base LXC profiles that `lxdev` needs to provision containers with access to the host.
 
 ### Create Templates
 
