@@ -59,7 +59,6 @@ var configCmd = &cobra.Command{
 }
 
 func createConfig() error {
-
 	// Find home directory.
 	home, err := homedir.Dir()
 	if err != nil {
@@ -76,6 +75,18 @@ func createConfig() error {
 	return nil
 }
 
+func checkConfig() error {
+	// Find home directory.
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
+	_, err = os.Stat(filepath.Join(home, ".lxdev.yaml"))
+	if err != nil {
+		return err
+	}
+	return nil
+}
 func createTemplates() error {
 	box := packr.New("provision", "../templates/provision")
 	home, err := homedir.Dir()
