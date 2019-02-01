@@ -28,7 +28,20 @@ var rootCmd = &cobra.Command{
 	Long:  `lxdev provisions lxd containers for local development.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	Run: func(cmd *cobra.Command, args []string) {
+
+		err := checkConfig()
+		if err != nil {
+			fmt.Println("No configuration files found.")
+
+			log.Error("No configuration files found.")
+			log.Error("Run `lxdev config -c` to create configuration file.")
+			log.Error("Run `lxdev config -t` to create templates.")
+			log.Error("Run `lxdev profile` to create required lxc profiles.")
+		} else {
+			cmd.Help()
+		}
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

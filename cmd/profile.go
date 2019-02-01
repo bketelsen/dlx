@@ -24,88 +24,98 @@ var (
 	s bool
 )
 
+var profiles = []string{"gui", "cli"}
+
 // profileCmd represents the profile command
 var profileCmd = &cobra.Command{
 	Use:   "profile [name]",
 	Short: "create or replace the provisioning profile for lxdev",
-	Long: `Profile creates or replaces the 'gui', 'cli', and 'util' profiles in lxc that allows you
-to connect to running containers and possibly display X11 applications on the host.`,
-	Args: cobra.MinimumNArgs(1),
+	Long: `Profile creates or replaces the 'gui' and 'cli' profiles in lxc that allow you
+to connect to running containers and possibly display X11 applications on the host. Run with
+no arguments to create or update all required profiles.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		name = args[0]
-		log.Running("Managing profile " + name)
+		if len(args) > 0 {
+			name = args[0]
+		}
+		log.Running("Managing profiles")
 		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-
-		exists := true
-		prof, etag, err := c.GetProfile(name)
-		if err != nil {
-			exists = false
+		profs := make([]string, len(profiles))
+		if name == "" {
+			copy(profs, profiles)
+		} else {
+			profs = append(profs, name)
 		}
-		if w {
-			filename := name + ".yaml"
-			home, err := homedir.Dir()
+		for _, p := range profs {
+			exists := true
+			prof, etag, err := c.GetProfile(p)
 			if err != nil {
-				log.Error("Create Profile : " + err.Error())
-				os.Exit(1)
+				exists = false
 			}
-			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
-			f, err := os.Open(fpath)
-			defer f.Close()
-			if err != nil {
-				log.Error("Create Profile : " + err.Error())
-				log.Error("Try running `lxdev config -t` to create the templates directory.")
-				os.Exit(1)
-			}
-			bb, err := ioutil.ReadAll(f)
-			if err != nil {
-				log.Error("Reading Profile : " + err.Error())
-				os.Exit(1)
-			}
-			if exists {
-
-				log.Running("Updating profile " + name)
-				var profile api.ProfilePut
-				err = yaml.Unmarshal(bb, &profile)
-				if err != nil {
-					log.Error("Parsing Profile : " + err.Error())
-					os.Exit(1)
-				}
-				err = c.UpdateProfile(name, profile, etag)
+			if w {
+				filename := p + ".yaml"
+				home, err := homedir.Dir()
 				if err != nil {
 					log.Error("Create Profile : " + err.Error())
 					os.Exit(1)
 				}
-
-				log.Success("Updating profile " + name)
-			} else {
-
-				log.Running("Creating profile " + name)
-				var profile api.ProfilesPost
-				err = yaml.Unmarshal(bb, &profile)
-				if err != nil {
-					log.Error("Parsing Profile : " + err.Error())
-					os.Exit(1)
-				}
-				profile.Name = name
-				err = c.CreateProfile(profile)
+				fpath := filepath.Join(home, ".lxdev", "profiles", filename)
+				f, err := os.Open(fpath)
+				defer f.Close()
 				if err != nil {
 					log.Error("Create Profile : " + err.Error())
+					log.Error("Try running `lxdev config -t` to create the templates directory.")
 					os.Exit(1)
 				}
-				log.Success("Creating profile " + name)
+				bb, err := ioutil.ReadAll(f)
+				if err != nil {
+					log.Error("Reading Profile : " + err.Error())
+					os.Exit(1)
+				}
+				if exists {
+
+					log.Running("Updating profile " + p)
+					var profile api.ProfilePut
+					err = yaml.Unmarshal(bb, &profile)
+					if err != nil {
+						log.Error("Parsing Profile : " + err.Error())
+						os.Exit(1)
+					}
+					err = c.UpdateProfile(p, profile, etag)
+					if err != nil {
+						log.Error("Create Profile : " + err.Error())
+						os.Exit(1)
+					}
+
+					log.Success("Updating profile " + p)
+				} else {
+
+					log.Running("Creating profile " + p)
+					var profile api.ProfilesPost
+					err = yaml.Unmarshal(bb, &profile)
+					if err != nil {
+						log.Error("Parsing Profile : " + err.Error())
+						os.Exit(1)
+					}
+					profile.Name = p
+					err = c.CreateProfile(profile)
+					if err != nil {
+						log.Error("Create Profile : " + err.Error())
+						os.Exit(1)
+					}
+					log.Success("Creating profile " + p)
+				}
+			}
+
+			if s {
+				fmt.Println(prof, p)
 			}
 		}
-
-		if s {
-			fmt.Println(prof, name)
-		}
-
-		log.Success("Managing profile " + name)
+		log.Success("Managing profiles")
 	},
 }
 
@@ -119,7 +129,7 @@ func init() {
 	profileCmd.PersistentFlags().String("ethernet", "", "the name of your ethernet device e.g. 'enp5s0'")
 	viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
 
-	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", false, "Create or update a profile")
+	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
 	viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
 
 	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
