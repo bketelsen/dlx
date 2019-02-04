@@ -44,8 +44,11 @@ no arguments to create or update all required profiles.`,
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		profs := make([]string, len(profiles))
+		
+		profs := make([]string, 0)
+
 		if name == "" {
+			profs := make([]string, len(profiles))
 			copy(profs, profiles)
 		} else {
 			profs = append(profs, name)
