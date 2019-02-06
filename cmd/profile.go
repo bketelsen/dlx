@@ -48,7 +48,7 @@ no arguments to create or update all required profiles.`,
 		profs := make([]string, 0)
 
 		if name == "" {
-			profs := make([]string, len(profiles))
+			profs = make([]string, len(profiles))
 			copy(profs, profiles)
 		} else {
 			profs = append(profs, name)
