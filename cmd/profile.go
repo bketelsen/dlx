@@ -34,94 +34,102 @@ var profileCmd = &cobra.Command{
 to connect to running containers and possibly display X11 applications on the host. Run with
 no arguments to create or update all required profiles.`,
 	Run: func(cmd *cobra.Command, args []string) {
-
+		var name string
 		if len(args) > 0 {
 			name = args[0]
 		}
-		log.Running("Managing profiles")
-		c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+		err := createProfiles(name)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		
-		profs := make([]string, 0)
-
-		if name == "" {
-			profs = make([]string, len(profiles))
-			copy(profs, profiles)
-		} else {
-			profs = append(profs, name)
-		}
-		for _, p := range profs {
-			exists := true
-			prof, etag, err := c.GetProfile(p)
-			if err != nil {
-				exists = false
-			}
-			if w {
-				filename := p + ".yaml"
-				home, err := homedir.Dir()
-				if err != nil {
-					log.Error("Create Profile : " + err.Error())
-					os.Exit(1)
-				}
-				fpath := filepath.Join(home, ".lxdev", "profiles", filename)
-				f, err := os.Open(fpath)
-				defer f.Close()
-				if err != nil {
-					log.Error("Create Profile : " + err.Error())
-					log.Error("Try running `lxdev config -t` to create the templates directory.")
-					os.Exit(1)
-				}
-				bb, err := ioutil.ReadAll(f)
-				if err != nil {
-					log.Error("Reading Profile : " + err.Error())
-					os.Exit(1)
-				}
-				if exists {
-
-					log.Running("Updating profile " + p)
-					var profile api.ProfilePut
-					err = yaml.Unmarshal(bb, &profile)
-					if err != nil {
-						log.Error("Parsing Profile : " + err.Error())
-						os.Exit(1)
-					}
-					err = c.UpdateProfile(p, profile, etag)
-					if err != nil {
-						log.Error("Create Profile : " + err.Error())
-						os.Exit(1)
-					}
-
-					log.Success("Updating profile " + p)
-				} else {
-
-					log.Running("Creating profile " + p)
-					var profile api.ProfilesPost
-					err = yaml.Unmarshal(bb, &profile)
-					if err != nil {
-						log.Error("Parsing Profile : " + err.Error())
-						os.Exit(1)
-					}
-					profile.Name = p
-					err = c.CreateProfile(profile)
-					if err != nil {
-						log.Error("Create Profile : " + err.Error())
-						os.Exit(1)
-					}
-					log.Success("Creating profile " + p)
-				}
-			}
-
-			if s {
-				fmt.Println(prof, p)
-			}
-		}
-		log.Success("Managing profiles")
 	},
 }
 
+func createProfiles(name string) error {
+
+	log.Running("Creating lxc profiles")
+	c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+	if err != nil {
+		log.Error("Unable to connect: " + err.Error())
+		return err
+	}
+
+	profs := make([]string, 0)
+
+	if name == "" {
+		profs = make([]string, len(profiles))
+		copy(profs, profiles)
+	} else {
+		profs = append(profs, name)
+	}
+	for _, p := range profs {
+		exists := true
+		prof, etag, err := c.GetProfile(p)
+		if err != nil {
+			exists = false
+		}
+		if w {
+			filename := p + ".yaml"
+			home, err := homedir.Dir()
+			if err != nil {
+				log.Error("Create Profile : " + err.Error())
+				return err
+			}
+			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
+			f, err := os.Open(fpath)
+			defer f.Close()
+			if err != nil {
+				log.Error("Create Profile : " + err.Error())
+				return err
+			}
+			bb, err := ioutil.ReadAll(f)
+			if err != nil {
+				log.Error("Reading Profile : " + err.Error())
+				return err
+			}
+			if exists {
+
+				log.Running("Updating profile " + p)
+				var profile api.ProfilePut
+				err = yaml.Unmarshal(bb, &profile)
+				if err != nil {
+					log.Error("Parsing Profile : " + err.Error())
+					return err
+				}
+				err = c.UpdateProfile(p, profile, etag)
+				if err != nil {
+					log.Error("Create Profile : " + err.Error())
+					return err
+				}
+
+				log.Success("Updating profile " + p)
+			} else {
+
+				log.Running("Creating profile " + p)
+				var profile api.ProfilesPost
+				err = yaml.Unmarshal(bb, &profile)
+				if err != nil {
+					log.Error("Parsing Profile : " + err.Error())
+					return err
+				}
+				profile.Name = p
+				err = c.CreateProfile(profile)
+				if err != nil {
+					log.Error("Create Profile : " + err.Error())
+					return err
+				}
+				log.Success("Creating profile " + p)
+			}
+		}
+
+		if s {
+			fmt.Println(prof, p)
+		}
+	}
+	log.Success("Managing profiles")
+	return nil
+}
 func init() {
 	rootCmd.AddCommand(profileCmd)
 
