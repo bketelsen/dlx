@@ -45,6 +45,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 		err = createTemplates()
 		if err != nil {
 			log.Error("Error creating templates: " + err.Error())
+			os.Exit(1)
 		}
 		log.Success("Templates created")
 		// create lxc profiles
@@ -53,6 +54,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 		err = createProfiles("")
 		if err != nil {
 			log.Error("Error creating profiles: " + err.Error())
+			os.Exit(1)
 		}
 		log.Success("Profiles created")
 	},
