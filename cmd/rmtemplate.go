@@ -6,9 +6,9 @@
 package cmd
 
 import (
-	"fmt"
-
+	client "github.com/bketelsen/lxdev/lxd"
 	"github.com/spf13/cobra"
+	"os"
 )
 
 // rmCmd represents the rm command
@@ -21,8 +21,25 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
+	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("I'm afraid to implement this, because running containers depend on the images.  TBD")
+		template := args[0]
+
+		//Connect to LXD over the Unix socket
+		lxclient, err := client.NewClient(socket)
+		if err != nil {
+			log.Error("Unable to connect: " + err.Error())
+			os.Exit(1)
+		}
+
+		// Remove the template which is an LXC image
+		log.Running("Try to remove template: " + template)
+		err = lxclient.RemoveTemplate(template)
+		if err != nil {
+			log.Error("Unable to remove template: " + err.Error())
+			os.Exit(1)
+		}
+		log.Success("Template removed")
 	},
 }
 
