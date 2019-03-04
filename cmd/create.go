@@ -44,7 +44,7 @@ var createCmd = &cobra.Command{
 
 		// Store the LXC Image -> Container relationship
 		log.Running("Storing image container relation ")
-		err = lxclient.SetContainerTemplateRealation(name, template, true)
+		err = setContainerTemplateRealation(lxclient, name, template, true)
 		if err != nil {
 			log.Error("Unable to create container-template relations" + err.Error())
 			os.Exit(1)

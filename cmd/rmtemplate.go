@@ -34,7 +34,7 @@ to quickly create a Cobra application.`,
 
 		// Remove the template which is an LXC image
 		log.Running("Try to remove template: " + template)
-		err = lxclient.RemoveTemplate(template)
+		err = removeTemplate(lxclient, template)
 		if err != nil {
 			log.Error("Unable to remove template: " + err.Error())
 			os.Exit(1)

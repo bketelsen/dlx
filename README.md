@@ -14,7 +14,7 @@
 lxdev init
 ```
 
-This command write `$HOME/.lxdev.yaml`, `$HOME/.lxdev/profiles/*.yaml` and `$HOME/.lxdev/templates/realations.yaml`,  which are configuration files, templates and container realation store for your containers.
+This command write `$HOME/.lxdev.yaml`, `$HOME/.lxdev/profiles/*.yaml` and `$HOME/.lxdev/templates/realations.yaml`,  which are configuration files, templates and container relation store for your containers.
 
 ### Additional commands for base LXC Profiles
 
