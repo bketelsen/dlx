@@ -14,7 +14,7 @@ import (
 // versionCmd represents the version command
 var versionCmd = &cobra.Command{
 	Use:   "version",
-	Short: "version of lxdev",
+	Short: "version of devlx",
 	Long:  `Version displays the version of this tool`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(Version)

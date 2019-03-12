@@ -195,7 +195,7 @@ func (c *Container) Provision(kind Type, provisioners []string) error {
 			return errors.Wrap(err, "getting home directory")
 		}
 		file := sourceFile{
-			path:        filepath.Join(home, ".lxdev", "provision", prof+".sh"),
+			path:        filepath.Join(home, ".devlx", "provision", prof+".sh"),
 			mode:        0755,
 			destination: filepath.Join("/", "tmp", prof+".sh"),
 			filetype:    "file",

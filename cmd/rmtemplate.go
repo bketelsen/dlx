@@ -6,9 +6,10 @@
 package cmd
 
 import (
-	client "github.com/bketelsen/lxdev/lxd"
-	"github.com/spf13/cobra"
 	"os"
+
+	client "github.com/bketelsen/devlx/lxd"
+	"github.com/spf13/cobra"
 )
 
 // rmCmd represents the rm command

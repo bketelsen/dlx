@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	client "github.com/bketelsen/lxdev/lxd"
+	client "github.com/bketelsen/devlx/lxd"
 	"github.com/spf13/cobra"
 )
 

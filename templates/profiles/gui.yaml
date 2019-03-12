@@ -1,5 +1,5 @@
 config:
-  environment.DISPLAY: :0
+  environment.DISPLAY: :1
   security.devlxd: false
   raw.idmap: both 1000 1000
   raw.lxc: |
@@ -12,20 +12,18 @@ config:
 description: GUI LXD profile
 devices:
   eth0:
-    nictype: macvlan
-    parent: enp5s0
+    name: eth0
+    nictype: bridged
+    parent: br0
     type: nic
   PASocket:
     path: /tmp/.pulse-native
     source: /run/user/1000/pulse/native
     type: disk
-  X0:
-    bind: container
-    connect: unix:@/tmp/.X11-unix/X0
-    listen: unix:@/tmp/.X11-unix/X0
-    security.gid: "1000"
-    security.uid: "1000"
-    type: proxy
+  X1:
+    path: /tmp/.X11-unix/X1
+    source: /tmp/.X11-unix/X1
+    type: disk
   mygpu:
     type: gpu
 name: gui

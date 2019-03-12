@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
-	client "github.com/bketelsen/lxdev/lxd"
+	client "github.com/bketelsen/devlx/lxd"
 )
 
 var (
@@ -44,7 +44,7 @@ var createCmd = &cobra.Command{
 
 		// Store the LXC Image -> Container relationship
 		log.Running("Storing image container relation ")
-		err = setContainerTemplateRealation(lxclient, name, template, true)
+		err = setContainerTemplateRelation(lxclient, name, template, true)
 		if err != nil {
 			log.Error("Unable to create container-template relations" + err.Error())
 			os.Exit(1)

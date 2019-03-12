@@ -23,9 +23,9 @@ var socket string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "lxdev",
+	Use:   "devlx",
 	Short: "Provision lxd containers for development",
-	Long:  `lxdev provisions lxd containers for local development.`,
+	Long:  `devlx provisions lxd containers for local development.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
@@ -35,9 +35,9 @@ var rootCmd = &cobra.Command{
 			fmt.Println("No configuration files found.")
 
 			log.Error("No configuration files found.")
-			log.Error("Run `lxdev config -c` to create configuration file.")
-			log.Error("Run `lxdev config -t` to create templates.")
-			log.Error("Run `lxdev profile` to create required lxc profiles.")
+			log.Error("Run `devlx config -c` to create configuration file.")
+			log.Error("Run `devlx config -t` to create templates.")
+			log.Error("Run `devlx profile` to create required lxc profiles.")
 		} else {
 			cmd.Help()
 		}
@@ -59,7 +59,7 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.lxdev.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.devlx.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
 
 	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", "/var/snap/lxd/common/lxd/unix.socket", "LXD Daemon socket")
@@ -107,9 +107,9 @@ func initConfig() {
 			os.Exit(1)
 		}
 
-		// Search config in home directory with name ".lxdev" (without extension).
+		// Search config in home directory with name ".devlx" (without extension).
 		viper.AddConfigPath(home)
-		viper.SetConfigName(".lxdev")
+		viper.SetConfigName(".devlx")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match

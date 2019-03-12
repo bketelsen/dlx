@@ -4,4 +4,4 @@
 // and any other packr generated files.
 package cmd
 
-import _ "github.com/bketelsen/lxdev/packrd"
+import _ "github.com/bketelsen/devlx/packrd"

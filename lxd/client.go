@@ -200,7 +200,7 @@ func (c *Client) ContainerPublish(name string) error {
 
 	alias := api.ImageAlias{}
 	alias.Name = name
-	alias.Description = "lxdev template: " + name
+	alias.Description = "devlx template: " + name
 	op, err := c.conn.CreateImage(req, nil)
 	if err != nil {
 		return errors.Wrap(err, "create container image")

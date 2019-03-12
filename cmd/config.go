@@ -64,7 +64,7 @@ func createConfig() error {
 	if err != nil {
 		return err
 	}
-	f, err := os.Create(filepath.Join(home, ".lxdev.yaml"))
+	f, err := os.Create(filepath.Join(home, ".devlx.yaml"))
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,7 @@ func checkConfig() error {
 	if err != nil {
 		return err
 	}
-	_, err = os.Stat(filepath.Join(home, ".lxdev.yaml"))
+	_, err = os.Stat(filepath.Join(home, ".devlx.yaml"))
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func createTemplates() error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "provision"), 0755)
+	err = os.MkdirAll(filepath.Join(home, ".devlx", "provision"), 0755)
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func createTemplates() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Create(filepath.Join(home, ".lxdev", "provision", tpl))
+		f, err := os.Create(filepath.Join(home, ".devlx", "provision", tpl))
 		if err != nil {
 			return err
 		}
@@ -114,7 +114,7 @@ func createTemplates() error {
 	}
 
 	pbox := packr.New("profiles", "../templates/profiles")
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "profiles"), 0755)
+	err = os.MkdirAll(filepath.Join(home, ".devlx", "profiles"), 0755)
 	if err != nil {
 		return err
 	}
@@ -123,7 +123,7 @@ func createTemplates() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Create(filepath.Join(home, ".lxdev", "profiles", tpl))
+		f, err := os.Create(filepath.Join(home, ".devlx", "profiles", tpl))
 		if err != nil {
 			return err
 		}
@@ -143,12 +143,12 @@ func createRelationsStore() error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "templates"), 0755)
+	err = os.MkdirAll(filepath.Join(home, ".devlx", "templates"), 0755)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(filepath.Join(home, ".lxdev", "templates", "relations.yaml"))
+	f, err := os.Create(filepath.Join(home, ".devlx", "templates", "relations.yaml"))
 	if err != nil {
 		return err
 	}

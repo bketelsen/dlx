@@ -23,13 +23,13 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "initialize your computer for lxdev usage",
+	Short: "initialize your computer for devlx usage",
 	Long: `The init command creates a configuration file, builds templates for
 your containers, and creates lxc profiles that are required for operation.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Running("Initializing lxdev")
-		// create .lxdev.yaml file
+		log.Running("Initializing devlx")
+		// create .devlx.yaml file
 
 		log.Running("Creating configuration file")
 		err := createConfig()

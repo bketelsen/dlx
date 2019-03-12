@@ -1,4 +1,4 @@
-module github.com/bketelsen/lxdev
+module github.com/bketelsen/devlx
 
 go 1.12
 
@@ -22,8 +22,6 @@ require (
 	github.com/juju/webbrowser v0.0.0-20180907093207-efb9432b2bcb // indirect
 	github.com/julienschmidt/httprouter v1.2.0 // indirect
 	github.com/lxc/lxd v0.0.0-20190124175726-da05cecc96af
-	github.com/mattn/go-colorable v0.0.9 // indirect
-	github.com/mattn/go-isatty v0.0.4 // indirect
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.0.0
 	github.com/olekukonko/tablewriter v0.0.1

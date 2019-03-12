@@ -29,7 +29,7 @@ var profiles = []string{"gui", "cli"}
 // profileCmd represents the profile command
 var profileCmd = &cobra.Command{
 	Use:   "profile [name]",
-	Short: "create or replace the provisioning profile for lxdev",
+	Short: "create or replace the provisioning profile for devlx",
 	Long: `Profile creates or replaces the 'gui' and 'cli' profiles in lxc that allow you
 to connect to running containers and possibly display X11 applications on the host. Run with
 no arguments to create or update all required profiles.`,
@@ -76,7 +76,7 @@ func createProfiles(name string) error {
 				log.Error("Create Profile : " + err.Error())
 				return err
 			}
-			fpath := filepath.Join(home, ".lxdev", "profiles", filename)
+			fpath := filepath.Join(home, ".devlx", "profiles", filename)
 			f, err := os.Open(fpath)
 			defer f.Close()
 			if err != nil {
