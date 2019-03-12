@@ -17,7 +17,17 @@ Thank you to the following **GIANTS**:
 
 * [github.com/flosch/pongo2](https://godoc.org/github.com/flosch/pongo2)
 
+* [github.com/frankban/quicktest](https://godoc.org/github.com/frankban/quicktest)
+
+* [github.com/gobuffalo/buffalo-plugins](https://godoc.org/github.com/gobuffalo/buffalo-plugins)
+
+* [github.com/gobuffalo/genny](https://godoc.org/github.com/gobuffalo/genny)
+
 * [github.com/gobuffalo/packr/v2](https://godoc.org/github.com/gobuffalo/packr/v2)
+
+* [github.com/gobuffalo/syncx](https://godoc.org/github.com/gobuffalo/syncx)
+
+* [github.com/golang/protobuf](https://godoc.org/github.com/golang/protobuf)
 
 * [github.com/golangplus/bytes](https://godoc.org/github.com/golangplus/bytes)
 
@@ -31,6 +41,10 @@ Thank you to the following **GIANTS**:
 
 * [github.com/juju/clock](https://godoc.org/github.com/juju/clock)
 
+* [github.com/juju/errors](https://godoc.org/github.com/juju/errors)
+
+* [github.com/juju/loggo](https://godoc.org/github.com/juju/loggo)
+
 * [github.com/juju/retry](https://godoc.org/github.com/juju/retry)
 
 * [github.com/juju/utils](https://godoc.org/github.com/juju/utils)
@@ -40,6 +54,8 @@ Thank you to the following **GIANTS**:
 * [github.com/juju/webbrowser](https://godoc.org/github.com/juju/webbrowser)
 
 * [github.com/julienschmidt/httprouter](https://godoc.org/github.com/julienschmidt/httprouter)
+
+* [github.com/konsorten/go-windows-terminal-sequences](https://godoc.org/github.com/konsorten/go-windows-terminal-sequences)
 
 * [github.com/lxc/lxd](https://godoc.org/github.com/lxc/lxd)
 
@@ -53,11 +69,19 @@ Thank you to the following **GIANTS**:
 
 * [github.com/rogpeppe/fastuuid](https://godoc.org/github.com/rogpeppe/fastuuid)
 
+* [github.com/sirupsen/logrus](https://godoc.org/github.com/sirupsen/logrus)
+
+* [github.com/spf13/afero](https://godoc.org/github.com/spf13/afero)
+
 * [github.com/spf13/cobra](https://godoc.org/github.com/spf13/cobra)
+
+* [github.com/spf13/jwalterweatherman](https://godoc.org/github.com/spf13/jwalterweatherman)
 
 * [github.com/spf13/viper](https://godoc.org/github.com/spf13/viper)
 
-* [gopkg.in/errgo.v1](https://godoc.org/gopkg.in/errgo.v1)
+* [golang.org/x/sys](https://godoc.org/golang.org/x/sys)
+
+* [golang.org/x/tools](https://godoc.org/golang.org/x/tools)
 
 * [gopkg.in/httprequest.v1](https://godoc.org/gopkg.in/httprequest.v1)
 
