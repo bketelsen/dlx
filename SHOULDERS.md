@@ -1,6 +1,6 @@
-# github.com/bketelsen/lxdev Stands on the Shoulders of Giants
+# github.com/bketelsen/devlx Stands on the Shoulders of Giants
 
-github.com/bketelsen/lxdev does not try to reinvent the wheel! Instead, it uses the already great wheels developed by the Go community and puts them all together in the best way possible. Without these giants this project would not be possible. Please make sure to check them out and thank them for all of their hard work.
+github.com/bketelsen/devlx does not try to reinvent the wheel! Instead, it uses the already great wheels developed by the Go community and puts them all together in the best way possible. Without these giants this project would not be possible. Please make sure to check them out and thank them for all of their hard work.
 
 Thank you to the following **GIANTS**:
 
@@ -9,13 +9,13 @@ Thank you to the following **GIANTS**:
 
 * [github.com/bketelsen/libgo/events](https://godoc.org/github.com/bketelsen/libgo/events)
 
-* [github.com/bketelsen/lxdev](https://godoc.org/github.com/bketelsen/lxdev)
+* [github.com/bketelsen/devlx](https://godoc.org/github.com/bketelsen/devlx)
 
-* [github.com/bketelsen/lxdev/cmd](https://godoc.org/github.com/bketelsen/lxdev/cmd)
+* [github.com/bketelsen/devlx/cmd](https://godoc.org/github.com/bketelsen/devlx/cmd)
 
-* [github.com/bketelsen/lxdev/lxd](https://godoc.org/github.com/bketelsen/lxdev/lxd)
+* [github.com/bketelsen/devlx/lxd](https://godoc.org/github.com/bketelsen/devlx/lxd)
 
-* [github.com/bketelsen/lxdev/packrd](https://godoc.org/github.com/bketelsen/lxdev/packrd)
+* [github.com/bketelsen/devlx/packrd](https://godoc.org/github.com/bketelsen/devlx/packrd)
 
 * [github.com/buger/goterm](https://godoc.org/github.com/buger/goterm)
 

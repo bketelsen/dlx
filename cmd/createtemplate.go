@@ -9,7 +9,7 @@ import (
 	"os"
 	"time"
 
-	client "github.com/bketelsen/lxdev/lxd"
+	client "github.com/bketelsen/devlx/lxd"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

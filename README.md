@@ -1,59 +1,59 @@
-# lxdev
+# devlx
 
-`lxdev` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
+`devlx` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
 
 [Watch this slightly outdated DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
 
 ## Getting Started
 
 * Install LXD
-* Install lxdev
+* Install devlx
 
 ### Create configuration and template files
 
 ```
-lxdev config -c
-lxdev config -t
+devlx config -c
+devlx config -t
 ```
 
-These commands write `$HOME/.lxdev.yaml` and `$HOME/.lxdev/profiles/*.yaml`, which are configuration files and templates for your containers.
+These commands write `$HOME/.devlx.yaml` and `$HOME/.devlx/profiles/*.yaml`, which are configuration files and templates for your containers.
 ### Create base LXC Profiles
 
 ```
-lxdev profile -w gui
-lxdev profile -w cli
+devlx profile -w gui
+devlx profile -w cli
 ```
 
-These commands create the base LXC profiles that `lxdev` needs to provision containers with access to the host.
+These commands create the base LXC profiles that `devlx` needs to provision containers with access to the host.
 
 ### Create Templates
 
 ```
-lxdev template create guitemplate --profile gui --provisioners vscode
-lxdev template create clitemplate --profile cli --provisioners go,yadm
+devlx template create guitemplate --profile gui --provisioners vscode
+devlx template create clitemplate --profile cli --provisioners go,yadm
 ```
 Let's unwrap that:
 
-The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.lxdev/provision` directory in your $HOME.  They're created once and never again modified by `lxdev` unless you remove the directory and run `lxdev config -t` again.
+The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.devlx/provision` directory in your $HOME.  They're created once and never again modified by `devlx` unless you remove the directory and run `devlx config -t` again.
 
-The `guibase` and `clibase` provisioning templates are automatically applied to `gui` and `cli` profiles, you do not need to specify them separately.  Use caution in editing these provisioners, as it is possible features installed in these provisioners are expected by `lxdev`.
+The `guibase` and `clibase` provisioning templates are automatically applied to `gui` and `cli` profiles, you do not need to specify them separately.  Use caution in editing these provisioners, as it is possible features installed in these provisioners are expected by `devlx`.
 
 You can, and should, modify the existing provisioners or create new ones based on your needs.
 
-The `profile` {gui,cli} is an lxc profile that's stored in `~/.lxdev/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
+The `profile` {gui,cli} is an lxc profile that's stored in `~/.devlx/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
 
 
 ### Create your first container
 
 ```
-lxdev create myproject --template guitemplate
+devlx create myproject --template guitemplate
 ```
 This creates a container called `myproject` from the template `guitemplate`, which has X11 and audio support by default.
 
 ### Connect to your container
 
 ```
-lxdev shell myproject
+devlx shell myproject
 ```
 
 When using the shell (or its alias connect) command, you get dropped into a login shell in the container.  You can run commands just like it was an SSH session, and you can open X11 apps which will be displayed on your host's X session.  (I KNOW RIGHT??)
@@ -73,11 +73,11 @@ When there is one, you can download a release from GitHub.
 
 Requires Go, tested with 1.12beta2.
 ```
-git clone https://github.com/bketelsen/lxdev
+git clone https://github.com/bketelsen/devlx
 
 make deps // install dependencies
 make test  // run tests
-make install // build and install the lxdev tool into your path
+make install // build and install the devlx tool into your path
 ```
 
 ## Running the tests
@@ -96,13 +96,13 @@ Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c6
 
 ## Versioning
 
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/bketelsen/lxdev/tags).
+We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/bketelsen/devlx/tags).
 
 ## Authors
 
 * **Brian Ketelsen** - *Initial work* - [BrianKetelsen.com](https://brianketelsen.com)
 
-See also the list of [contributors](https://github.com/bketelsen/lxdev/contributors) who participated in this project.
+See also the list of [contributors](https://github.com/bketelsen/devlx/contributors) who participated in this project.
 
 ## License
 
@@ -110,5 +110,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-See [SHOULDERS](SHOULDERS.md) for acknowledgments and thanks to the other projects that `lxdev` was built with.
+See [SHOULDERS](SHOULDERS.md) for acknowledgments and thanks to the other projects that `devlx` was built with.
 Special thanks to [Simos Xenitellis](https://blog.simos.info/how-to-easily-run-graphics-accelerated-gui-apps-in-lxd-containers-on-your-ubuntu-desktop/) for the tireless blogging. I learned nearly everything about this process from those posts.

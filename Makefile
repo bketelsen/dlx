@@ -8,13 +8,13 @@ install:
 
 clean:
 	@rm -rf dist/
-	@rm ./lxdev
+	@rm -rf ./devlx
 
 reset: install
-	@rm -rf ~/.lxdev
-	@lxdev config -t
-	@lxdev profile gui -w
-	@lxdev profile cli -w
+	@rm -rf ~/.devlx
+	@devlx config -t
+	@devlx profile gui -w
+	@devlx profile cli -w
 
 tidy:
 ifeq ($(GO111MODULE),on)
@@ -39,7 +39,7 @@ test:
 	@make tidy
 
 shoulders:
-	@shoulders -n github.com/bketelsen/lxdev -w
+	@shoulders -n github.com/bketelsen/devlx -w
 
 ci-deps:
 	$(GO_BIN) get -t ./...

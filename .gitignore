@@ -27,5 +27,5 @@ generated/
 bin/*
 gin-bin
 .idea/
-lxdev
+devlx
 .envrc
