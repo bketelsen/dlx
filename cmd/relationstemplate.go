@@ -7,14 +7,15 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/bketelsen/lxdev/lxd"
+	"io/ioutil"
+	"path/filepath"
+	"strings"
+
+	"github.com/bketelsen/devlx/lxd"
 	"github.com/lxc/lxd/shared/i18n"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
-	"io/ioutil"
-	"path/filepath"
-	"strings"
 )
 
 // represents an LXD Image
@@ -37,10 +38,10 @@ type Templates struct {
 // store the container template (image) relation in yaml file
 // takes as arguments the container name, relating template name
 // for store set variable store true
-func setContainerTemplateRealation(c *lxd.Client, container string, tmpl string, store bool) error {
+func setContainerTemplateRelation(c *lxd.Client, container string, tmpl string, store bool) error {
 	var templates Templates
 
-	// store the realation
+	// store the relation
 	if store {
 
 		err := templates.parse()
@@ -175,7 +176,7 @@ func (t *Templates) parse() error {
 	if err != nil {
 		return err
 	}
-	filename := filepath.Join(home, ".lxdev", "templates", "relations.yaml")
+	filename := filepath.Join(home, ".devlx", "templates", "relations.yaml")
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -195,7 +196,7 @@ func (t *Templates) store() error {
 	if err != nil {
 		return err
 	}
-	filename := filepath.Join(home, ".lxdev", "templates", "relations.yaml")
+	filename := filepath.Join(home, ".devlx", "templates", "relations.yaml")
 
 	bytes, err := yaml.Marshal(t)
 	if err != nil {

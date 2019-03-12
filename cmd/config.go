@@ -143,12 +143,12 @@ func createRelationsStore() error {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(home, ".lxdev", "templates"), 0755)
+	err = os.MkdirAll(filepath.Join(home, ".devlx", "templates"), 0755)
 	if err != nil {
 		return err
 	}
 
-	f, err := os.Create(filepath.Join(home, ".lxdev", "templates", "relations.yaml"))
+	f, err := os.Create(filepath.Join(home, ".devlx", "templates", "relations.yaml"))
 	if err != nil {
 		return err
 	}

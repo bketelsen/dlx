@@ -35,7 +35,7 @@ var removeCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		err = setContainerTemplateRealation(lxclient, name, "", false)
+		err = setContainerTemplateRelation(lxclient, name, "", false)
 		if err != nil {
 			log.Error("Error destroy image relation : " + err.Error())
 			os.Exit(1)

@@ -3,8 +3,9 @@ config:
 description: CLI LXD profile
 devices:
   eth0:
-    nictype: macvlan
-    parent: enp5s0
+    name: eth0
+    nictype: bridged
+    parent: br0
     type: nic
 name: cli
 used_by:
