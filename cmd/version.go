@@ -6,4 +6,4 @@
 package cmd
 
 // Version of main
-const Version = "0.0.4"
+const Version = "v0.0.5"
