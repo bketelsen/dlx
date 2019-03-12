@@ -135,6 +135,28 @@ func createTemplates() error {
 	return nil
 
 }
+
+func createRelationsStore() error {
+	// create config storage directory and file
+	home, err := homedir.Dir()
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(filepath.Join(home, ".lxdev", "templates"), 0755)
+	if err != nil {
+		return err
+	}
+
+	f, err := os.Create(filepath.Join(home, ".lxdev", "templates", "relations.yaml"))
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	return nil
+}
 func init() {
 	rootCmd.AddCommand(configCmd)
 

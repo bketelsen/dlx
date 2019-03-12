@@ -57,6 +57,15 @@ your containers, and creates lxc profiles that are required for operation.`,
 			os.Exit(1)
 		}
 		log.Success("Profiles created")
+		// create relation store
+
+		log.Running("Creating relation directory")
+		err = createRelationsStore()
+		if err != nil {
+			log.Error("Error creating templates store: " + err.Error())
+			os.Exit(1)
+		}
+		log.Success("Directory created")
 	},
 }
 

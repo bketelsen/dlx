@@ -7,14 +7,13 @@ package lxd
 
 import (
 	"fmt"
-	"sort"
-
 	"github.com/bketelsen/libgo/events"
+	"github.com/lxc/lxd/client"
 	client "github.com/lxc/lxd/client"
-	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/lxc/lxd/shared/i18n"
 	"github.com/pkg/errors"
+	"sort"
 )
 
 type Client struct {
@@ -268,4 +267,37 @@ func GetExistingAliases(aliases []string, allAliases []api.ImageAliasesEntry) []
 		}
 	}
 	return existing
+}
+
+// retrieves the image fingerprint from image name
+func (c *Client) GetImageFingerprint(image string) (string, error) {
+	var retVal string
+	imagesAPI, err := c.conn.GetImages()
+
+	if err != nil {
+		return "", fmt.Errorf(i18n.G("Failed getting container metadata"))
+	}
+
+	for _, imageAPI := range imagesAPI {
+		for _, alias := range imageAPI.Aliases {
+			if alias.Name == image {
+				retVal = imageAPI.Fingerprint
+			}
+		}
+	}
+	return retVal, nil
+}
+
+// helper function deletes the LXC image
+func RemoveTemplateImage(c *Client, fingerprint string) error {
+	op, err := c.conn.DeleteImage(fingerprint)
+	if err != nil {
+		return errors.Wrap(err, "Failed to remove image")
+	}
+
+	err = op.Wait()
+	if err != nil {
+		return errors.Wrap(err, "waiting for removing image")
+	}
+	return nil
 }

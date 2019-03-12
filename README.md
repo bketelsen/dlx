@@ -9,15 +9,16 @@
 * Install LXD
 * Install devlx
 
-### Create configuration and template files
-
+### Create initial configuration
 ```
 devlx config -c
 devlx config -t
 ```
 
-These commands write `$HOME/.devlx.yaml` and `$HOME/.devlx/profiles/*.yaml`, which are configuration files and templates for your containers.
+These commands write `$HOME/.devlx.yaml` and `$HOME/.devlx/profiles/*.yaml`, which are configuration files and templates and container relation store for your containers for your containers.
+
 ### Create base LXC Profiles
+=======
 
 ```
 devlx profile -w gui
