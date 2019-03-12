@@ -9,15 +9,14 @@
 * Install LXD
 * Install lxdev
 
-### Create configuration and template files
-
+### Create initial configuration
 ```
-lxdev config -c
-lxdev config -t
+lxdev init
 ```
 
-These commands write `$HOME/.lxdev.yaml` and `$HOME/.lxdev/profiles/*.yaml`, which are configuration files and templates for your containers.
-### Create base LXC Profiles
+This command write `$HOME/.lxdev.yaml`, `$HOME/.lxdev/profiles/*.yaml` and `$HOME/.lxdev/templates/realations.yaml`,  which are configuration files, templates and container relation store for your containers.
+
+### Additional commands for base LXC Profiles
 
 ```
 lxdev profile -w gui
