@@ -9,7 +9,8 @@ import (
 	"os"
 	"time"
 
-	client "github.com/bketelsen/devlx/lxd"
+	client "devlx/lxd"
+
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )

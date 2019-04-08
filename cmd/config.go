@@ -6,12 +6,12 @@
 package cmd
 
 import (
-	"os"
-	"path/filepath"
-
+	"devlx/path"
 	"github.com/gobuffalo/packr/v2"
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
 )
 
 // configCmd represents the config command

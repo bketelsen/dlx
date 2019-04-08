@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bketelsen/devlx/lxd"
+	"devlx/lxd"
 	"github.com/lxc/lxd/shared/i18n"
 	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
