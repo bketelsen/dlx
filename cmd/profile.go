@@ -11,9 +11,9 @@ import (
 	"os"
 	"path/filepath"
 
+	"devlx/path"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	yaml "gopkg.in/yaml.v2"
@@ -71,12 +71,7 @@ func createProfiles(name string) error {
 		}
 		if w {
 			filename := p + ".yaml"
-			home, err := homedir.Dir()
-			if err != nil {
-				log.Error("Create Profile : " + err.Error())
-				return err
-			}
-			fpath := filepath.Join(home, ".devlx", "profiles", filename)
+			fpath := filepath.Join(path.GetConfigPath(), "profiles", filename)
 			f, err := os.Open(fpath)
 			defer f.Close()
 			if err != nil {

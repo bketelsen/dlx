@@ -12,8 +12,9 @@ import (
 	"strings"
 
 	"devlx/lxd"
+	"devlx/path"
+
 	"github.com/lxc/lxd/shared/i18n"
-	"github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 	"gopkg.in/yaml.v2"
 )
@@ -172,11 +173,7 @@ func removeTemplate(c *lxd.Client, tmpl string) error {
 // Unmarshal helper function
 // path is hardcoded?
 func (t *Templates) parse() error {
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
-	filename := filepath.Join(home, ".devlx", "templates", "relations.yaml")
+	filename := filepath.Join(path.GetConfigPath(), "templates", "relations.yaml")
 
 	data, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -192,11 +189,7 @@ func (t *Templates) parse() error {
 
 // Marshal helper function
 func (t *Templates) store() error {
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
-	filename := filepath.Join(home, ".devlx", "templates", "relations.yaml")
+	filename := filepath.Join(path.GetConfigPath(), "templates", "relations.yaml")
 
 	bytes, err := yaml.Marshal(t)
 	if err != nil {
