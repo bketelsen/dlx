@@ -6,12 +6,11 @@
 package cmd
 
 import (
+	"devlx/path"
+	"github.com/gobuffalo/packr/v2"
+	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
-
-	"github.com/gobuffalo/packr/v2"
-	homedir "github.com/mitchellh/go-homedir"
-	"github.com/spf13/cobra"
 )
 
 // configCmd represents the config command
@@ -59,12 +58,10 @@ var configCmd = &cobra.Command{
 }
 
 func createConfig() error {
-	// Find home directory.
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
-	f, err := os.Create(filepath.Join(home, ".devlx.yaml"))
+	//make config directory and file
+	err := os.MkdirAll(filepath.Join(path.GetConfigPath()), 0755)
+
+	f, err := os.Create(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
 	if err != nil {
 		return err
 	}
@@ -76,12 +73,7 @@ func createConfig() error {
 }
 
 func checkConfig() error {
-	// Find home directory.
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
-	_, err = os.Stat(filepath.Join(home, ".devlx.yaml"))
+	_, err := os.Stat(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
 	if err != nil {
 		return err
 	}
@@ -89,12 +81,8 @@ func checkConfig() error {
 }
 func createTemplates() error {
 	box := packr.New("provision", "../templates/provision")
-	home, err := homedir.Dir()
-	if err != nil {
-		return err
-	}
 
-	err = os.MkdirAll(filepath.Join(home, ".devlx", "provision"), 0755)
+	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "provision"), 0755)
 	if err != nil {
 		return err
 	}
@@ -103,7 +91,7 @@ func createTemplates() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Create(filepath.Join(home, ".devlx", "provision", tpl))
+		f, err := os.Create(filepath.Join(path.GetConfigPath(), "provision", tpl))
 		if err != nil {
 			return err
 		}
@@ -114,7 +102,7 @@ func createTemplates() error {
 	}
 
 	pbox := packr.New("profiles", "../templates/profiles")
-	err = os.MkdirAll(filepath.Join(home, ".devlx", "profiles"), 0755)
+	err = os.MkdirAll(filepath.Join(path.GetConfigPath(), "profiles"), 0755)
 	if err != nil {
 		return err
 	}
@@ -123,7 +111,7 @@ func createTemplates() error {
 		if err != nil {
 			return err
 		}
-		f, err := os.Create(filepath.Join(home, ".devlx", "profiles", tpl))
+		f, err := os.Create(filepath.Join(path.GetConfigPath(), "profiles", tpl))
 		if err != nil {
 			return err
 		}
@@ -138,17 +126,13 @@ func createTemplates() error {
 
 func createRelationsStore() error {
 	// create config storage directory and file
-	home, err := homedir.Dir()
+
+	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "templates"), 0755)
 	if err != nil {
 		return err
 	}
 
-	err = os.MkdirAll(filepath.Join(home, ".devlx", "templates"), 0755)
-	if err != nil {
-		return err
-	}
-
-	f, err := os.Create(filepath.Join(home, ".devlx", "templates", "relations.yaml"))
+	f, err := os.Create(filepath.Join(path.GetConfigPath(), "templates", "relations.yaml"))
 	if err != nil {
 		return err
 	}

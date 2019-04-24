@@ -12,13 +12,13 @@ import (
 	"path/filepath"
 	"syscall"
 
+	"devlx/path"
 	"github.com/bketelsen/libgo/events"
 	"github.com/buger/goterm"
 	client "github.com/lxc/lxd/client"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/lxc/lxd/shared/termios"
-	homedir "github.com/mitchellh/go-homedir"
 	"github.com/pkg/errors"
 )
 
@@ -190,12 +190,8 @@ func (c *Container) Provision(kind Type, provisioners []string) error {
 		return errors.Wrap(err, "copying ssh keys")
 	}
 	for _, prof := range final {
-		home, err := homedir.Dir()
-		if err != nil {
-			return errors.Wrap(err, "getting home directory")
-		}
 		file := sourceFile{
-			path:        filepath.Join(home, ".devlx", "provision", prof+".sh"),
+			path:        filepath.Join(path.GetConfigPath(), "provision", prof+".sh"),
 			mode:        0755,
 			destination: filepath.Join("/", "tmp", prof+".sh"),
 			filetype:    "file",
@@ -322,15 +318,10 @@ func (c *Container) CopyFile(file sourceFile) error {
 
 func (c *Container) CopyKeys() error {
 	// HACK: Find out when provisioning is done??
-
-	home, err := homedir.Dir()
-	if err != nil {
-		return errors.Wrap(err, "getting home directory")
-	}
 	files := []sourceFile{
-		sourceFile{path: filepath.Join(home, ".ssh"), mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
-		sourceFile{path: filepath.Join(home, ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
-		sourceFile{path: filepath.Join(home, ".ssh", "id_rsa"), mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
+		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
+		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
+		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa"), mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
 	}
 
 	for _, file := range files {

@@ -5,7 +5,7 @@
 
 package main
 
-import "github.com/bketelsen/devlx/cmd"
+import "devlx/cmd"
 
 func main() {
 	cmd.Execute()

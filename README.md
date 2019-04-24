@@ -1,60 +1,66 @@
 # devlx
 
-`devlx` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and `zfs` to make efficient, copy-on-write, workspaces from a user-provided template.
+`devlx` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and [zfs](https://wiki.ubuntu.com/ZFS) to make efficient, copy-on-write, workspaces from a user-provided template.
 
 [Watch this slightly outdated DEMO VIDEO](https://youtu.be/W6A00CHiDQ8)
 
 ## Getting Started
 
 * Install LXD
+
+```sh
+$ snap install lxd
+```
 * Install devlx
 
+You can install from source by cloning this repo (or your own fork). Alternatively, you can use a pre-built binary available on the [releases](https://github.com/bketelsen/devlx/releases) page.  
+
+
 ### Create initial configuration
-```
-devlx config -c
-devlx config -t
+```sh
+$ devlx init
 ```
 
-These commands write `$HOME/.devlx.yaml` and `$HOME/.devlx/profiles/*.yaml`, which are configuration files and templates and container relation store for your containers for your containers.
+These commands write `$HOME/.config/devlx/devlx.yaml` and `$HOME/.config/devlx/profiles/*.yaml`, which are configuration files and templates and container relation store for your containers for your containers.
 
 ### Create base LXC Profiles
 =======
 
-```
-devlx profile -w gui
-devlx profile -w cli
+```sh
+$ devlx profile -w gui
+$ devlx profile -w cli
 ```
 
 These commands create the base LXC profiles that `devlx` needs to provision containers with access to the host.
 
 ### Create Templates
 
-```
-devlx template create guitemplate --profile gui --provisioners vscode
-devlx template create clitemplate --profile cli --provisioners go,yadm
+```sh
+$ devlx template create guitemplate --profile gui --provisioners vscode
+$ devlx template create clitemplate --profile cli --provisioners go,yadm
 ```
 Let's unwrap that:
 
-The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.devlx/provision` directory in your $HOME.  They're created once and never again modified by `devlx` unless you remove the directory and run `devlx config -t` again.
+The name of the template {guitemplate,clitemplate} is totally up to you.  These are base images that will be used later to create your containers.  You "provision" them by passing in a comma separated list of `provisioners`, which are bash scripts that install things or otherwise modify the base image.  Provisioners live in the `~/.config/devlx/provision` directory in your `$HOME`.  They're created once and never again modified by `devlx` unless you remove the directory and run `devlx init` again.
 
 The `guibase` and `clibase` provisioning templates are automatically applied to `gui` and `cli` profiles, you do not need to specify them separately.  Use caution in editing these provisioners, as it is possible features installed in these provisioners are expected by `devlx`.
 
 You can, and should, modify the existing provisioners or create new ones based on your needs.
 
-The `profile` {gui,cli} is an lxc profile that's stored in `~/.devlx/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
+The `profile` {gui,cli} is an lxc profile that's stored in `~/.config/devlx/profiles`.  They're standard `lxc` profiles that are applied when you create a template, then inherited by every container that's instantiated from those templates.
 
 
 ### Create your first container
 
-```
-devlx create myproject --template guitemplate
+```sh
+$ devlx create myproject --template guitemplate
 ```
 This creates a container called `myproject` from the template `guitemplate`, which has X11 and audio support by default.
 
 ### Connect to your container
 
-```
-devlx shell myproject
+```sh
+$ devlx shell myproject
 ```
 
 When using the shell (or its alias connect) command, you get dropped into a login shell in the container.  You can run commands just like it was an SSH session, and you can open X11 apps which will be displayed on your host's X session.  (I KNOW RIGHT??)
@@ -73,18 +79,18 @@ When there is one, you can download a release from GitHub.
 #### Build From Source
 
 Requires Go, tested with 1.12beta2.
-```
-git clone https://github.com/bketelsen/devlx
+```sh
+$ git clone https://github.com/bketelsen/devlx
 
-make deps // install dependencies
-make test  // run tests
-make install // build and install the devlx tool into your path
+$ make deps // install dependencies
+$ make test  // run tests
+$ make install // build and install the devlx tool into your path
 ```
 
 ## Running the tests
 
-```
-make test
+```sh
+$ make test
 ```
 
 ## Built With

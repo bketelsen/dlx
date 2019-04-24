@@ -1,4 +1,4 @@
-module github.com/bketelsen/devlx
+module devlx
 
 go 1.12
 
@@ -10,10 +10,7 @@ require (
 	github.com/dixonwille/wlog v2.0.0+incompatible
 	github.com/flosch/pongo2 v0.0.0-20181225140029-79872a7b2769 // indirect
 	github.com/frankban/quicktest v1.1.1 // indirect
-	github.com/gobuffalo/buffalo-plugins v1.13.1 // indirect
-	github.com/gobuffalo/genny v0.0.0-20190228211236-f262bb0c783b // indirect
-	github.com/gobuffalo/packr/v2 v2.0.3
-	github.com/gobuffalo/syncx v0.0.0-20190224160051-33c29581e754 // indirect
+	github.com/gobuffalo/packr/v2 v2.1.0
 	github.com/golang/protobuf v1.3.0 // indirect
 	github.com/golangplus/bytes v0.0.0-20160111154220-45c989fe5450 // indirect
 	github.com/golangplus/fmt v0.0.0-20150411045040-2a5d6d7d2995 // indirect
@@ -35,13 +32,12 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/rogpeppe/fastuuid v1.0.0 // indirect
-	github.com/sirupsen/logrus v1.4.0 // indirect
 	github.com/spf13/afero v1.2.1 // indirect
 	github.com/spf13/cobra v0.0.3
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/viper v1.3.1
 	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
-	golang.org/x/tools v0.0.0-20190312170243-e65039ee4138 // indirect
+	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
 	gopkg.in/httprequest.v1 v1.1.4 // indirect
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
 	gopkg.in/macaroon.v2 v2.1.0 // indirect

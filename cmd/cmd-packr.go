@@ -5,4 +5,4 @@
 // and any other packr generated files.
 package cmd
 
-import _ "github.com/bketelsen/devlx/packrd"
+import _ "devlx/packrd"
