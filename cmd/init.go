@@ -29,10 +29,19 @@ your containers, and creates lxc profiles that are required for operation.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		log.Running("Initializing devlx")
+
 		// create .devlx.yaml file
 
+		log.Running("Evaluating Environment")
+		err := getConfigValues()
+		if err != nil {
+			log.Error("Error getting config values: " + err.Error())
+			os.Exit(1)
+		}
+		log.Success("Evaluation complete")
+
 		log.Running("Creating configuration file")
-		err := createConfig()
+		err = createConfig()
 		if err != nil {
 			log.Error("Error creating config file: " + err.Error())
 			os.Exit(1)
@@ -48,6 +57,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 			os.Exit(1)
 		}
 		log.Success("Templates created")
+
 		// create lxc profiles
 
 		log.Running("Creating lxc profiles")
