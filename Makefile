@@ -11,10 +11,8 @@ clean:
 	@rm -rf ./devlx
 
 reset: install
-	@rm -rf ~/.devlx
-	@devlx config -t
-	@devlx profile gui -w
-	@devlx profile cli -w
+	@rm -rf ~/.config/devlx
+	@devlx init
 
 tidy:
 ifeq ($(GO111MODULE),on)
@@ -39,7 +37,7 @@ test:
 	@make tidy
 
 shoulders:
-	@shoulders -n github.com/bketelsen/devlx -w
+	@shoulders -n ./ -w
 
 ci-deps:
 	$(GO_BIN) get -t ./...

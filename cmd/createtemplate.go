@@ -17,8 +17,7 @@ import (
 
 var provisioners *[]string
 var base string
-var guiimage string
-var cliimage string
+var image string
 
 // createtemplateCmd represents the createtemplate command
 var createtemplateCmd = &cobra.Command{
@@ -50,7 +49,7 @@ to quickly create a Cobra application.`,
 			kind = client.GUI
 		}
 		// create the container
-		err = lxclient.ContainerCreate(name, false, getTemplateImage(kind), getProfiles())
+		err = lxclient.ContainerCreate(name, false, templateCmd.PersistentFlags().Lookup("image").Value.String(), getProfiles())
 		if err != nil {
 			log.Error("Unable to create template: " + err.Error())
 			os.Exit(1)
@@ -87,12 +86,6 @@ to quickly create a Cobra application.`,
 	},
 }
 
-func getTemplateImage(kind client.Type) string {
-	if kind == client.CLI {
-		return viper.GetString("cliimage")
-	}
-	return viper.GetString("guiimage")
-}
 func init() {
 	templateCmd.AddCommand(createtemplateCmd)
 
@@ -106,10 +99,10 @@ func init() {
 	// is called directly, e.g.:
 	// createtemplateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	templateCmd.PersistentFlags().StringVar(&guiimage, "guiimage", "18.10", "Ubuntu version for GUI instances")
-	viper.BindPFlag("guiimage", templateCmd.PersistentFlags().Lookup("guiimage"))
+	templateCmd.PersistentFlags().StringVar(&image, "image", viper.GetString("image"), "Ubuntu version for instances")
+	// viper.BindPFlag("guiimage", templateCmd.PersistentFlags().Lookup("guiimage"))
 
-	templateCmd.PersistentFlags().StringVar(&cliimage, "cliimage", "18.10", "Ubuntu version for CLI instances")
-	viper.BindPFlag("cliimage", templateCmd.PersistentFlags().Lookup("cliimage"))
+	// templateCmd.PersistentFlags().StringVar(&cliimage, "cliimage", "18.10", "Ubuntu version for CLI instances")
+	// viper.BindPFlag("cliimage", templateCmd.PersistentFlags().Lookup("cliimage"))
 	provisioners = templateCmd.PersistentFlags().StringSlice("provisioners", []string{}, "Comma separated list of provision scripts to run . e.g. 'go,neovim'")
 }

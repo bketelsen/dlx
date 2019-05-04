@@ -91,6 +91,6 @@ func init() {
 	// is called directly, e.g.:
 
 	createCmd.PersistentFlags().StringVar(&template, "template", "", "base template for container")
-	viper.BindPFlag("template", createCmd.PersistentFlags().Lookup("template"))
+	// viper.BindPFlag("template", createCmd.PersistentFlags().Lookup("template"))
 
 }

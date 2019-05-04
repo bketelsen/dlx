@@ -8,7 +8,9 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"devlx/config"
 	"devlx/path"
 
 	"github.com/bketelsen/libgo/events"
@@ -21,6 +23,7 @@ var cfgFile string
 var log wlog.UI
 var verbose bool
 var socket string
+var devlxConfig config.GlobalConfig
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -35,10 +38,7 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			fmt.Println("No configuration files found.")
 
-			log.Error("No configuration files found.")
-			log.Error("Run `devlx config -c` to create configuration file.")
-			log.Error("Run `devlx config -t` to create templates.")
-			log.Error("Run `devlx profile` to create required lxc profiles.")
+			log.Error("Run `devlx init` to create required lxc profiles.")
 		} else {
 			cmd.Help()
 		}
@@ -60,10 +60,9 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.config/devlx/devlx.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", filepath.Join(path.GetConfigPath(), "devlx.yaml"), "path to config file")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
-
-	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", "/var/snap/lxd/common/lxd/unix.socket", "LXD Daemon socket")
+	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", viper.GetString("socket"), "LXD Daemon socket")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -114,5 +113,10 @@ func initConfig() {
 		if verbose {
 			log.Info("Using config file: " + viper.ConfigFileUsed())
 		}
+	}
+
+	err := viper.Unmarshal(&devlxConfig)
+	if err != nil {
+		panic("Unable to unmarshal config")
 	}
 }

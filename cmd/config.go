@@ -6,18 +6,20 @@
 package cmd
 
 import (
-	"devlx/path"
+	"errors"
+	"fmt"
 	"net"
+	"os"
+	"os/user"
+	"path/filepath"
 	"strings"
+	"text/template"
+
+	"devlx/path"
 
 	"github.com/gobuffalo/packr/v2"
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-
-	"errors"
-	"os"
-	"path/filepath"
 )
 
 // configCmd represents the config command
@@ -64,93 +66,14 @@ var configCmd = &cobra.Command{
 	},
 }
 
-func getConfigValues() error {
-
-	//Sets default UID if $UID is not se in env. (This should be on most linux systems)
-	viper.SetDefault("uid", 1000)
-
-	//Find and set LXD Unix socket.
-	lxdSocket := ""
-	possibleLxdSockets := []string{
-		"/var/snap/lxd/common/lxd/unix.socket",
-		"/var/lib/lxd/unix.socket",
-	}
-
-	for _, socket := range possibleLxdSockets {
-		if _, err := os.Stat(socket); err == nil {
-			lxdSocket = socket
-			break
-		}
-	}
-
-	viper.Set("lxdSocket", lxdSocket)
-
-	//Get Network adapters
-	interfaces, err := net.Interfaces()
-	if err != nil {
-		return err
-	}
-
-	var interfaceNames []string
-
-	for _, inter := range interfaces {
-
-		if strings.Contains(inter.Name, "lo") || strings.Contains(inter.Name, "tun") || strings.Contains(inter.Name, "docker") {
-			continue
-		}
-
-		interfaceNames = append(interfaceNames, inter.Name)
-	}
-
-	if l := len(interfaceNames); l > 1 {
-		prompt := promptui.Select{
-			Label: "Select Network Adapter",
-			Items: interfaceNames,
-		}
-
-		_, result, err := prompt.Run()
-
-		if err != nil {
-			return err
-		}
-
-		viper.Set("ethernet", result)
-	} else if l == 1 {
-		viper.Set("ethernet", interfaceNames[0])
-	} else {
-		//in the future we should probably create a host network like docker does.
-		return errors.New("No network interfaces available")
-	}
-
-	return nil
-
+type Config struct {
+	Network   string
+	LxdSocket string
+	Uid       string
+	Display   string
 }
 
-func createConfig() error {
-	//make config directory and file
-	err := os.MkdirAll(filepath.Join(path.GetConfigPath()), 0755)
-
-	// f, err := os.Create(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
-	err = viper.WriteConfig()
-	if err != nil {
-		return err
-	}
-	// _, err = f.Write([]byte(configTemplate))
-	// if err != nil {
-	// 	return err
-	// }
-	return nil
-}
-
-func checkConfig() error {
-	_, err := os.Stat(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func createTemplates() error {
+func createTemplates(config Config) error {
 	box := packr.New("provision", "../templates/provision")
 
 	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "provision"), 0755)
@@ -158,15 +81,23 @@ func createTemplates() error {
 		return err
 	}
 	for _, tpl := range box.List() {
-		bb, err := box.Find(tpl)
+		t := template.New("profile")
+		profileTemplate, err := box.FindString(tpl)
 		if err != nil {
 			return err
 		}
+
+		_, err := t.Parse(profileTemplate)
+		if err != nil {
+			return err
+		}
+
 		f, err := os.Create(filepath.Join(path.GetConfigPath(), "provision", tpl))
 		if err != nil {
 			return err
 		}
-		_, err = f.Write([]byte(bb))
+
+		err = t.Execute(f, Config)
 		if err != nil {
 			return err
 		}
@@ -232,5 +163,5 @@ func init() {
 // cliimage: "18.10"
 // guiimage: "18.10"
 // utilimage: "18.10"
-// ethernet: enp5s0
+// network: enp5s0
 // `

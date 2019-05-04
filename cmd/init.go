@@ -30,15 +30,13 @@ your containers, and creates lxc profiles that are required for operation.`,
 
 		log.Running("Initializing devlx")
 
-		// create .devlx.yaml file
-
-		log.Running("Evaluating Environment")
+		log.Running("Collecting Environment Info")
 		err := getConfigValues()
 		if err != nil {
 			log.Error("Error getting config values: " + err.Error())
 			os.Exit(1)
 		}
-		log.Success("Evaluation complete")
+		log.Success("Collection complete")
 
 		log.Running("Creating configuration file")
 		err = createConfig()
@@ -75,7 +73,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 			log.Error("Error creating templates store: " + err.Error())
 			os.Exit(1)
 		}
-		log.Success("Directory created")
+		log.Success("Relation directory created")
 	},
 }
 

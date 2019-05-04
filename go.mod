@@ -4,6 +4,7 @@ go 1.12
 
 require (
 	code.cloudfoundry.org/systemcerts v0.0.0-20180917154049-ca00b2f806f2 // indirect
+	github.com/alecthomas/units v0.0.0-20151022065526-2efee857e7cf // indirect
 	github.com/bketelsen/libgo v0.0.0-20190129172135-7bf913b1df11
 	github.com/buger/goterm v0.0.0-20181115115552-c206103e1f37
 	github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 // indirect
@@ -30,6 +31,7 @@ require (
 	github.com/manifoldco/promptui v0.3.2
 	github.com/mattn/go-runewidth v0.0.4 // indirect
 	github.com/mitchellh/go-homedir v1.1.0
+	github.com/nicksnyder/go-i18n v1.10.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/rogpeppe/fastuuid v1.0.0 // indirect
@@ -39,6 +41,7 @@ require (
 	github.com/spf13/viper v1.3.1
 	golang.org/x/sys v0.0.0-20190312061237-fead79001313 // indirect
 	golang.org/x/text v0.3.1-0.20180807135948-17ff2d5776d2 // indirect
+	gopkg.in/alecthomas/kingpin.v3-unstable v3.0.0-20180810215634-df19058c872c // indirect
 	gopkg.in/httprequest.v1 v1.1.4 // indirect
 	gopkg.in/macaroon-bakery.v2 v2.1.0 // indirect
 	gopkg.in/macaroon.v2 v2.1.0 // indirect

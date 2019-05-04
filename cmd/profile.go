@@ -48,8 +48,8 @@ no arguments to create or update all required profiles.`,
 
 func createProfiles(name string) error {
 
-	log.Running("Creating lxc profiles")
-	c, err := lxd.ConnectLXDUnix("/var/snap/lxd/common/lxd/unix.socket", nil)
+	log.Running("Managing profiles")
+	c, err := lxd.ConnectLXDUnix(viper.GetString("lxdsocket"), nil)
 	if err != nil {
 		log.Error("Unable to connect: " + err.Error())
 		return err
@@ -130,16 +130,17 @@ func init() {
 
 	// Here you will define your flags and configuration settings.
 
-	// Cobra supports Persistent Flags which will work for this command
+	// lxd supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	profileCmd.PersistentFlags().String("ethernet", "", "the name of your ethernet device e.g. 'enp5s0'")
-	viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
+	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
+	// viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
 
 	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
-	viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
+	// viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
 
 	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
-	viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
+	// viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
+
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// profileCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
