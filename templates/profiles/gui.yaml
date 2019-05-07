@@ -1,7 +1,7 @@
 config:
-  environment.DISPLAY: :1
+  environment.DISPLAY: {{.Display}}
   security.devlxd: false
-  raw.idmap: both 1000 1000
+  raw.idmap: both {{.Uid}} {{.Uid}}
   raw.lxc: |
     lxc.apparmor.profile=unconfined
     lxc.mount.auto=proc:rw sys:rw
@@ -18,7 +18,7 @@ devices:
     type: nic
   PASocket:
     path: /tmp/.pulse-native
-    source: /run/user/1000/pulse/native
+    source: /run/user/{{.Uid}}/pulse/native
     type: disk
   X1:
     path: /tmp/.X11-unix/X1

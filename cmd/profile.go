@@ -13,6 +13,7 @@ import (
 
 	"devlx/path"
 
+	"github.com/gobuffalo/packr/v2"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/spf13/cobra"
@@ -38,12 +39,49 @@ no arguments to create or update all required profiles.`,
 		if len(args) > 0 {
 			name = args[0]
 		}
+
 		err := createProfiles(name)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
 	},
+}
+
+func init() {
+	rootCmd.AddCommand(profileCmd)
+
+	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
+
+	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
+	// viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
+
+	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
+	// viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
+}
+
+func initProfileTemplates() error {
+	pbox := packr.New("profiles", "../templates/profiles")
+
+	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "profiles"), 0755)
+	if err != nil {
+		return err
+	}
+	for _, tpl := range pbox.List() {
+		bb, err := pbox.Find(tpl)
+		if err != nil {
+			return err
+		}
+		f, err := os.Create(filepath.Join(path.GetConfigPath(), "profiles", tpl))
+		if err != nil {
+			return err
+		}
+		_, err = f.Write([]byte(bb))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func createProfiles(name string) error {
@@ -124,16 +162,4 @@ func createProfiles(name string) error {
 	}
 	log.Success("Managing profiles")
 	return nil
-}
-func init() {
-	rootCmd.AddCommand(profileCmd)
-
-	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
-	// viper.BindPFlag("network", profileCmd.PersistentFlags().Lookup("network"))
-
-	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
-	// viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
-
-	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
-	// viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
 }

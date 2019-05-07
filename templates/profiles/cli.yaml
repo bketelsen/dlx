@@ -1,5 +1,5 @@
 config:
-  raw.idmap: both 1000 1000
+  raw.idmap: both {{.Uid}} {{.Uid}}
 description: CLI LXD profile
 devices:
   eth0:
@@ -9,4 +9,3 @@ devices:
     type: nic
 name: cli
 used_by:
-

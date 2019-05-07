@@ -85,22 +85,18 @@ func initConfigFile() error {
 		return err
 	}
 
-	if err := determineTemplate(); err != nil {
+	if err := determineDefaultTemplate(); err != nil {
 		return err
 	}
 
-	if err := determineImage(); err != nil {
-		return err
-	}
-
-	if err := determineDisplay(); err != nil {
+	if err := determineDefaultImage(); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func createTemplates() error {
+func initDefaultProvisioners() error {
 	box := packr.New("provision", "../templates/provision")
 
 	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "provision"), 0755)
@@ -122,27 +118,7 @@ func createTemplates() error {
 		}
 	}
 
-	pbox := packr.New("profiles", "../templates/profiles")
-	err = os.MkdirAll(filepath.Join(path.GetConfigPath(), "profiles"), 0755)
-	if err != nil {
-		return err
-	}
-	for _, tpl := range pbox.List() {
-		bb, err := pbox.Find(tpl)
-		if err != nil {
-			return err
-		}
-		f, err := os.Create(filepath.Join(path.GetConfigPath(), "profiles", tpl))
-		if err != nil {
-			return err
-		}
-		_, err = f.Write([]byte(bb))
-		if err != nil {
-			return err
-		}
-	}
 	return nil
-
 }
 
 func createRelationsStore() error {
@@ -163,12 +139,7 @@ func createRelationsStore() error {
 	return nil
 }
 
-func determineDisplay() error {
-	return nil
-	//TODO
-}
-
-func determineImage() error {
+func determineDefaultImage() error {
 	prompt := promptui.Select{
 		Label: "Select default Ubuntu OS Image",
 		Items: []string{"19.04", "18.10", "18.04", "16.04", "14.04"},
@@ -246,11 +217,11 @@ func determineNetwork() error {
 	return nil
 }
 
-func determineTemplate() error {
+func determineDefaultTemplate() error {
 
 	prompt := promptui.Select{
-		Label: "Select default template",
-		Items: []string{"gui", "cli"},
+		Label: "Select default profile",
+		Items: profiles,
 	}
 
 	_, result, err := prompt.Run()
@@ -303,5 +274,7 @@ func init() {
 	configCmd.Flags().StringVar(&config.display, "display", viper.GetString("display"), "Set default Display name for gui application windows")
 	configCmd.Flags().StringVar(&config.template, "template", viper.GetString("template"), "Set default template for creating templates")
 	configCmd.Flags().StringVar(&config.image, "image", viper.GetString("image"), "Set default  Ubuntu image for creating templates")
+
+	//uid, ssh-socket, and display should be retrieved from the environment if flag not passed. No need to add to written onfig.
 
 }

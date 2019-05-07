@@ -21,7 +21,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 
 		log.Running("Initializing devlx")
 
-		log.Running("Creating configuration file")
+		log.Running("Creating configuration")
 		err := initConfigFile()
 		if err != nil {
 			log.Error("Error initilizing config file: " + err.Error())
@@ -34,12 +34,22 @@ your containers, and creates lxc profiles that are required for operation.`,
 			os.Exit(1)
 		}
 
-		log.Success("Default configuration file created")
+		log.Success("Default configuration created")
+
+		// create provision directory
+
+		log.Running("Creating default provisioners")
+		err = initDefaultProvisioners()
+		if err != nil {
+			log.Error("Error creating templates: " + err.Error())
+			os.Exit(1)
+		}
+		log.Success("Provisioners created")
 
 		// create templates directory
 
-		log.Running("Creating templates")
-		err = createTemplates()
+		log.Running("Creating profile templates")
+		err = initProfileTemplates()
 		if err != nil {
 			log.Error("Error creating templates: " + err.Error())
 			os.Exit(1)
