@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// connectCmd represents the connect command
 var connectCmd = &cobra.Command{
 	Use:     "connect",
 	Aliases: []string{"shell"},
@@ -24,7 +23,7 @@ var connectCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Connecting to container " + name)
-		// Connect to LXD over the Unix Socket
+
 		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())

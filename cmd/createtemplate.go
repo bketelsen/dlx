@@ -19,7 +19,6 @@ var provisioners []string
 var base string
 var image string
 
-// createtemplateCmd represents the createtemplate command
 var createtemplateCmd = &cobra.Command{
 	Use:   "create [name]",
 	Short: "Create a template",
@@ -34,7 +33,6 @@ to quickly create a Cobra application.`,
 		name = args[0]
 		log.Running("Creating template " + name)
 		// Connect to LXD over the Unix socket
-		// TODO: account for non snap install
 
 		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {

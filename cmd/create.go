@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -19,7 +19,6 @@ var (
 	template string
 )
 
-// createCmd represents the create command
 var createCmd = &cobra.Command{
 	Use:   "create [name]",
 	Short: "Create a container",
@@ -29,8 +28,6 @@ var createCmd = &cobra.Command{
 
 		name = args[0]
 		log.Running("Creating container " + name)
-		// Connect to LXD over the Unix socket
-		// TODO: account for non snap install
 		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
@@ -58,7 +55,6 @@ func getProfiles() []string {
 	profiles := []string{}
 
 	// default gui if nothing set
-	// probably a way to do this with some sort of set in viper/pflag?  TODO
 	c := viper.GetBool("clionly")
 	g := viper.GetBool("gui")
 
@@ -81,16 +77,7 @@ func getProfiles() []string {
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// createCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-
-	createCmd.PersistentFlags().StringVar(&template, "template", "", "base template for container")
+	createCmd.PersistentFlags().StringVar(&template, "template", viper.GetString("template"), "base template for container")
 	// viper.BindPFlag("template", createCmd.PersistentFlags().Lookup("template"))
 
 }

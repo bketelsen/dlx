@@ -27,7 +27,6 @@ var (
 
 var profiles = []string{"gui", "cli"}
 
-// profileCmd represents the profile command
 var profileCmd = &cobra.Command{
 	Use:   "profile [name]",
 	Short: "create or replace the provisioning profile for devlx",
@@ -129,10 +128,6 @@ func createProfiles(name string) error {
 func init() {
 	rootCmd.AddCommand(profileCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// lxd supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
 	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
 	// viper.BindPFlag("network", profileCmd.PersistentFlags().Lookup("network"))
 
@@ -141,8 +136,4 @@ func init() {
 
 	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
 	// viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// profileCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

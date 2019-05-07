@@ -12,7 +12,6 @@ import (
 	"github.com/spf13/viper"
 )
 
-// initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "initialize your computer for devlx usage",

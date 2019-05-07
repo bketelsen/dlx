@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -13,7 +13,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// startCmd represents the start command
 var startCmd = &cobra.Command{
 	Use:   "start",
 	Short: "start a paused container",

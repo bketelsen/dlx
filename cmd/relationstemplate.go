@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -83,8 +83,6 @@ func setContainerTemplateRelation(c *lxd.Client, container string, tmpl string, 
 		}
 
 	} else {
-		// else delete the relation
-
 		err := templates.parse()
 		if err != nil {
 			return errors.Wrap(err, "Failed parse data")
@@ -171,7 +169,6 @@ func removeTemplate(c *lxd.Client, tmpl string) error {
 }
 
 // Unmarshal helper function
-// path is hardcoded?
 func (t *Templates) parse() error {
 	filename := filepath.Join(path.GetConfigPath(), "templates", "relations.yaml")
 

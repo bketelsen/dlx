@@ -24,7 +24,6 @@ var verbose bool
 
 var config devlxConfig
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "devlx",
 	Short: "Provision lxd containers for development",
@@ -50,10 +49,7 @@ func init() {
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
 	rootCmd.PersistentFlags().StringVarP(&config.lxdSocket, "lxd-socket", "s", viper.GetString("lxd-socket"), "LXD Daemon socket")
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 	log = wlog.New(os.Stdin, os.Stdout, os.Stderr)
-
 	log = wlog.AddPrefix("?", wlog.Cross, "i", "-", ">", "~", wlog.Check, "!", log)
 	log = wlog.AddConcurrent(log)
 	log = wlog.AddColor(wlog.None, wlog.Red, wlog.Blue, wlog.None, wlog.None, wlog.None, wlog.Cyan, wlog.Green, wlog.Magenta, log)
@@ -80,7 +76,6 @@ func eventHandler(e events.Event) {
 
 }
 
-// initConfig reads in config file and ENV variables if set.
 func initConfig() {
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -100,6 +95,6 @@ func initConfig() {
 	} else if err != nil {
 		fmt.Println("No configuration files found.")
 
-		log.Error("Run `devlx init` to create required lxc profiles.")
+		log.Error("Run `devlx init` to setup devlx config.")
 	}
 }
