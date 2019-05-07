@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	client "devlx/lxd"
+
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +22,7 @@ var listCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Long:    `List containers and their status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

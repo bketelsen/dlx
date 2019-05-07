@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -6,74 +6,101 @@
 package cmd
 
 import (
-	"errors"
 	"fmt"
 	"net"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
-	"text/template"
 
 	"devlx/path"
 
 	"github.com/gobuffalo/packr/v2"
+	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
 )
 
-// configCmd represents the config command
+type devlxConfig struct {
+	network   string
+	display   string
+	template  string
+	image     string
+	lxdSocket string
+}
+
 var configCmd = &cobra.Command{
 	Use:   "config",
 	Short: "manage global configurations",
-	Long:  ``,
+	Long: `Helps manage your devlx configuration
+	Running bare 'devlx config' collects config info needed to configure devlx.
+
+	Running coffig with one or more flags will write that value to the config.
+	`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Running("Create configuration")
-		config, err := cmd.Flags().GetBool("create")
-		if err != nil {
-			log.Error("Error getting flags: " + err.Error())
-			os.Exit(1)
-		}
+		log.Running("Setting configuration")
 
-		templates, err := cmd.Flags().GetBool("templates")
-		if err != nil {
-			log.Error("Error getting flags: " + err.Error())
-			os.Exit(1)
-		}
-		if !config && !templates {
-			cmd.Usage()
-			log.Error("Please specify either one or more flags.")
-			os.Exit(1)
-		}
-		if config {
-			err := createConfig()
-			if err != nil {
-				log.Error("Error creating config file: " + err.Error())
+		flagSet := false
+
+		cmd.Flags().VisitAll(func(flag *pflag.Flag) {
+			if flag.Changed {
+				flagSet = true
+
+				viper.Set(flag.Name, flag.Value.String())
+			}
+		})
+
+		if flagSet == false {
+			if err := initConfigFile(); err != nil {
+				log.Error(`Error getting config values` + err.Error())
 				os.Exit(1)
+
 			}
-			log.Success("Default configuration file created")
-		}
-		if templates {
-			err := createTemplates()
-			if err != nil {
-				log.Error("Error creating templates: " + err.Error())
-			}
-			log.Success("Templates created")
 		}
 
-		log.Success("Configuration created")
+		if err := viper.WriteConfig(); err != nil {
+			log.Error(`Error writing update to config file` + err.Error())
+			os.Exit(1)
+
+		}
+
+		log.Success("Completed Configuration")
 	},
 }
 
-type Config struct {
-	Network   string
-	LxdSocket string
-	Uid       string
-	Display   string
+func initConfigFile() error {
+
+	if err := validateLxdSetup(); err != nil {
+		return err
+	}
+
+	if err := determineLxdSocket(); err != nil {
+		return err
+	}
+
+	if err := determineNetwork(); err != nil {
+		return err
+	}
+
+	if err := determineTemplate(); err != nil {
+		return err
+	}
+
+	if err := determineImage(); err != nil {
+		return err
+	}
+
+	if err := determineDisplay(); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-func createTemplates(config Config) error {
+func createTemplates() error {
 	box := packr.New("provision", "../templates/provision")
 
 	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "provision"), 0755)
@@ -81,23 +108,15 @@ func createTemplates(config Config) error {
 		return err
 	}
 	for _, tpl := range box.List() {
-		t := template.New("profile")
-		profileTemplate, err := box.FindString(tpl)
+		bb, err := box.Find(tpl)
 		if err != nil {
 			return err
 		}
-
-		_, err := t.Parse(profileTemplate)
-		if err != nil {
-			return err
-		}
-
 		f, err := os.Create(filepath.Join(path.GetConfigPath(), "provision", tpl))
 		if err != nil {
 			return err
 		}
-
-		err = t.Execute(f, Config)
+		_, err = f.Write([]byte(bb))
 		if err != nil {
 			return err
 		}
@@ -144,24 +163,145 @@ func createRelationsStore() error {
 	return nil
 }
 
+func determineDisplay() error {
+	return nil
+	//TODO
+}
+
+func determineImage() error {
+	prompt := promptui.Select{
+		Label: "Select default Ubuntu OS Image",
+		Items: []string{"19.04", "18.10", "18.04", "16.04", "14.04"},
+	}
+
+	_, result, err := prompt.Run()
+	if err != nil {
+		return err
+	}
+
+	viper.Set("image", result)
+	return nil
+}
+
+func determineLxdSocket() error {
+	lxdSocket := ""
+	possibleLxdSockets := []string{
+		"/var/snap/lxd/common/lxd/unix.socket",
+		"/var/lib/lxd/unix.socket",
+	}
+
+	for _, socket := range possibleLxdSockets {
+		if _, err := os.Stat(socket); err == nil {
+			lxdSocket = socket
+			break
+		}
+	}
+
+	if lxdSocket == "" {
+		log.Error(`No LXD Socket found, are you sure LXD is installed?`)
+		os.Exit(1)
+	}
+
+	viper.Set("lxd-socket", lxdSocket)
+
+	return nil
+}
+
+func determineNetwork() error {
+	interfaces, err := net.Interfaces()
+	if err != nil {
+		return err
+	}
+
+	var interfaceNames []string
+
+	for _, inter := range interfaces {
+
+		if strings.Contains(inter.Name, "lo") || strings.Contains(inter.Name, "tun") || strings.Contains(inter.Name, "docker") {
+			continue
+		}
+
+		interfaceNames = append(interfaceNames, inter.Name)
+	}
+
+	if l := len(interfaceNames); l > 1 {
+		prompt := promptui.Select{
+			Label: "Select Network Adapter",
+			Items: interfaceNames,
+		}
+
+		_, result, err := prompt.Run()
+		if err != nil {
+			return err
+		}
+
+		viper.Set("network", result)
+	} else if l == 1 {
+		viper.Set("network", interfaceNames[0])
+	} else {
+		//in the future we should probably create a host network like docker does.
+		return errors.New("No network interfaces available")
+	}
+
+	return nil
+}
+
+func determineTemplate() error {
+
+	prompt := promptui.Select{
+		Label: "Select default template",
+		Items: []string{"gui", "cli"},
+	}
+
+	_, result, err := prompt.Run()
+	if err != nil {
+		return err
+	}
+
+	viper.Set("template", result)
+	return nil
+}
+
+func validateLxdSetup() error {
+	curUser, err := user.Current()
+	if err != nil {
+		log.Error("Unable to find default UID from OS.")
+		return err
+	}
+
+	lxdGroup, err := user.LookupGroup("lxd")
+	if err != nil {
+		log.Error("Unable to get lxd group Id from OS, are you sure lxd is installed?")
+		return err
+	}
+
+	userGroups, err := curUser.GroupIds()
+	if err != nil {
+		log.Error("Unable to get user's group IDs from OS.")
+		return err
+	}
+
+	userInGroup := false
+
+	for _, gid := range userGroups {
+		if gid == lxdGroup.Gid {
+			userInGroup = true
+		}
+	}
+
+	if !userInGroup {
+		log.Error(fmt.Sprintf("The current user %s is not in the 'lxd' group. Please add the user by running 'adduser %s lxd' in terminal then logging out and back in before rerunning init.", curUser.Name, curUser.Username))
+	}
+
+	return nil
+}
+
 func init() {
 	rootCmd.AddCommand(configCmd)
 
-	// Here you will define your flags and configuration settings.
+	configCmd.Flags().StringVar(&config.network, "network", viper.GetString("network"), "Set default Network interface for bridging")
+	configCmd.Flags().StringVar(&config.display, "display", viper.GetString("display"), "Set default Display name for gui application windows")
+	configCmd.Flags().StringVar(&config.template, "template", viper.GetString("template"), "Set default template for creating templates")
+	configCmd.Flags().StringVar(&config.image, "image", viper.GetString("image"), "Set default  Ubuntu image for creating templates")
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// configCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	configCmd.Flags().BoolP("create", "c", false, "Create global config file in $HOME")
-	configCmd.Flags().BoolP("templates", "t", false, "Create global template folders in $HOME")
 }
-
-// const configTemplate = `
-// cliimage: "18.10"
-// guiimage: "18.10"
-// utilimage: "18.10"
-// network: enp5s0
-// `

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -15,7 +15,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var provisioners *[]string
+var provisioners []string
 var base string
 var image string
 
@@ -36,7 +36,7 @@ to quickly create a Cobra application.`,
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
 
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
@@ -57,7 +57,7 @@ to quickly create a Cobra application.`,
 
 		log.Running("Container starting: " + name) // need better plan here
 		time.Sleep(10 * time.Second)
-		err = lxclient.ContainerProvision(name, kind, *provisioners)
+		err = lxclient.ContainerProvision(name, kind, provisioners)
 		if err != nil {
 			log.Error("Provisioning template: " + err.Error())
 			os.Exit(1)
@@ -89,20 +89,9 @@ to quickly create a Cobra application.`,
 func init() {
 	templateCmd.AddCommand(createtemplateCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	templateCmd.PersistentFlags().StringVar(&base, "profile", "gui", "Base profile (gui or cli)")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// createtemplateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	templateCmd.PersistentFlags().StringVar(&base, "profile", viper.GetString("profile"), "Base profile (gui or cli)")
 
 	templateCmd.PersistentFlags().StringVar(&image, "image", viper.GetString("image"), "Ubuntu version for instances")
-	// viper.BindPFlag("guiimage", templateCmd.PersistentFlags().Lookup("guiimage"))
 
-	// templateCmd.PersistentFlags().StringVar(&cliimage, "cliimage", "18.10", "Ubuntu version for CLI instances")
-	// viper.BindPFlag("cliimage", templateCmd.PersistentFlags().Lookup("cliimage"))
-	provisioners = templateCmd.PersistentFlags().StringSlice("provisioners", []string{}, "Comma separated list of provision scripts to run . e.g. 'go,neovim'")
+	templateCmd.PersistentFlags().StringSliceVar(&provisioners, "provisioners", []string{}, "Comma separated list of provision scripts to run . e.g. 'go,neovim'")
 }

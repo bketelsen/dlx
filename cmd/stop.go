@@ -9,6 +9,7 @@ import (
 	"os"
 
 	client "devlx/lxd"
+
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ var stopCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Stopping container " + name)
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
@@ -39,15 +40,4 @@ var stopCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(stopCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// stopCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// stopCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

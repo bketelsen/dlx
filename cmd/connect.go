@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -24,8 +24,8 @@ var connectCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Connecting to container " + name)
-		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewClient(socket)
+		// Connect to LXD over the Unix Socket
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
@@ -43,15 +43,4 @@ var connectCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(connectCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// connectCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// connectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

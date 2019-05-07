@@ -31,7 +31,7 @@ var createCmd = &cobra.Command{
 		log.Running("Creating container " + name)
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

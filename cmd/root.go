@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -10,7 +10,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"devlx/config"
 	"devlx/path"
 
 	"github.com/bketelsen/libgo/events"
@@ -22,27 +21,14 @@ import (
 var cfgFile string
 var log wlog.UI
 var verbose bool
-var socket string
-var devlxConfig config.GlobalConfig
+
+var config devlxConfig
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "devlx",
 	Short: "Provision lxd containers for development",
 	Long:  `devlx provisions lxd containers for local development.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	Run: func(cmd *cobra.Command, args []string) {
-
-		err := checkConfig()
-		if err != nil {
-			fmt.Println("No configuration files found.")
-
-			log.Error("Run `devlx init` to create required lxc profiles.")
-		} else {
-			cmd.Help()
-		}
-	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -62,7 +48,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", filepath.Join(path.GetConfigPath(), "devlx.yaml"), "path to config file")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
-	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", viper.GetString("socket"), "LXD Daemon socket")
+	rootCmd.PersistentFlags().StringVarP(&config.lxdSocket, "lxd-socket", "s", viper.GetString("lxd-socket"), "LXD Daemon socket")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -106,17 +92,14 @@ func initConfig() {
 		viper.SetConfigName("devlx")
 	}
 
-	viper.AutomaticEnv() // read in environment variables that match
-
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
 		if verbose {
 			log.Info("Using config file: " + viper.ConfigFileUsed())
 		}
-	}
+	} else if err != nil {
+		fmt.Println("No configuration files found.")
 
-	err := viper.Unmarshal(&devlxConfig)
-	if err != nil {
-		panic("Unable to unmarshal config")
+		log.Error("Run `devlx init` to create required lxc profiles.")
 	}
 }

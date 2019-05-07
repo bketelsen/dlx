@@ -9,6 +9,7 @@ import (
 	"os"
 
 	client "devlx/lxd"
+
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +23,7 @@ var startCmd = &cobra.Command{
 		name = args[0]
 
 		log.Running("Starting container " + name)
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

@@ -1,4 +1,4 @@
-// Copyright (c) 2019 bketelsen
+// Copyright © 2019 bketelsen
 //
 // This software is released under the MIT License.
 // https://opensource.org/licenses/MIT
@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 
 	"devlx/path"
+
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/spf13/cobra"
@@ -49,7 +50,7 @@ no arguments to create or update all required profiles.`,
 func createProfiles(name string) error {
 
 	log.Running("Managing profiles")
-	c, err := lxd.ConnectLXDUnix(viper.GetString("lxdsocket"), nil)
+	c, err := lxd.ConnectLXDUnix(config.lxdSocket, nil)
 	if err != nil {
 		log.Error("Unable to connect: " + err.Error())
 		return err
@@ -133,7 +134,7 @@ func init() {
 	// lxd supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
 	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
-	// viper.BindPFlag("ethernet", profileCmd.PersistentFlags().Lookup("ethernet"))
+	// viper.BindPFlag("network", profileCmd.PersistentFlags().Lookup("network"))
 
 	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
 	// viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))

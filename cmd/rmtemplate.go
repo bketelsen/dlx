@@ -9,6 +9,7 @@ import (
 	"os"
 
 	client "devlx/lxd"
+
 	"github.com/spf13/cobra"
 )
 
@@ -21,8 +22,8 @@ var rmCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		template := args[0]
 
-		//Connect to LXD over the Unix socket
-		lxclient, err := client.NewClient(socket)
+		//Connect to LXD over the Unix Socket
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

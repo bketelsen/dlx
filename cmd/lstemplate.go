@@ -21,7 +21,7 @@ var lsCmd = &cobra.Command{
 	Long:  `List available templates`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

@@ -9,6 +9,7 @@ import (
 	"os"
 
 	client "devlx/lxd"
+
 	"github.com/spf13/cobra"
 )
 
@@ -24,7 +25,7 @@ var removeCmd = &cobra.Command{
 
 		log.Running("Removing container " + name)
 
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(config.lxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
