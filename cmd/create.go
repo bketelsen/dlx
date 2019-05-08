@@ -15,8 +15,7 @@ import (
 )
 
 var (
-	name     string
-	template string
+	name string
 )
 
 var createCmd = &cobra.Command{
@@ -28,12 +27,12 @@ var createCmd = &cobra.Command{
 
 		name = args[0]
 		log.Running("Creating container " + name)
-		lxclient, err := client.NewClient(config.lxdSocket)
+		lxclient, err := client.NewClient(config.LxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		err = lxclient.ContainerCreate(name, true, template, getProfiles())
+		err = lxclient.ContainerCreate(name, true, config.Template, getProfiles())
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
@@ -41,7 +40,7 @@ var createCmd = &cobra.Command{
 
 		// Store the LXC Image -> Container relationship
 		log.Running("Storing image container relation ")
-		err = setContainerTemplateRelation(lxclient, name, template, true)
+		err = setContainerTemplateRelation(lxclient, name, config.Template, true)
 		if err != nil {
 			log.Error("Unable to create container-template relations" + err.Error())
 			os.Exit(1)
@@ -77,7 +76,7 @@ func getProfiles() []string {
 func init() {
 	rootCmd.AddCommand(createCmd)
 
-	createCmd.PersistentFlags().StringVar(&template, "template", viper.GetString("template"), "base template for container")
+	createCmd.PersistentFlags().StringVar(&config.Template, "template", viper.GetString("template"), "base template for container")
 	// viper.BindPFlag("template", createCmd.PersistentFlags().Lookup("template"))
 
 }

@@ -24,7 +24,7 @@ var connectCmd = &cobra.Command{
 
 		log.Running("Connecting to container " + name)
 
-		lxclient, err := client.NewClient(config.lxdSocket)
+		lxclient, err := client.NewClient(config.LxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

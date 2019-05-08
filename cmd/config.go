@@ -24,11 +24,13 @@ import (
 )
 
 type devlxConfig struct {
-	network   string
-	display   string
-	template  string
-	image     string
-	lxdSocket string
+	Network   string
+	Display   string `mapstructure:"DISPLAY"`
+	Template  string
+	Image     string
+	LxdSocket string `mapstructure:"lxd-socket"`
+	UID       string `mapstructure:"UID"`
+	SSHSocket string `mapstructure:"ssh-socket"`
 }
 
 var configCmd = &cobra.Command{
@@ -71,6 +73,19 @@ var configCmd = &cobra.Command{
 	},
 }
 
+func init() {
+	rootCmd.AddCommand(configCmd)
+
+	configCmd.Flags().StringVar(&config.Network, "network", viper.GetString("network"), "Set default Network interface for bridging")
+	configCmd.Flags().StringVar(&config.Display, "display", viper.GetString("display"), "Set default Display name for gui application windows")
+	configCmd.Flags().StringVar(&config.Template, "template", viper.GetString("template"), "Set default template for creating templates")
+	configCmd.Flags().StringVar(&config.Image, "image", viper.GetString("image"), "Set default  Ubuntu image for creating templates")
+	configCmd.Flags().StringVar(&config.UID, "uid", viper.GetString("uid"), "Set os user id")
+
+	// ssh-socket, and display should be retrieved from the environment if flag not passed. No need to add to written onfig.
+
+}
+
 func initConfigFile() error {
 
 	if err := validateLxdSetup(); err != nil {
@@ -78,6 +93,10 @@ func initConfigFile() error {
 	}
 
 	if err := determineLxdSocket(); err != nil {
+		return err
+	}
+
+	if err := determineUID(); err != nil {
 		return err
 	}
 
@@ -233,10 +252,21 @@ func determineDefaultTemplate() error {
 	return nil
 }
 
+func determineUID() error {
+	curUser, err := user.Current()
+	if err != nil {
+		log.Error("Unable to get user from OS.")
+		return err
+	}
+
+	viper.Set("uid", curUser.Uid)
+	return nil
+}
+
 func validateLxdSetup() error {
 	curUser, err := user.Current()
 	if err != nil {
-		log.Error("Unable to find default UID from OS.")
+		log.Error("Unable to get user from OS.")
 		return err
 	}
 
@@ -265,16 +295,4 @@ func validateLxdSetup() error {
 	}
 
 	return nil
-}
-
-func init() {
-	rootCmd.AddCommand(configCmd)
-
-	configCmd.Flags().StringVar(&config.network, "network", viper.GetString("network"), "Set default Network interface for bridging")
-	configCmd.Flags().StringVar(&config.display, "display", viper.GetString("display"), "Set default Display name for gui application windows")
-	configCmd.Flags().StringVar(&config.template, "template", viper.GetString("template"), "Set default template for creating templates")
-	configCmd.Flags().StringVar(&config.image, "image", viper.GetString("image"), "Set default  Ubuntu image for creating templates")
-
-	//uid, ssh-socket, and display should be retrieved from the environment if flag not passed. No need to add to written onfig.
-
 }

@@ -6,10 +6,12 @@
 package cmd
 
 import (
+	"bytes"
 	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"text/template"
 
 	"devlx/path"
 
@@ -18,12 +20,11 @@ import (
 	"github.com/lxc/lxd/shared/api"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
-	yaml "gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v2"
 )
 
 var (
 	w bool
-	s bool
 )
 
 var profiles = []string{"gui", "cli"}
@@ -35,15 +36,14 @@ var profileCmd = &cobra.Command{
 to connect to running containers and possibly display X11 applications on the host. Run with
 no arguments to create or update all required profiles.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		var name string
-		if len(args) > 0 {
-			name = args[0]
+		if len(args) == 0 {
+			args = profiles
 		}
 
-		err := createProfiles(name)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
+		if w {
+			writeProfile(args)
+		} else {
+			listProfile(args)
 		}
 	},
 }
@@ -51,13 +51,9 @@ no arguments to create or update all required profiles.`,
 func init() {
 	rootCmd.AddCommand(profileCmd)
 
-	profileCmd.PersistentFlags().String("network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
+	profileCmd.PersistentFlags().StringVar(&config.Network, "network", viper.GetString("network"), "the name of your network device e.g. 'enp5s0'")
 
-	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", true, "Create or update a profile")
-	// viper.BindPFlag("write", profileCmd.PersistentFlags().Lookup("write"))
-
-	profileCmd.PersistentFlags().BoolVarP(&s, "show", "l", false, "Show a profile")
-	// viper.BindPFlag("show", profileCmd.PersistentFlags().Lookup("show"))
+	profileCmd.PersistentFlags().BoolVarP(&w, "write", "w", false, "Create or update a profile")
 }
 
 func initProfileTemplates() error {
@@ -84,82 +80,112 @@ func initProfileTemplates() error {
 	return nil
 }
 
-func createProfiles(name string) error {
+func fillProfileTemplate(p string) ([]byte, error) {
 
-	log.Running("Managing profiles")
-	c, err := lxd.ConnectLXDUnix(config.lxdSocket, nil)
+	filename := p + ".yaml"
+
+	log.Running("Reading profile " + p)
+	profTmpl, err := ioutil.ReadFile(filepath.Join(path.GetConfigPath(), "profiles", filename))
+	if err != nil {
+		log.Error("Unable to read profile tempalte" + err.Error())
+	}
+
+	profTmplS := string(profTmpl)
+
+	log.Running("Parsing profile template " + p)
+	tmpl, err := template.New("profile").Parse(profTmplS)
+	if err != nil {
+		log.Error("Error parsing profile template" + err.Error())
+		return nil, err
+	}
+
+	buf := new(bytes.Buffer)
+
+	err = tmpl.Execute(buf, config)
+	if err != nil {
+		log.Error("Error executing on profile template" + err.Error())
+		return nil, err
+	}
+
+	parsedTmpl := buf.Bytes()
+
+	return parsedTmpl, nil
+}
+
+func writeProfile(profiles []string) error {
+	c, err := lxd.ConnectLXDUnix(config.LxdSocket, nil)
 	if err != nil {
 		log.Error("Unable to connect: " + err.Error())
-		return err
+		os.Exit(1)
 	}
 
-	profs := make([]string, 0)
-
-	if name == "" {
-		profs = make([]string, len(profiles))
-		copy(profs, profiles)
-	} else {
-		profs = append(profs, name)
-	}
-	for _, p := range profs {
+	for _, p := range profiles {
 		exists := true
-		prof, etag, err := c.GetProfile(p)
+		_, etag, err := c.GetProfile(p)
 		if err != nil {
 			exists = false
 		}
-		if w {
-			filename := p + ".yaml"
-			fpath := filepath.Join(path.GetConfigPath(), "profiles", filename)
-			f, err := os.Open(fpath)
-			defer f.Close()
+
+		profileYaml, err := fillProfileTemplate(p)
+		if err != nil {
+			log.Error("Unable to fill profile: " + err.Error())
+			return err
+		}
+
+		if exists {
+			log.Running("Updating profile " + p)
+			var profile api.ProfilePut
+			err = yaml.Unmarshal(profileYaml, &profile)
+			if err != nil {
+				log.Error("Parsing Profile YAML : " + err.Error())
+				return err
+			}
+			err = c.UpdateProfile(p, profile, etag)
 			if err != nil {
 				log.Error("Create Profile : " + err.Error())
 				return err
 			}
-			bb, err := ioutil.ReadAll(f)
+
+			log.Success("Updating profile " + p)
+		} else {
+
+			log.Running("Creating profile " + p)
+			var profile api.ProfilesPost
+			err = yaml.Unmarshal(profileYaml, &profile)
 			if err != nil {
-				log.Error("Reading Profile : " + err.Error())
+				log.Error("Parsing Profile Yaml : " + err.Error())
 				return err
 			}
-			if exists {
-
-				log.Running("Updating profile " + p)
-				var profile api.ProfilePut
-				err = yaml.Unmarshal(bb, &profile)
-				if err != nil {
-					log.Error("Parsing Profile : " + err.Error())
-					return err
-				}
-				err = c.UpdateProfile(p, profile, etag)
-				if err != nil {
-					log.Error("Create Profile : " + err.Error())
-					return err
-				}
-
-				log.Success("Updating profile " + p)
-			} else {
-
-				log.Running("Creating profile " + p)
-				var profile api.ProfilesPost
-				err = yaml.Unmarshal(bb, &profile)
-				if err != nil {
-					log.Error("Parsing Profile : " + err.Error())
-					return err
-				}
-				profile.Name = p
-				err = c.CreateProfile(profile)
-				if err != nil {
-					log.Error("Create Profile : " + err.Error())
-					return err
-				}
-				log.Success("Creating profile " + p)
+			profile.Name = p
+			err = c.CreateProfile(profile)
+			if err != nil {
+				log.Error("Create Profile : " + err.Error())
+				return err
 			}
-		}
-
-		if s {
-			fmt.Println(prof, p)
+			log.Success("Creating profile " + p)
 		}
 	}
-	log.Success("Managing profiles")
 	return nil
+}
+
+func listProfile(profules []string) {
+	c, err := lxd.ConnectLXDUnix(config.LxdSocket, nil)
+	if err != nil {
+		log.Error("Unable to connect: " + err.Error())
+		os.Exit(1)
+	}
+
+	for _, p := range profiles {
+		exists := true
+		prof, _, err := c.GetProfile(p)
+		if err != nil {
+			exists = false
+		}
+
+		if exists {
+			fmt.Println("[", p, "]: ", prof)
+		} else {
+			log.Error("Profile doesn't exist in LXD: " + p)
+		}
+	}
 }

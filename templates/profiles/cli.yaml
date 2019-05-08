@@ -1,5 +1,5 @@
 config:
-  raw.idmap: both {{.Uid}} {{.Uid}}
+  raw.idmap: both {{.UID}} {{.UID}}
 description: CLI LXD profile
 devices:
   eth0:

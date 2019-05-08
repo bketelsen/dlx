@@ -59,7 +59,7 @@ your containers, and creates lxc profiles that are required for operation.`,
 		// create lxc profiles
 
 		log.Running("Creating lxc profiles")
-		err = createProfiles("")
+		err = writeProfile(profiles)
 		if err != nil {
 			log.Error("Error creating profiles: " + err.Error())
 			os.Exit(1)

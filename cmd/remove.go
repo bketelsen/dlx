@@ -24,7 +24,7 @@ var removeCmd = &cobra.Command{
 
 		log.Running("Removing container " + name)
 
-		lxclient, err := client.NewClient(config.lxdSocket)
+		lxclient, err := client.NewClient(config.LxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

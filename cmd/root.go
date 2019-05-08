@@ -47,7 +47,7 @@ func init() {
 	// will be global for your application.
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", filepath.Join(path.GetConfigPath(), "devlx.yaml"), "path to config file")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
-	rootCmd.PersistentFlags().StringVarP(&config.lxdSocket, "lxd-socket", "s", viper.GetString("lxd-socket"), "LXD Daemon socket")
+	rootCmd.PersistentFlags().StringVarP(&config.LxdSocket, "lxd-socket", "s", viper.GetString("lxd-socket"), "LXD Daemon socket")
 
 	log = wlog.New(os.Stdin, os.Stdout, os.Stderr)
 	log = wlog.AddPrefix("?", wlog.Cross, "i", "-", ">", "~", wlog.Check, "!", log)
@@ -87,8 +87,23 @@ func initConfig() {
 		viper.SetConfigName("devlx")
 	}
 
+	viper.AutomaticEnv()
+
+	viper.SetDefault("ssh-socket", "/run/user/1234/keyring/ssh")
+	viper.SetDefault("display", ":0")
+
+	err := viper.BindEnv("ssh-socket", "SSH_AUTH_SOCK")
+	if err != nil {
+		log.Error(err.Error())
+	}
+
+	err = viper.BindEnv("DISPLAY")
+	if err != nil {
+		log.Error(err.Error())
+	}
+
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	if err = viper.ReadInConfig(); err == nil {
 		if verbose {
 			log.Info("Using config file: " + viper.ConfigFileUsed())
 		}
@@ -97,4 +112,11 @@ func initConfig() {
 
 		log.Error("Run `devlx init` to setup devlx config.")
 	}
+
+	err = viper.Unmarshal(&config)
+	if err != nil {
+		log.Error("Error unmarshling config")
+		os.Exit(1)
+	}
+
 }

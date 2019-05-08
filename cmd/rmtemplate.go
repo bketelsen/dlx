@@ -22,7 +22,7 @@ var rmCmd = &cobra.Command{
 		template := args[0]
 
 		//Connect to LXD over the Unix Socket
-		lxclient, err := client.NewClient(config.lxdSocket)
+		lxclient, err := client.NewClient(config.LxdSocket)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
