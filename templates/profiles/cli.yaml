@@ -5,7 +5,7 @@ devices:
   eth0:
     name: eth0
     nictype: bridged
-    parent: br0
+    parent: {{.Network}}
     type: nic
 name: cli
 used_by:
