@@ -13,7 +13,7 @@ type ConnectionCreated struct {
 }
 
 func (e ConnectionCreated) Name() string {
-	return e.conn.URL
+	return e.conn.config.Host
 }
 func (e ConnectionCreated) Created() time.Time {
 	return e.StartTime

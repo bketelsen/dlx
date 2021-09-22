@@ -7,26 +7,29 @@ package lxd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"sort"
+
+	"github.com/bketelsen/dlx/config"
 	"github.com/bketelsen/libgo/events"
-	"github.com/lxc/lxd/client"
-	client "github.com/lxc/lxd/client"
+	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
+
 	"github.com/lxc/lxd/shared/i18n"
 	"github.com/pkg/errors"
-	"sort"
 )
 
 type Client struct {
-	URL string
+	config config.Config
 
-	conn client.ContainerServer
+	conn lxd.ContainerServer
 }
 
 // NewClient creates a new connection to an LXD Daemon,
 // returning a Client
-func NewClient(url string) (*Client, error) {
+func NewClient(config config.Config) (*Client, error) {
 	c := &Client{
-		URL: url,
+		config: config,
 	}
 	err := c.Connect()
 	return c, err
@@ -34,8 +37,20 @@ func NewClient(url string) (*Client, error) {
 
 // Connect establishes a connection to an LXD Daemon
 func (c *Client) Connect() error {
-	var err error
-	c.conn, err = client.ConnectLXDUnix(c.URL, nil)
+	crt, err := ioutil.ReadFile(c.config.ClientCert)
+	if err != nil {
+		return errors.Wrap(err, "reading client certificate")
+	}
+	crtkey, err := ioutil.ReadFile(c.config.ClientKey)
+	if err != nil {
+		return errors.Wrap(err, "reading client key")
+	}
+	args := lxd.ConnectionArgs{
+		InsecureSkipVerify: true,
+		TLSClientCert:      string(crt),
+		TLSClientKey:       string(crtkey),
+	}
+	c.conn, err = lxd.ConnectLXD(c.config.Socket, &args)
 	if err != nil {
 		return errors.Wrap(err, "Error connecting to LXD daemon")
 	}
@@ -44,12 +59,12 @@ func (c *Client) Connect() error {
 	return nil
 }
 
-func (c *Client) ContainerProvision(name string, kind Type, provisioners []string) error {
+func (c *Client) ContainerProvision(name string) error {
 	cont, err := GetContainer(c.conn, name)
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Provision(kind, provisioners)
+	return cont.Provision(c.config.User)
 }
 
 func (c *Client) ContainerShell(name string) error {
@@ -57,7 +72,7 @@ func (c *Client) ContainerShell(name string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Exec("", true)
+	return cont.Exec(c.config.User, "", true)
 }
 
 func (c *Client) ContainerCreate(name string, isAlias bool, image string, profiles []string) error {
@@ -128,7 +143,7 @@ func (c *Client) ContainerExec(name string, command string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Exec(command, false)
+	return cont.Exec(c.config.User, command, false)
 }
 
 func (c *Client) ContainerList() ([]string, error) {
@@ -136,7 +151,12 @@ func (c *Client) ContainerList() ([]string, error) {
 	if err != nil {
 		errors.Wrap(err, "get container names")
 	}
+	for _, name := range names {
+		ci, _ := c.ContainerInfo(name)
+		fmt.Println(ci.Devices)
+	}
 	return names, err
+
 }
 
 func (c *Client) ContainerInfo(name string) (*api.Container, error) {
@@ -200,7 +220,7 @@ func (c *Client) ContainerPublish(name string) error {
 
 	alias := api.ImageAlias{}
 	alias.Name = name
-	alias.Description = "devlx template: " + name
+	alias.Description = "dlx template: " + name
 	op, err := c.conn.CreateImage(req, nil)
 	if err != nil {
 		return errors.Wrap(err, "create container image")

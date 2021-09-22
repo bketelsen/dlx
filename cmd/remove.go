@@ -8,7 +8,7 @@ package cmd
 import (
 	"os"
 
-	client "devlx/lxd"
+	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -20,11 +20,17 @@ var removeCmd = &cobra.Command{
 	Long:    `Remove deletes a container.  It will fail if the container is running.`,
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
+		err := getConfig()
+		if err != nil {
+			log.Error("Unable to get configuration:" + err.Error())
+		}
+
 		name = args[0]
 
 		log.Running("Removing container " + name)
 
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
@@ -32,12 +38,6 @@ var removeCmd = &cobra.Command{
 		err = lxclient.ContainerRemove(name)
 		if err != nil {
 			log.Error("Error executing command: " + err.Error())
-			os.Exit(1)
-		}
-
-		err = setContainerTemplateRelation(lxclient, name, "", false)
-		if err != nil {
-			log.Error("Error destroy image relation : " + err.Error())
 			os.Exit(1)
 		}
 

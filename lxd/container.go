@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"devlx/path"
+	"github.com/bketelsen/dlx/path"
 	"github.com/bketelsen/libgo/events"
 	"github.com/buger/goterm"
 	client "github.com/lxc/lxd/client"
@@ -28,13 +28,6 @@ type Container struct {
 	conn      client.ContainerServer
 	container *api.Container
 }
-type Type string
-
-const (
-	GUI Type = "gui"
-	CLI Type = "cli"
-)
-
 type sourceFile struct {
 	path        string
 	mode        int
@@ -117,7 +110,7 @@ func (c *Container) Remove() error {
 	return nil
 }
 
-func (c *Container) Exec(command string, interactive bool) error {
+func (c *Container) Exec(user string, command string, interactive bool) error {
 	events.Publish(NewExecState(c.Name, command, Starting))
 	terminalHeight := goterm.Height()
 	terminalWidth := goterm.Width()
@@ -125,7 +118,7 @@ func (c *Container) Exec(command string, interactive bool) error {
 	environ := make(map[string]string)
 	environ["TERM"] = os.Getenv("TERM")
 	req := api.ContainerExecPost{
-		Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login" + " " + command},
+		Command:     []string{"/bin/bash", "-c", "sudo --user " + user + " --login" + " " + command},
 		WaitForWS:   true,
 		Interactive: interactive,
 		Width:       terminalWidth,
@@ -168,85 +161,15 @@ func (c *Container) Exec(command string, interactive bool) error {
 	return nil
 }
 
-func (c *Container) Provision(kind Type, provisioners []string) error {
+func (c *Container) Provision(user string) error {
 	events.Publish(NewContainerState(c.Name, Provisioning))
-
-	final := make([]string, 0)
-	if kind == "cli" {
-		final = append(final, "clibase")
-	}
-
-	if kind == "gui" {
-		final = append(final, "guibase")
-	}
-
-	final = append(final, provisioners...)
 
 	// this will fail if cloud-init isn't done.
 	// need to make sure it's completed before running copykeys
 	// TODO
-	err := c.CopyKeys()
+	err := c.CopyKeys(user)
 	if err != nil {
 		return errors.Wrap(err, "copying ssh keys")
-	}
-	for _, prof := range final {
-		file := sourceFile{
-			path:        filepath.Join(path.GetConfigPath(), "provision", prof+".sh"),
-			mode:        0755,
-			destination: filepath.Join("/", "tmp", prof+".sh"),
-			filetype:    "file",
-		}
-
-		// copy the file in
-		err = c.CopyFile(file)
-		if err != nil {
-			return errors.Wrap(err, "copying file: "+file.path+". Perhaps the provisioning script doesn't exist?")
-		}
-		terminalHeight := goterm.Height()
-		terminalWidth := goterm.Width()
-		// Setup the exec request
-		environ := make(map[string]string)
-		environ["TERM"] = os.Getenv("TERM")
-		req := api.ContainerExecPost{
-			Command:     []string{"/bin/bash", "-c", "sudo --user ubuntu --login /bin/bash -c /tmp/" + prof + ".sh"},
-			WaitForWS:   true,
-			Interactive: true,
-			Width:       terminalWidth,
-			Height:      terminalHeight,
-			Environment: environ,
-		}
-
-		// Setup the exec arguments (fds)
-		largs := lxd.ContainerExecArgs{
-			Stdin:  os.Stdin,
-			Stdout: os.Stdout,
-			Stderr: os.Stderr,
-		}
-
-		// Setup the terminal (set to raw mode)
-		if req.Interactive {
-			cfd := int(syscall.Stdin)
-			oldttystate, err := termios.MakeRaw(cfd)
-			if err != nil {
-				return errors.Wrap(err, "make raw terminal")
-
-			}
-
-			defer termios.Restore(cfd, oldttystate)
-		}
-
-		// Get the current state
-		op, err := c.conn.ExecContainer(c.Name, req, &largs)
-		if err != nil {
-			return errors.Wrap(err, "exec container")
-		}
-
-		// Wait for it to complete
-		err = op.Wait()
-		if err != nil {
-			return errors.Wrap(err, "wait for operation")
-		}
-
 	}
 
 	events.Publish(NewContainerState(c.Name, Provisioned))
@@ -316,12 +239,13 @@ func (c *Container) CopyFile(file sourceFile) error {
 	return nil
 }
 
-func (c *Container) CopyKeys() error {
+func (c *Container) CopyKeys(user string) error {
 	// HACK: Find out when provisioning is done??
 	files := []sourceFile{
-		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/ubuntu/.ssh", filetype: "directory"},
-		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/ubuntu/.ssh/id_rsa.pub", filetype: "file"},
-		sourceFile{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa"), mode: 0600, destination: "/home/ubuntu/.ssh/id_rsa", filetype: "file"},
+		{path: filepath.Join(path.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/" + user + "/.ssh", filetype: "directory"},
+		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/id_rsa.pub", filetype: "file"},
+		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/authorized_keys", filetype: "file"},
+		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa"), mode: 0600, destination: "/home/" + user + "/.ssh/id_rsa", filetype: "file"},
 	}
 
 	for _, file := range files {

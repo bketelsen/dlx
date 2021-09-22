@@ -9,9 +9,8 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 
-	client "devlx/lxd"
+	client "github.com/bketelsen/dlx/lxd"
 )
 
 var (
@@ -23,59 +22,41 @@ var (
 var createCmd = &cobra.Command{
 	Use:   "create [name]",
 	Short: "Create a container",
-	Long:  `Create a new container from a template.`,
+	Long:  `Create a new container.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
+		err := getConfig()
+		if err != nil {
+			log.Error("Unable to get configuration:" + err.Error())
+		}
 		name = args[0]
 		log.Running("Creating container " + name)
 		// Connect to LXD over the Unix socket
 		// TODO: account for non snap install
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		err = lxclient.ContainerCreate(name, true, template, getProfiles())
+		err = lxclient.ContainerCreate(name, true, cfg.BaseImage, cfg.Profiles)
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
 		}
 
-		// Store the LXC Image -> Container relationship
-		log.Running("Storing image container relation ")
-		err = setContainerTemplateRelation(lxclient, name, template, true)
+		log.Success("Created container " + name)
+
+		log.Running("Provisioning container " + name)
+		err = lxclient.ContainerProvision(name)
+
 		if err != nil {
-			log.Error("Unable to create container-template relations" + err.Error())
+			log.Error("Unable to provision container: " + err.Error())
 			os.Exit(1)
 		}
 
-		log.Success("Created container " + name)
+		log.Success("Provisioned container " + name)
 	},
-}
-
-func getProfiles() []string {
-	profiles := []string{}
-
-	// default gui if nothing set
-	// probably a way to do this with some sort of set in viper/pflag?  TODO
-	c := viper.GetBool("clionly")
-	g := viper.GetBool("gui")
-
-	if !c && !g {
-		g = true
-	}
-	if !viper.GetBool("skipdefault") {
-		profiles = append(profiles, "default")
-	}
-	if c {
-		profiles = append(profiles, "cli")
-	}
-	if g {
-		profiles = append(profiles, "gui")
-	}
-
-	return profiles
 }
 
 func init() {
@@ -89,8 +70,5 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-
-	createCmd.PersistentFlags().StringVar(&template, "template", "", "base template for container")
-	viper.BindPFlag("template", createCmd.PersistentFlags().Lookup("template"))
 
 }

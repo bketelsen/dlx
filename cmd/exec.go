@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	client "devlx/lxd"
+	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -18,12 +18,17 @@ var execCmd = &cobra.Command{
 	Use:     "exec [container] '[commands here]'",
 	Aliases: []string{"run"},
 	Short:   "Execute a command in a container",
+	Args:    cobra.MinimumNArgs(2),
 	Long: `Executes a command in the named container.  The command should be enclosed in 
 single quotes.  e.g. exec mycontainer 'ls -la'`,
 	Run: func(cmd *cobra.Command, args []string) {
+		err := getConfig()
+		if err != nil {
+			log.Error("Unable to get configuration:" + err.Error())
+		}
 		name = args[0]
 		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

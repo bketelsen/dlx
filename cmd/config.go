@@ -6,11 +6,15 @@
 package cmd
 
 import (
-	"devlx/path"
-	"github.com/gobuffalo/packr/v2"
-	"github.com/spf13/cobra"
+	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+
+	"github.com/bketelsen/dlx/config"
+	"github.com/bketelsen/dlx/path"
+	"github.com/spf13/cobra"
+	"gopkg.in/yaml.v2"
 )
 
 // configCmd represents the config command
@@ -20,52 +24,101 @@ var configCmd = &cobra.Command{
 	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		log.Running("Create configuration")
+		log.Running("Configuration")
 		config, err := cmd.Flags().GetBool("create")
 		if err != nil {
 			log.Error("Error getting flags: " + err.Error())
 			os.Exit(1)
 		}
 
-		templates, err := cmd.Flags().GetBool("templates")
-		if err != nil {
-			log.Error("Error getting flags: " + err.Error())
-			os.Exit(1)
-		}
-		if !config && !templates {
-			cmd.Usage()
-			log.Error("Please specify either one or more flags.")
-			os.Exit(1)
-		}
 		if config {
-			err := createConfig()
+			err := createConfig(cmd)
 			if err != nil {
 				log.Error("Error creating config file: " + err.Error())
 				os.Exit(1)
 			}
 			log.Success("Default configuration file created")
+			os.Exit(0)
 		}
-		if templates {
-			err := createTemplates()
-			if err != nil {
-				log.Error("Error creating templates: " + err.Error())
-			}
-			log.Success("Templates created")
+		err = checkConfig()
+		if err != nil {
+			log.Error("Error finding configuration file: " + err.Error())
+			log.Warn("Run 'dlx config -c' to create a default configuration file")
+			os.Exit(1)
 		}
+		log.Success("Configuration file found at" + filepath.Join(path.GetConfigPath(), "dlx.yaml"))
+		bb, err := ioutil.ReadFile(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
+		if err != nil {
+			log.Error("Error reading configuration file: " + err.Error())
+			os.Exit(1)
+		}
+		fmt.Println("--------")
+		fmt.Println(string(bb))
 
-		log.Success("Configuration created")
 	},
 }
 
-func createConfig() error {
+func createConfig(cmd *cobra.Command) error {
 	//make config directory and file
 	err := os.MkdirAll(filepath.Join(path.GetConfigPath()), 0755)
-
-	f, err := os.Create(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
 	if err != nil {
 		return err
 	}
-	_, err = f.Write([]byte(configTemplate))
+	f, err := os.Create(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+
+	host, err := cmd.Flags().GetString("remote")
+	if err != nil {
+		log.Error("Error getting host flag: " + err.Error())
+	}
+
+	user, err := cmd.Flags().GetString("user")
+	if err != nil {
+		log.Error("Error getting user flag: " + err.Error())
+	}
+
+	bi, err := cmd.Flags().GetString("baseimage")
+	if err != nil {
+		log.Error("Error getting baseimage flag: " + err.Error())
+	}
+
+	cc, err := cmd.Flags().GetString("clientcert")
+	if err != nil {
+		log.Error("Error getting clientcert flag: " + err.Error())
+	}
+
+	ck, err := cmd.Flags().GetString("clientkey")
+	if err != nil {
+		log.Error("Error getting clientkey flag: " + err.Error())
+	}
+
+	sshkey, err := cmd.Flags().GetString("sshkey")
+	if err != nil {
+		log.Error("Error getting sshkey flag: " + err.Error())
+	}
+	profs, err := cmd.Flags().GetStringArray("profiles")
+	if err != nil {
+		log.Error("Error getting clientkey flag: " + err.Error())
+	}
+	config := &config.Config{
+		Host:          host,
+		User:          user,
+		Socket:        uri,
+		BaseImage:     bi,
+		ClientCert:    cc,
+		ClientKey:     ck,
+		Profiles:      profs,
+		SSHPrivateKey: sshkey,
+	}
+	bb, err := yaml.Marshal(config)
+	if err != nil {
+		return err
+	}
+
+	_, err = f.Write(bb)
 	if err != nil {
 		return err
 	}
@@ -73,74 +126,30 @@ func createConfig() error {
 }
 
 func checkConfig() error {
-	_, err := os.Stat(filepath.Join(path.GetConfigPath(), "devlx.yaml"))
+	_, err := os.Stat(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
 	if err != nil {
 		return err
 	}
 	return nil
 }
-func createTemplates() error {
-	box := packr.New("provision", "../templates/provision")
 
-	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "provision"), 0755)
+func getConfig() error {
+
+	err := checkConfig()
+	if err != nil {
+		log.Warn("Run 'dlx config -c' to create a default configuration file")
+		return err
+	}
+
+	bb, err := ioutil.ReadFile(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
 	if err != nil {
 		return err
 	}
-	for _, tpl := range box.List() {
-		bb, err := box.Find(tpl)
-		if err != nil {
-			return err
-		}
-		f, err := os.Create(filepath.Join(path.GetConfigPath(), "provision", tpl))
-		if err != nil {
-			return err
-		}
-		_, err = f.Write([]byte(bb))
-		if err != nil {
-			return err
-		}
-	}
-
-	pbox := packr.New("profiles", "../templates/profiles")
-	err = os.MkdirAll(filepath.Join(path.GetConfigPath(), "profiles"), 0755)
-	if err != nil {
-		return err
-	}
-	for _, tpl := range pbox.List() {
-		bb, err := pbox.Find(tpl)
-		if err != nil {
-			return err
-		}
-		f, err := os.Create(filepath.Join(path.GetConfigPath(), "profiles", tpl))
-		if err != nil {
-			return err
-		}
-		_, err = f.Write([]byte(bb))
-		if err != nil {
-			return err
-		}
-	}
-	return nil
+	err = yaml.Unmarshal(bb, &cfg)
+	return err
 
 }
 
-func createRelationsStore() error {
-	// create config storage directory and file
-
-	err := os.MkdirAll(filepath.Join(path.GetConfigPath(), "templates"), 0755)
-	if err != nil {
-		return err
-	}
-
-	f, err := os.Create(filepath.Join(path.GetConfigPath(), "templates", "relations.yaml"))
-	if err != nil {
-		return err
-	}
-
-	defer f.Close()
-
-	return nil
-}
 func init() {
 	rootCmd.AddCommand(configCmd)
 
@@ -152,11 +161,12 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	configCmd.Flags().BoolP("create", "c", false, "Create global config file in $HOME")
-	configCmd.Flags().BoolP("templates", "t", false, "Create global template folders in $HOME")
+	configCmd.Flags().BoolP("create", "c", false, "Create global config file")
+	configCmd.Flags().StringP("remote", "r", "", "LXD host network name or IP")
+	configCmd.Flags().StringP("user", "u", "ubuntu", "Container username")
+	configCmd.Flags().StringP("baseimage", "b", "dlxbase", "Base image for new containers")
+	configCmd.Flags().StringP("clientcert", "t", "", "Path to client certificate")
+	configCmd.Flags().StringP("clientkey", "k", "", "Path to client key")
+	configCmd.Flags().StringArrayP("profiles", "p", []string{}, "Profiles to use")
+	configCmd.Flags().StringP("sshkey", "s", "", "Path to ssh private key authorized for HOST")
 }
-
-const configTemplate = `cliimage: "18.10"
-guiimage: "18.10"
-utilimage: "18.10"
-ethernet: enp5s0`

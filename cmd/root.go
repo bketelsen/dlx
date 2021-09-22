@@ -9,36 +9,29 @@ import (
 	"fmt"
 	"os"
 
-	"devlx/path"
-
+	"github.com/bketelsen/dlx/config"
 	"github.com/bketelsen/libgo/events"
 	"github.com/dixonwille/wlog"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
-var cfgFile string
+var cfg config.Config
 var log wlog.UI
 var verbose bool
-var socket string
+var uri string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "devlx",
+	Use:   "dlx",
 	Short: "Provision lxd containers for development",
-	Long:  `devlx provisions lxd containers for local development.`,
+	Long:  `dlx provisions lxd containers for local development.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
 
-		err := checkConfig()
+		err := getConfig()
 		if err != nil {
-			fmt.Println("No configuration files found.")
-
-			log.Error("No configuration files found.")
-			log.Error("Run `devlx config -c` to create configuration file.")
-			log.Error("Run `devlx config -t` to create templates.")
-			log.Error("Run `devlx profile` to create required lxc profiles.")
+			os.Exit(1)
 		} else {
 			cmd.Help()
 		}
@@ -55,15 +48,13 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.devlx.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
 
-	rootCmd.PersistentFlags().StringVarP(&socket, "socket", "s", "/var/snap/lxd/common/lxd/unix.socket", "LXD Daemon socket")
+	rootCmd.PersistentFlags().StringVarP(&uri, "address", "a", "https://10.0.1.109:8443", "LXD Daemon uri (url or socket)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -93,26 +84,4 @@ func eventHandler(e events.Event) {
 		}
 	}
 
-}
-
-// initConfig reads in config file and ENV variables if set.
-func initConfig() {
-	if cfgFile != "" {
-		// Use config file from the flag.
-		viper.SetConfigFile(cfgFile)
-	} else {
-
-		// Search config in home directory with name "devlx" (without extension).
-		viper.AddConfigPath(path.GetConfigPath())
-		viper.SetConfigName("devlx")
-	}
-
-	viper.AutomaticEnv() // read in environment variables that match
-
-	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
-		if verbose {
-			log.Info("Using config file: " + viper.ConfigFileUsed())
-		}
-	}
 }

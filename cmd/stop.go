@@ -8,7 +8,7 @@ package cmd
 import (
 	"os"
 
-	client "devlx/lxd"
+	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -19,10 +19,15 @@ var stopCmd = &cobra.Command{
 	Long:  `Stop a running container.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
+
+		err := getConfig()
+		if err != nil {
+			log.Error("Unable to get configuration:" + err.Error())
+		}
 		name = args[0]
 
 		log.Running("Stopping container " + name)
-		lxclient, err := client.NewClient(socket)
+		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)

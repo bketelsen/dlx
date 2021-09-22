@@ -8,7 +8,7 @@ import (
 	homedir "github.com/mitchellh/go-homedir"
 )
 
-const configDirName = "devlx"
+const configDirName = "dlx"
 
 func GetHomePath() string {
 	// Find home directory form env
@@ -28,8 +28,8 @@ func GetConfigPath() string {
 		configPath = filepath.Join(GetHomePath(), ".config")
 	}
 
-	//set the devlx config directory
-	devlxConfigPath := filepath.Join(configPath, configDirName)
+	//set the dlx config directory
+	dlxConfigPath := filepath.Join(configPath, configDirName)
 
-	return devlxConfigPath
+	return dlxConfigPath
 }

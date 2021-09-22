@@ -9,7 +9,7 @@ import (
 	"os"
 	"strings"
 
-	client "devlx/lxd"
+	client "github.com/bketelsen/dlx/lxd"
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 )
@@ -21,7 +21,11 @@ var listCmd = &cobra.Command{
 	Aliases: []string{"ls"},
 	Long:    `List containers and their status.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		lxclient, err := client.NewClient(socket)
+		err := getConfig()
+		if err != nil {
+			log.Error("Unable to get configuration:" + err.Error())
+		}
+		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
