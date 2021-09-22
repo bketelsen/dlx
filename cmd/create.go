@@ -6,9 +6,16 @@
 package cmd
 
 import (
+	"bytes"
+	"fmt"
+	"net"
 	"os"
 
+	"io/ioutil"
+
 	"github.com/spf13/cobra"
+
+	"golang.org/x/crypto/ssh"
 
 	client "github.com/bketelsen/dlx/lxd"
 )
@@ -54,6 +61,48 @@ var createCmd = &cobra.Command{
 			log.Error("Unable to provision container: " + err.Error())
 			os.Exit(1)
 		}
+
+		key, err := ioutil.ReadFile(cfg.SSHPrivateKey)
+		if err != nil {
+			log.Error("unable to read private key" + err.Error())
+			os.Exit(1)
+		}
+
+		// Create the Signer for this private key.
+		signer, err := ssh.ParsePrivateKey(key)
+		if err != nil {
+			log.Error("unable to parse private key" + err.Error())
+		}
+
+		config := &ssh.ClientConfig{
+			User: cfg.User,
+			Auth: []ssh.AuthMethod{
+				// Use the PublicKeys method for remote authentication.
+				ssh.PublicKeys(signer),
+			},
+			HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+				return nil
+			},
+		}
+
+		// Connect to the remote server and perform the SSH handshake.
+		client, err := ssh.Dial("tcp", cfg.Host+":22", config)
+		if err != nil {
+			log.Error("unable to connect:" + err.Error())
+		}
+		defer client.Close()
+		session, err := client.NewSession()
+		if err != nil {
+			log.Error("unable to connect:" + err.Error())
+		}
+		defer session.Close()
+
+		var b bytes.Buffer
+		session.Stdout = &b
+		if err := session.Run("ps -eaf"); err != nil {
+			log.Error("unable to run command:" + err.Error())
+		}
+		fmt.Println(b.String())
 
 		log.Success("Provisioned container " + name)
 	},
