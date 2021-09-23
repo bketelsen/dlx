@@ -1,0 +1,80 @@
+# Meta Data for SEO
+
+## Homepage
+title = "DLX"
+titleSeparator = "-"
+titleAddition = "Rapid Development Environments"
+description = "DLX is a helper for LXD to rapidly provision development environments."
+
+## Open Graph
+images = ["doks.png"]
+ogLocale = "en_US"
+domainTLD = "dlx.rocks"
+titleHome = "DLX"
+
+## Twitter Cards
+twitterSite = "@bketelsen"
+twitterCreator = "@bketelsen"
+
+## JSON-LD
+# schemaType = "Person"
+schemaType = "Organization"
+schemaName = "DLX"
+schemaAuthor = "Brian Ketelsen"
+schemaAuthorTwitter = "https://twitter.com/bketelsen"
+schemaAuthorLinkedIn = "https://www.linkedin.com/in/bketelsen/"
+schemaAuthorGitHub = "https://github.com/bketelsen"
+schemaLocale = "en-US"
+schemaLogo = "logo-doks.png"
+schemaLogoWidth = 512
+schemaLogoHeight = 512
+schemaImage = "doks.png"
+schemaImageWidth = 1280
+schemaImageHeight = 640
+schemaTwitter = "https://twitter.com/bketelsen"
+schemaLinkedIn = ""
+schemaGitHub = "https://github.com/bketelsen/dlx"
+schemaSection = "blog"
+
+## Sitelinks Search Box
+siteLinksSearchBox = false
+
+## Chrome Browser
+themeColor = "#fff"
+
+# Images
+quality = 85
+bgColor = "#fff"
+landscapePhotoWidths = [900, 800, 700, 600, 500]
+portraitPhotoWidths = [800, 700, 600, 500]
+lqipWidth = "20x"
+
+# Footer
+footer = "Powered by <a href=\"https://www.netlify.com/\">Netlify</a>, <a href=\"https://gohugo.io/\">Hugo</a>, and <a href=\"https://getdoks.org/\">Doks</a>"
+
+# Feed
+copyRight = "Copyright (c) 2020-2021 Brian Ketelsen"
+
+# Alert
+alert = false
+alertDismissable = true
+# alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\" target=\"_blank\" rel=\"noopener\">Check out Doks v0.2</a>"
+alertText = "Introducing the Doks child theme, several DX + UX updates, and more! <a class=\"alert-link stretched-link\" href=\"https://getdoks.org/blog/doks-v0.2/\">Check out Doks v0.2</a>"
+
+# Edit Page
+docsRepo = "https://github.com/bketelsen/dlx"
+editPage = false
+
+[options]
+  lazySizes = true
+  clipBoard = true
+  instantPage = true
+  flexSearch = true
+  darkMode = true
+  bootStrapJs = true
+  breadCrumb = false
+  highLight = true
+  kaTex = false
+  collapsibleSidebar = true
+  multilingualMode = false # Not yet functional
+  docsVersioning = false # Not yet functional
