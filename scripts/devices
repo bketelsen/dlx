@@ -3,6 +3,12 @@
 # arguments
 # $1: container name
 
+# Place this script in your $PATH. It creates a folder under `~/projects` on the host
+# with the same name as the container and maps it into the container with a bind mount.
+
+# It also maps a folder called `~/provision` into the container with a bind mount.
+# I use this folder to store scripts to install commonly used development tools.
+
 mkdir -p $HOME/projects/$1
 lxc exec $1 -- sh -c "mkdir -p /home/`whoami`/projects && chown -R `whoami`:`whoami` /home/`whoami`/projects"
 lxc config device add $1 dlxbind disk source=$HOME/projects/$1 path=/home/`whoami`/projects/$1
