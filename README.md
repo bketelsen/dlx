@@ -2,7 +2,8 @@
 
 `dlx` is a development tool that provisions temporary development environments.  It uses [lxd](https://linuxcontainers.org) and [zfs](https://wiki.ubuntu.com/ZFS) to make efficient, copy-on-write, workspaces from a user-provided template.
 
-## Assumptions
+Turn a spare computer into a development environment server in just a few minutes.
 
-* provision directory
-* devices script
+## Documentation
+
+Documentation is available at [dlx.rocks](https://dlx.rocks/).
