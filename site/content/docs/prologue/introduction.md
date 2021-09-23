@@ -1,7 +1,7 @@
 ---
 title: "Introduction"
-description: "Doks is a Hugo theme helping you build modern documentation websites that are secure, fast, and SEO-ready — by default."
-lead: "Doks is a Hugo theme helping you build modern documentation websites that are secure, fast, and SEO-ready — by default."
+description: "DLX is a helper tool for LXD to quickly provision opinionated development environments on your own hardware."
+lead: "DLX is a helper tool for LXD to quickly provision opinionated development environments on your own hardware."
 date: 2020-10-06T08:48:57+00:00
 lastmod: 2020-10-06T08:48:57+00:00
 draft: false
@@ -12,6 +12,11 @@ menu:
 weight: 100
 toc: true
 ---
+
+## What is DLX?
+
+DLX is a cli tool for LXD to quickly provision opinionated development environments on your own hardware. You provide a LXD server and DLX does the rest, rapidly provisioning new development environments for you.
+
 
 ## Get started
 
