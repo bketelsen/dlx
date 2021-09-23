@@ -7,7 +7,6 @@ package cmd
 
 import (
 	"bytes"
-	"fmt"
 	"net"
 	"os"
 
@@ -21,8 +20,7 @@ import (
 )
 
 var (
-	name     string
-	template string
+	name string
 )
 
 // createCmd represents the create command
@@ -91,20 +89,20 @@ var createCmd = &cobra.Command{
 			log.Error("unable to connect:" + err.Error())
 		}
 		defer client.Close()
-		session, err := client.NewSession()
+		newSession, err := client.NewSession()
 		if err != nil {
 			log.Error("unable to connect:" + err.Error())
 		}
-		defer session.Close()
 
 		var b bytes.Buffer
-		session.Stdout = &b
-		if err := session.Run("ps -eaf"); err != nil {
+		newSession.Stdout = &b
+		defer newSession.Close()
+		//lxc config device add $container dlxbind disk source=$HOME/projects/$container path=/home/`whoami`/projects/$container
+		if err := newSession.Run("devices " + name); err != nil {
 			log.Error("unable to run command:" + err.Error())
 		}
-		fmt.Println(b.String())
-
 		log.Success("Provisioned container " + name)
+		newSession.Close()
 	},
 }
 

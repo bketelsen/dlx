@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# arguments
+# $1: container name
+
+mkdir -p $HOME/projects/$1
+lxc exec $1 -- sh -c "mkdir -p /home/`whoami`/projects && chown -R `whoami`:`whoami` /home/`whoami`/projects"
+lxc config device add $1 dlxbind disk source=$HOME/projects/$1 path=/home/`whoami`/projects/$1
