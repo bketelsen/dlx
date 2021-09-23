@@ -17,6 +17,14 @@ toc: true
 
 DLX is a cli tool for LXD to quickly provision opinionated development environments on your own hardware. You provide a LXD server and DLX does the rest, rapidly provisioning new development environments for you.
 
+DLX is especially delightful if you install it on a spare computer or laptop that you aren't currently using.
+
+### Components
+
+DLX has two components:
+
+* **DLX** - The cli tool that interacts with the server.
+* An **LXD** server. This is the server that DLX will use to provision new development environments.
 
 ## Get started
 
