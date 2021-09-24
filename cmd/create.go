@@ -37,14 +37,23 @@ var createCmd = &cobra.Command{
 		}
 		name = args[0]
 		log.Running("Creating container " + name)
-		// Connect to LXD over the Unix socket
-		// TODO: account for non snap install
 		lxclient, err := client.NewClient(cfg)
 		if err != nil {
 			log.Error("Unable to connect: " + err.Error())
 			os.Exit(1)
 		}
-		err = lxclient.ContainerCreate(name, true, cfg.BaseImage, cfg.Profiles)
+
+        var bi string
+		baseimg, err := cmd.Flags().GetString("baseimage")
+		if err != nil {
+			log.Error("Error getting flags: " + err.Error())
+			os.Exit(1)
+		}
+		if baseimg != "" {
+		    bi = baseimg
+		} else {
+		bi = cfg.BaseImage}
+		err = lxclient.ContainerCreate(name, true, bi, cfg.Profiles)
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
@@ -117,5 +126,7 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
+
+	createCmd.Flags().StringP("baseimage", "b", "", "(optional) base image to use")
 
 }

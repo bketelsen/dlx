@@ -164,7 +164,7 @@ func init() {
 	configCmd.Flags().BoolP("create", "c", false, "Create global config file")
 	configCmd.Flags().StringP("remote", "r", "", "LXD host network name or IP")
 	configCmd.Flags().StringP("user", "u", "ubuntu", "Container username")
-	configCmd.Flags().StringP("baseimage", "b", "dlxbase", "Base image for new containers")
+	configCmd.Flags().StringP("baseimage", "b", "dlxbase", "Default base image for new containers")
 	configCmd.Flags().StringP("clientcert", "t", "", "Path to client certificate")
 	configCmd.Flags().StringP("clientkey", "k", "", "Path to client key")
 	configCmd.Flags().StringArrayP("profiles", "p", []string{}, "Profiles to use")
