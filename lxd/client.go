@@ -151,10 +151,6 @@ func (c *Client) ContainerList() ([]string, error) {
 	if err != nil {
 		errors.Wrap(err, "get container names")
 	}
-	for _, name := range names {
-		ci, _ := c.ContainerInfo(name)
-		fmt.Println(ci.Devices)
-	}
 	return names, err
 
 }
@@ -205,7 +201,6 @@ func (c *Client) ContainerSnapshot(name string, snapshotName string) error {
 
 func (c *Client) ContainerPublish(name string) error {
 
-	fmt.Println("Publishing: ", name)
 	// Create the image
 	req := api.ImagesPost{
 		Source: &api.ImagesPostSource{

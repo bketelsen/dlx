@@ -203,10 +203,11 @@ func (c *Container) CopyFile(file sourceFile) error {
 	if file.filetype == "file" {
 
 		f, err = os.Open(file.path)
-		defer f.Close()
 		if err != nil {
 			return errors.New("Opening source file:" + err.Error())
 		}
+
+		defer f.Close()
 		bb, err := ioutil.ReadAll(f)
 		if err != nil {
 			return errors.New("Reading source file:" + err.Error())
@@ -240,7 +241,6 @@ func (c *Container) CopyFile(file sourceFile) error {
 }
 
 func (c *Container) CopyKeys(user string) error {
-	// HACK: Find out when provisioning is done??
 	files := []sourceFile{
 		{path: filepath.Join(path.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/" + user + "/.ssh", filetype: "directory"},
 		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/id_rsa.pub", filetype: "file"},

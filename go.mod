@@ -25,10 +25,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/pkg/errors v0.8.1
 	github.com/rogpeppe/fastuuid v1.0.0 // indirect
-	github.com/spf13/afero v1.2.1 // indirect
 	github.com/spf13/cobra v0.0.3
-	github.com/spf13/jwalterweatherman v1.1.0 // indirect
-	github.com/spf13/viper v1.3.1
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/sync v0.0.0-20190227155943-e225da77a7e6 // indirect
 	gopkg.in/httprequest.v1 v1.1.4 // indirect
