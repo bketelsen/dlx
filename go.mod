@@ -6,6 +6,7 @@ require (
 	code.cloudfoundry.org/systemcerts v0.0.0-20180917154049-ca00b2f806f2 // indirect
 	github.com/bketelsen/libgo v0.0.0-20190129172135-7bf913b1df11
 	github.com/buger/goterm v0.0.0-20181115115552-c206103e1f37
+	github.com/cpuguy83/go-md2man v1.0.10 // indirect
 	github.com/daviddengcn/go-colortext v0.0.0-20180409174941-186a3d44e920 // indirect
 	github.com/dixonwille/wlog v2.0.0+incompatible
 	github.com/flosch/pongo2 v0.0.0-20200913210552-0d938eb266f3 // indirect
