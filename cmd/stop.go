@@ -25,9 +25,6 @@ var stopCmd = &cobra.Command{
 			log.Error(err.Error())
 			os.Exit(1)
 		}
-		if err != nil {
-			log.Error(err.Error())
-		}
 		name = args[0]
 
 		log.Running("Stopping container " + name)
