@@ -43,7 +43,7 @@ func (c *LXC) Save() error {
 func load() (*lxcconfig.Config, string, error) {
 	paths := []string{
 		"snap/lxd/common/config/config.yml",
-		".config/lxd/config.yml",
+		".config/lxc/config.yml",
 	}
 	found := false
 	configPath := ""

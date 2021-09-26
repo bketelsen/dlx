@@ -15,7 +15,7 @@ import (
 var removeCmd = &cobra.Command{
 	Use:     "remove",
 	Short:   "remove a container",
-	Aliases: []string{"rm"},
+	Aliases: []string{"rm", "delete"},
 	Long:    `Remove deletes a container.  It will fail if the container is running.`,
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

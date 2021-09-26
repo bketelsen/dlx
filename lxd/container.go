@@ -26,7 +26,7 @@ type Container struct {
 	Name      string
 	Etag      string
 	conn      client.ContainerServer
-	container *api.Container
+	container *api.Instance
 }
 type sourceFile struct {
 	path        string
@@ -37,7 +37,7 @@ type sourceFile struct {
 
 // GetContainer returns the container with the given `name`.
 func GetContainer(conn client.ContainerServer, name string) (*Container, error) {
-	container, etag, err := conn.GetContainer(name)
+	container, etag, err := conn.GetInstance(name)
 	if err != nil {
 		return &Container{}, errors.Wrap(err, "getting container")
 	}

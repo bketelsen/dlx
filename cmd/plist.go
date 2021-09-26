@@ -30,10 +30,14 @@ to quickly create a Cobra application.`,
 			log.Error(err.Error())
 			os.Exit(1)
 		}
+		defaultProject := lxcconf.DefaultRemote().Project
 		table := tablewriter.NewWriter(os.Stdout)
 		table.SetHeader([]string{"Name", "Description"})
 
 		for _, project := range projects {
+			if project.Name == defaultProject {
+				project.Name = "*" + project.Name
+			}
 			table.Append([]string{project.Name, project.Description})
 
 		}
