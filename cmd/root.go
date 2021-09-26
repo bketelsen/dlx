@@ -28,7 +28,8 @@ var uri string
 var rootCmd = &cobra.Command{
 	Use:   "dlx",
 	Short: "Provision lxd containers for development",
-	Long:  `dlx provisions lxd containers for local development.`,
+	Long: `dlx provisions lxd containers for local development.
+See https://dlx.rocks for full documentation.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {

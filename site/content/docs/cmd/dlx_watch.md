@@ -1,19 +1,19 @@
-## dlx version
+## dlx watch
 
-version of dlx
+watch
 
 ### Synopsis
 
-Version displays the version of this tool
+watch
 
 ```
-dlx version [flags]
+dlx watch [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for version
+  -h, --help   help for watch
 ```
 
 ### Options inherited from parent commands
