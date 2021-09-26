@@ -8,8 +8,6 @@ package cmd
 import (
 	"os"
 
-	client "github.com/bketelsen/dlx/lxd"
-
 	"github.com/spf13/cobra"
 )
 
@@ -21,20 +19,15 @@ var connectCmd = &cobra.Command{
 	Long:    `Connect to a running container.`,
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		err := getConfig()
+		var err error
+		cfg, lxclient, err = connect()
 		if err != nil {
-			log.Error("Unable to get configuration:" + err.Error())
+			log.Error(err.Error())
+			os.Exit(1)
 		}
 		name = args[0]
 
 		log.Running("Connecting to container " + name)
-		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewClient(cfg)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
 
 		err = lxclient.ContainerShell(name)
 		if err != nil {
@@ -48,15 +41,4 @@ var connectCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(connectCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// connectCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// connectCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

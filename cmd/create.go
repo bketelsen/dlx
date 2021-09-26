@@ -15,8 +15,6 @@ import (
 	"github.com/spf13/cobra"
 
 	"golang.org/x/crypto/ssh"
-
-	client "github.com/bketelsen/dlx/lxd"
 )
 
 var (
@@ -30,29 +28,25 @@ var createCmd = &cobra.Command{
 	Long:  `Create a new container.`,
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		err := getConfig()
+		var err error
+		cfg, lxclient, err = connect()
 		if err != nil {
-			log.Error("Unable to get configuration:" + err.Error())
-		}
-		name = args[0]
-		log.Running("Creating container " + name)
-		lxclient, err := client.NewClient(cfg)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
+			log.Error(err.Error())
 			os.Exit(1)
 		}
+		name = args[0]
 
-        var bi string
+		var bi string
 		baseimg, err := cmd.Flags().GetString("baseimage")
 		if err != nil {
 			log.Error("Error getting flags: " + err.Error())
 			os.Exit(1)
 		}
 		if baseimg != "" {
-		    bi = baseimg
+			bi = baseimg
 		} else {
-		bi = cfg.BaseImage}
+			bi = cfg.BaseImage
+		}
 		err = lxclient.ContainerCreate(name, true, bi, cfg.Profiles)
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())

@@ -10,12 +10,16 @@ import (
 	"os"
 
 	"github.com/bketelsen/dlx/config"
+	client "github.com/bketelsen/dlx/lxd"
 	"github.com/bketelsen/libgo/events"
 	"github.com/dixonwille/wlog"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
 
-var cfg config.Config
+var cfg *config.Config
+var lxclient *client.Client
+var lxcconf *config.LXC
 var log wlog.UI
 var verbose bool
 var uri string
@@ -28,13 +32,7 @@ var rootCmd = &cobra.Command{
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	Run: func(cmd *cobra.Command, args []string) {
-
-		err := getConfig()
-		if err != nil {
-			os.Exit(1)
-		} else {
-			cmd.Help()
-		}
+		cmd.Help()
 	},
 }
 
@@ -53,8 +51,6 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose logging")
-
-	rootCmd.PersistentFlags().StringVarP(&uri, "address", "a", "https://10.0.1.109:8443", "LXD Daemon uri (url or socket)")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -84,4 +80,39 @@ func eventHandler(e events.Event) {
 		}
 	}
 
+}
+
+func connect() (*config.Config, *client.Client, error) {
+	var err error
+	cfg, err = config.Get()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "unable to get configuration")
+	}
+
+	lxcconf, err = LXCConfig()
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "unable to get LXC configuration")
+	}
+
+	// Connect to LXD over the Unix socket
+	lxclient, err := client.NewClient(cfg, lxcconf)
+	if err != nil {
+		return nil, nil, errors.Wrap(err, "unable to connect")
+	}
+
+	log.Info("Connected to " + lxcconf.Config.DefaultRemote)
+
+	return cfg, lxclient, err
+
+}
+
+func LXCConfig() (*config.LXC, error) {
+
+	lxcconf, err := config.GetLXCConfig()
+	if err != nil {
+		log.Error(err.Error())
+		log.Info("Install the lxd command line app and connect to your lxd server before running dlx.")
+		return nil, err
+	}
+	return lxcconf, err
 }

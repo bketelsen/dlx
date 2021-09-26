@@ -6,15 +6,10 @@
 package cmd
 
 import (
-	"fmt"
-	"io/ioutil"
 	"os"
-	"path/filepath"
 
 	"github.com/bketelsen/dlx/config"
-	"github.com/bketelsen/dlx/path"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 // configCmd represents the config command
@@ -25,14 +20,14 @@ var configCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 
 		log.Running("Configuration")
-		config, err := cmd.Flags().GetBool("create")
+		createConfig, err := cmd.Flags().GetBool("create")
 		if err != nil {
 			log.Error("Error getting flags: " + err.Error())
 			os.Exit(1)
 		}
 
-		if config {
-			err := createConfig(cmd)
+		if createConfig {
+			err := config.Create(cmd)
 			if err != nil {
 				log.Error("Error creating config file: " + err.Error())
 				os.Exit(1)
@@ -40,114 +35,9 @@ var configCmd = &cobra.Command{
 			log.Success("Default configuration file created")
 			os.Exit(0)
 		}
-		err = checkConfig()
-		if err != nil {
-			log.Error("Error finding configuration file: " + err.Error())
-			log.Warn("Run 'dlx config -c' to create a default configuration file")
-			os.Exit(1)
-		}
-		log.Success("Configuration file found at" + filepath.Join(path.GetConfigPath(), "dlx.yaml"))
-		bb, err := ioutil.ReadFile(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
-		if err != nil {
-			log.Error("Error reading configuration file: " + err.Error())
-			os.Exit(1)
-		}
-		fmt.Println("--------")
-		fmt.Println(string(bb))
+		cfg, err = config.Get()
 
 	},
-}
-
-func createConfig(cmd *cobra.Command) error {
-	//make config directory and file
-	err := os.MkdirAll(filepath.Join(path.GetConfigPath()), 0755)
-	if err != nil {
-		return err
-	}
-	f, err := os.Create(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	host, err := cmd.Flags().GetString("remote")
-	if err != nil {
-		log.Error("Error getting host flag: " + err.Error())
-	}
-
-	user, err := cmd.Flags().GetString("user")
-	if err != nil {
-		log.Error("Error getting user flag: " + err.Error())
-	}
-
-	bi, err := cmd.Flags().GetString("baseimage")
-	if err != nil {
-		log.Error("Error getting baseimage flag: " + err.Error())
-	}
-
-	cc, err := cmd.Flags().GetString("clientcert")
-	if err != nil {
-		log.Error("Error getting clientcert flag: " + err.Error())
-	}
-
-	ck, err := cmd.Flags().GetString("clientkey")
-	if err != nil {
-		log.Error("Error getting clientkey flag: " + err.Error())
-	}
-
-	sshkey, err := cmd.Flags().GetString("sshkey")
-	if err != nil {
-		log.Error("Error getting sshkey flag: " + err.Error())
-	}
-	profs, err := cmd.Flags().GetStringArray("profiles")
-	if err != nil {
-		log.Error("Error getting clientkey flag: " + err.Error())
-	}
-	config := &config.Config{
-		Host:          host,
-		User:          user,
-		Socket:        uri,
-		BaseImage:     bi,
-		ClientCert:    cc,
-		ClientKey:     ck,
-		Profiles:      profs,
-		SSHPrivateKey: sshkey,
-	}
-	bb, err := yaml.Marshal(config)
-	if err != nil {
-		return err
-	}
-
-	_, err = f.Write(bb)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func checkConfig() error {
-	_, err := os.Stat(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
-func getConfig() error {
-
-	err := checkConfig()
-	if err != nil {
-		log.Warn("Run 'dlx config -c' to create a default configuration file")
-		return err
-	}
-
-	bb, err := ioutil.ReadFile(filepath.Join(path.GetConfigPath(), "dlx.yaml"))
-	if err != nil {
-		return err
-	}
-	err = yaml.Unmarshal(bb, &cfg)
-	return err
-
 }
 
 func init() {

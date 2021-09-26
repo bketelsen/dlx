@@ -8,7 +8,6 @@ package cmd
 import (
 	"os"
 
-	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -20,18 +19,18 @@ var stopCmd = &cobra.Command{
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 
-		err := getConfig()
+		var err error
+		cfg, lxclient, err = connect()
 		if err != nil {
-			log.Error("Unable to get configuration:" + err.Error())
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+		if err != nil {
+			log.Error(err.Error())
 		}
 		name = args[0]
 
 		log.Running("Stopping container " + name)
-		lxclient, err := client.NewClient(cfg)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
 		err = lxclient.ContainerStop(name)
 		if err != nil {
 			log.Error("Error stopping container: " + err.Error())
@@ -44,15 +43,4 @@ var stopCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(stopCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// stopCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// stopCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
 }

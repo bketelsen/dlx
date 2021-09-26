@@ -12,7 +12,7 @@ import (
 	"path/filepath"
 	"syscall"
 
-	"github.com/bketelsen/dlx/path"
+	"github.com/bketelsen/dlx/config"
 	"github.com/bketelsen/libgo/events"
 	"github.com/buger/goterm"
 	client "github.com/lxc/lxd/client"
@@ -242,10 +242,10 @@ func (c *Container) CopyFile(file sourceFile) error {
 
 func (c *Container) CopyKeys(user string) error {
 	files := []sourceFile{
-		{path: filepath.Join(path.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/" + user + "/.ssh", filetype: "directory"},
-		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/id_rsa.pub", filetype: "file"},
-		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/authorized_keys", filetype: "file"},
-		{path: filepath.Join(path.GetHomePath(), ".ssh", "id_rsa"), mode: 0600, destination: "/home/" + user + "/.ssh/id_rsa", filetype: "file"},
+		{path: filepath.Join(config.GetHomePath(), ".ssh"), mode: 0700, destination: "/home/" + user + "/.ssh", filetype: "directory"},
+		{path: filepath.Join(config.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/id_rsa.pub", filetype: "file"},
+		{path: filepath.Join(config.GetHomePath(), ".ssh", "id_rsa.pub"), mode: 0644, destination: "/home/" + user + "/.ssh/authorized_keys", filetype: "file"},
+		{path: filepath.Join(config.GetHomePath(), ".ssh", "id_rsa"), mode: 0600, destination: "/home/" + user + "/.ssh/id_rsa", filetype: "file"},
 	}
 
 	for _, file := range files {

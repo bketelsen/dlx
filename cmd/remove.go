@@ -8,7 +8,6 @@ package cmd
 import (
 	"os"
 
-	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -20,21 +19,17 @@ var removeCmd = &cobra.Command{
 	Long:    `Remove deletes a container.  It will fail if the container is running.`,
 	Args:    cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-
-		err := getConfig()
+		var err error
+		cfg, lxclient, err = connect()
 		if err != nil {
-			log.Error("Unable to get configuration:" + err.Error())
+			log.Error(err.Error())
+			os.Exit(1)
 		}
 
 		name = args[0]
 
 		log.Running("Removing container " + name)
 
-		lxclient, err := client.NewClient(cfg)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
 		err = lxclient.ContainerRemove(name)
 		if err != nil {
 			log.Error("Error executing command: " + err.Error())
@@ -47,14 +42,4 @@ var removeCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(removeCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// removeCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// removeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

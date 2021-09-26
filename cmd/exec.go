@@ -9,7 +9,6 @@ import (
 	"os"
 	"strings"
 
-	client "github.com/bketelsen/dlx/lxd"
 	"github.com/spf13/cobra"
 )
 
@@ -22,17 +21,14 @@ var execCmd = &cobra.Command{
 	Long: `Executes a command in the named container.  The command should be enclosed in 
 single quotes.  e.g. exec mycontainer 'ls -la'`,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := getConfig()
+		var err error
+		cfg, lxclient, err = connect()
 		if err != nil {
-			log.Error("Unable to get configuration:" + err.Error())
+			log.Error(err.Error())
+			os.Exit(1)
 		}
 		name = args[0]
 		// Connect to LXD over the Unix socket
-		lxclient, err := client.NewClient(cfg)
-		if err != nil {
-			log.Error("Unable to connect: " + err.Error())
-			os.Exit(1)
-		}
 		err = lxclient.ContainerExec(name, strings.Join(args[1:], " "))
 		if err != nil {
 			log.Error("Error executing command: " + err.Error())
@@ -44,14 +40,4 @@ single quotes.  e.g. exec mycontainer 'ls -la'`,
 
 func init() {
 	rootCmd.AddCommand(execCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// execCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// execCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

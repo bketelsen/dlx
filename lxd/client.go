@@ -20,16 +20,18 @@ import (
 )
 
 type Client struct {
-	config config.Config
+	config  *config.Config
+	lxcconf *config.LXC
 
 	conn lxd.ContainerServer
 }
 
 // NewClient creates a new connection to an LXD Daemon,
 // returning a Client
-func NewClient(config config.Config) (*Client, error) {
+func NewClient(config *config.Config, lxcconf *config.LXC) (*Client, error) {
 	c := &Client{
-		config: config,
+		config:  config,
+		lxcconf: lxcconf,
 	}
 	err := c.Connect()
 	return c, err
@@ -45,12 +47,13 @@ func (c *Client) Connect() error {
 	if err != nil {
 		return errors.Wrap(err, "reading client key")
 	}
+	remote := c.lxcconf.DefaultRemote()
 	args := lxd.ConnectionArgs{
 		InsecureSkipVerify: true,
 		TLSClientCert:      string(crt),
 		TLSClientKey:       string(crtkey),
 	}
-	c.conn, err = lxd.ConnectLXD(c.config.Socket, &args)
+	c.conn, err = lxd.ConnectLXD(remote.Addr, &args)
 	if err != nil {
 		return errors.Wrap(err, "Error connecting to LXD daemon")
 	}
@@ -144,6 +147,10 @@ func (c *Client) ContainerExec(name string, command string) error {
 		return errors.Wrap(err, "getting container")
 	}
 	return cont.Exec(c.config.User, command, false)
+}
+
+func (c *Client) GetProjects() ([]api.Project, error) {
+	return c.conn.GetProjects()
 }
 
 func (c *Client) ContainerList() ([]string, error) {
@@ -314,5 +321,18 @@ func RemoveTemplateImage(c *Client, fingerprint string) error {
 	if err != nil {
 		return errors.Wrap(err, "waiting for removing image")
 	}
+	return nil
+}
+
+func (c *Client) Watch() error {
+
+	listener, err := c.conn.GetEvents()
+	if err != nil {
+		return errors.Wrap(err, "getting event listener")
+	}
+	listener.AddHandler([]string{"lifecycle"}, func(a api.Event) {
+		fmt.Println(fmt.Sprintf("%s, %s", a.Type, a.Metadata))
+	})
+	listener.Wait()
 	return nil
 }
