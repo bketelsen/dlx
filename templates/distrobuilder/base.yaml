@@ -181,7 +181,7 @@ files:
   generator: dump
   path: /etc/sudoers.d/90-lxd
   content: |-
-    # User rules for bjk
+    # User rules for ubuntu
     bjk ALL=(ALL) NOPASSWD:ALL
   mode: "0440"
 packages:
@@ -195,6 +195,12 @@ packages:
     - language-pack-en
     - openssh-client
     - openssh-server
+    - build-essential
+    - git
+    - procps
+    - file
+    - curl
+    - wget
     - vim
     action: install
   - variants:
@@ -345,7 +351,7 @@ actions:
     #!/bin/sh
     set -eux
 
-    # Create the bjk user account
+    # Create the ubuntu user account
     getent group sudo >/dev/null 2>&1 || groupadd --system sudo
     useradd --create-home -s /bin/bash -G sudo -U bjk
 - releases:
@@ -376,6 +382,7 @@ actions:
 
     # Cleanup temporary shadow paths
     rm /etc/*-
+
 - types:
   - vm
   trigger: post-files

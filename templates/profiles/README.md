@@ -20,7 +20,7 @@ This change to LXD's default isn't required, but I've found it to be the single 
 
 If you want to do something similar, use this profile as a starting point, being sure to change the name of the bridge to match what you have on your host.
 
-Note: This is optional, and could be replaced by using Tailscale in the containers instead.
+Note: This is optional, and could be replaced by using Tailscale in the containers instead, which is what I do on cloud servers.
 
 ```yaml
 devices:

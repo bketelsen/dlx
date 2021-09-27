@@ -11,7 +11,6 @@ import (
 	"sort"
 
 	"github.com/bketelsen/dlx/config"
-	"github.com/bketelsen/libgo/events"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
 
@@ -58,7 +57,6 @@ func (c *Client) Connect() error {
 		return errors.Wrap(err, "Error connecting to LXD daemon")
 	}
 
-	events.Publish(NewConnectionCreated(c))
 	return nil
 }
 
@@ -67,7 +65,7 @@ func (c *Client) ContainerProvision(name string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Provision(c.config.User)
+	return cont.Provision(c.config.Remotes[c.lxcconf.Config.DefaultRemote].User)
 }
 
 func (c *Client) ContainerShell(name string) error {
@@ -75,7 +73,7 @@ func (c *Client) ContainerShell(name string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Exec(c.config.User, "", true)
+	return cont.Exec(c.config.Remotes[c.lxcconf.Config.DefaultRemote].User, "", true)
 }
 
 func (c *Client) ContainerCreate(name string, isAlias bool, image string, profiles []string) error {
@@ -105,8 +103,6 @@ func (c *Client) ContainerCreate(name string, isAlias bool, image string, profil
 		Source: source,
 	}
 
-	events.Publish(NewContainerState(name, Creating))
-
 	// Get LXD to create the container (background operation)
 	op, err := c.conn.CreateContainer(req)
 	if err != nil {
@@ -119,14 +115,12 @@ func (c *Client) ContainerCreate(name string, isAlias bool, image string, profil
 		return errors.Wrap(err, "wait for create container")
 	}
 
-	events.Publish(NewContainerState(name, Created))
 	// Get LXD to start the container (background operation)
 	reqState := api.ContainerStatePut{
 		Action:  "start",
 		Timeout: -1,
 	}
 
-	events.Publish(NewContainerState(name, Starting))
 	op, err = c.conn.UpdateContainerState(name, reqState, "")
 	if err != nil {
 		return errors.Wrap(err, "starting container")
@@ -138,7 +132,6 @@ func (c *Client) ContainerCreate(name string, isAlias bool, image string, profil
 		return errors.Wrap(err, "waiting for container start")
 	}
 
-	events.Publish(NewContainerState(name, Started))
 	return nil
 }
 func (c *Client) ContainerExec(name string, command string) error {
@@ -146,7 +139,7 @@ func (c *Client) ContainerExec(name string, command string) error {
 	if err != nil {
 		return errors.Wrap(err, "getting container")
 	}
-	return cont.Exec(c.config.User, command, false)
+	return cont.Exec(c.config.Remotes[c.lxcconf.Config.DefaultRemote].User, command, false)
 }
 
 func (c *Client) GetProjects() ([]api.Project, error) {

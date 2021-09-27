@@ -36,15 +36,28 @@ func Create(cmd *cobra.Command) error {
 	if err != nil {
 		return errors.Wrap(err, "Error reading sshkey")
 	}
-	profs, err := cmd.Flags().GetStringArray("profiles")
 	if err != nil {
-		return errors.Wrap(err, "Error reading profiles")
+		return errors.Wrap(err, "Error reading lxc config. Run `lxc remote add` before configuring dlx")
+	}
+	lxcconf, err := GetLXCConfig()
+	if err != nil {
+		return errors.Wrap(err, "Error reading lxc config. Run `lxc remote add` before configuring dlx")
 	}
 	config := &Config{
-		User:          user,
-		BaseImage:     bi,
-		Profiles:      profs,
-		SSHPrivateKey: sshkey,
+		ClientKey:  filepath.Dir(lxcconf.Path) + "/client.key",
+		ClientCert: filepath.Dir(lxcconf.Path) + "/client.crt",
+		Remotes:    make(map[string]Remote),
+	}
+
+	for name, r := range lxcconf.Config.Remotes {
+		if r.Protocol == "lxd" {
+			config.Remotes[name] = Remote{
+				User:          user,
+				Host:          name,
+				SSHPrivateKey: sshkey,
+				BaseImage:     bi,
+			}
+		}
 	}
 	bb, err := yaml.Marshal(config)
 	if err != nil {

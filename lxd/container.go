@@ -13,7 +13,6 @@ import (
 	"syscall"
 
 	"github.com/bketelsen/dlx/config"
-	"github.com/bketelsen/libgo/events"
 	"github.com/buger/goterm"
 	client "github.com/lxc/lxd/client"
 	lxd "github.com/lxc/lxd/client"
@@ -53,7 +52,6 @@ func GetContainer(conn client.ContainerServer, name string) (*Container, error) 
 // An error is returned if the container is not running,
 // or if the container doesn't exist.
 func (c *Container) Stop() error {
-	events.Publish(NewContainerState(c.Name, Stopping))
 	cs := api.ContainerStatePut{
 		Action: "stop",
 	}
@@ -66,7 +64,6 @@ func (c *Container) Stop() error {
 	if err != nil {
 		return errors.Wrap(err, "waiting for container stop")
 	}
-	events.Publish(NewContainerState(c.Name, Stopped))
 	return nil
 }
 
@@ -74,7 +71,6 @@ func (c *Container) Stop() error {
 // An error is returned if the container doesn't exist,
 // or if the container is already running.
 func (c *Container) Start() error {
-	events.Publish(NewContainerState(c.Name, Starting))
 	cs := api.ContainerStatePut{
 		Action: "start",
 	}
@@ -87,7 +83,6 @@ func (c *Container) Start() error {
 	if err != nil {
 		return errors.Wrap(err, "waiting for container start")
 	}
-	events.Publish(NewContainerState(c.Name, Started))
 	return nil
 }
 
@@ -95,7 +90,6 @@ func (c *Container) Start() error {
 // if the container is not stopped, or if the container doesn't
 // exist.
 func (c *Container) Remove() error {
-	events.Publish(NewContainerState(c.Name, Removing))
 	op, err := c.conn.DeleteContainer(c.Name)
 	if err != nil {
 		return errors.Wrap(err, "deleting container")
@@ -106,12 +100,10 @@ func (c *Container) Remove() error {
 		return errors.Wrap(err, "waiting for container delete")
 	}
 
-	events.Publish(NewContainerState(c.Name, Removed))
 	return nil
 }
 
 func (c *Container) Exec(user string, command string, interactive bool) error {
-	events.Publish(NewExecState(c.Name, command, Starting))
 	terminalHeight := goterm.Height()
 	terminalWidth := goterm.Width()
 	// Setup the exec request
@@ -150,19 +142,16 @@ func (c *Container) Exec(user string, command string, interactive bool) error {
 		errors.Wrap(err, "execution error")
 	}
 
-	events.Publish(NewExecState(c.Name, command, Started))
 	// Wait for it to complete
 	err = op.Wait()
 	if err != nil {
 		errors.Wrap(err, "error waiting for execution")
 	}
 
-	events.Publish(NewExecState(c.Name, command, Completed))
 	return nil
 }
 
 func (c *Container) Provision(user string) error {
-	events.Publish(NewContainerState(c.Name, Provisioning))
 
 	// this will fail if cloud-init isn't done.
 	// need to make sure it's completed before running copykeys
@@ -172,7 +161,6 @@ func (c *Container) Provision(user string) error {
 		return errors.Wrap(err, "copying ssh keys")
 	}
 
-	events.Publish(NewContainerState(c.Name, Provisioned))
 	return nil
 }
 
@@ -195,7 +183,6 @@ func (c *Container) Snapshot(snapshotName string) error {
 }
 
 func (c *Container) CopyFile(file sourceFile) error {
-	events.Publish(NewCopyState(c.Name, file.destination, Started))
 	var f *os.File
 	var err error
 
@@ -236,7 +223,6 @@ func (c *Container) CopyFile(file sourceFile) error {
 		return errors.New("Creating destination file:" + err.Error())
 	}
 
-	events.Publish(NewCopyState(c.Name, file.destination, Completed))
 	return nil
 }
 

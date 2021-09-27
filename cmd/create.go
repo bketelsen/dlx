@@ -6,7 +6,6 @@
 package cmd
 
 import (
-	"bytes"
 	"net"
 	"os"
 
@@ -45,9 +44,9 @@ var createCmd = &cobra.Command{
 		if baseimg != "" {
 			bi = baseimg
 		} else {
-			bi = cfg.BaseImage
+			bi = cfg.Remotes[lxcconf.Config.DefaultRemote].BaseImage
 		}
-		err = lxclient.ContainerCreate(name, true, bi, cfg.Profiles)
+		err = lxclient.ContainerCreate(name, true, bi, []string{"default"})
 		if err != nil {
 			log.Error("Unable to create container: " + err.Error())
 			os.Exit(1)
@@ -63,7 +62,7 @@ var createCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		key, err := ioutil.ReadFile(cfg.SSHPrivateKey)
+		key, err := ioutil.ReadFile(cfg.Remotes[lxcconf.Config.DefaultRemote].SSHPrivateKey)
 		if err != nil {
 			log.Error("unable to read private key" + err.Error())
 			os.Exit(1)
@@ -76,7 +75,7 @@ var createCmd = &cobra.Command{
 		}
 
 		config := &ssh.ClientConfig{
-			User: cfg.User,
+			User: cfg.Remotes[lxcconf.Config.DefaultRemote].User,
 			Auth: []ssh.AuthMethod{
 				// Use the PublicKeys method for remote authentication.
 				ssh.PublicKeys(signer),
@@ -86,8 +85,9 @@ var createCmd = &cobra.Command{
 			},
 		}
 
+		host := lxcconf.Config.DefaultRemote
 		// Connect to the remote server and perform the SSH handshake.
-		client, err := ssh.Dial("tcp", cfg.Host+":22", config)
+		client, err := ssh.Dial("tcp", host+":22", config)
 		if err != nil {
 			log.Error("unable to connect:" + err.Error())
 		}
@@ -97,12 +97,12 @@ var createCmd = &cobra.Command{
 			log.Error("unable to connect:" + err.Error())
 		}
 
-		var b bytes.Buffer
-		newSession.Stdout = &b
 		defer newSession.Close()
 		//lxc config device add $container dlxbind disk source=$HOME/projects/$container path=/home/`whoami`/projects/$container
-		if err := newSession.Run("devices " + name); err != nil {
+		output, err := newSession.CombinedOutput("/usr/local/bin/devices " + name)
+		if err != nil {
 			log.Error("unable to run command:" + err.Error())
+			log.Error(string(output))
 		}
 		log.Success("Provisioned container " + name)
 		newSession.Close()

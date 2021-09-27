@@ -1,12 +1,14 @@
 package config
 
 type Config struct {
-	Host          string   `yaml:"host"`
-	User          string   `yaml:"user"`
-	Socket        string   `yaml:"socket"`
-	BaseImage     string   `yaml:"baseimage"`
-	ClientCert    string   `yaml:"clientcert"`
-	ClientKey     string   `yaml:"clientkey"`
-	Profiles      []string `yaml:"profiles"`
-	SSHPrivateKey string   `yaml:"ssh_private_key"`
+	ClientKey  string            `yaml:"clientkey"`
+	ClientCert string            `yaml:"clientcert"`
+	Remotes    map[string]Remote `yaml:"remotes"`
+}
+
+type Remote struct {
+	User          string `yaml:"user"`
+	Host          string `yaml:"host"`
+	SSHPrivateKey string `yaml:"ssh_private_key"`
+	BaseImage     string `yaml:"baseimage"`
 }

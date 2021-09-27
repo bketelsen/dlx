@@ -52,11 +52,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	configCmd.Flags().BoolP("create", "c", false, "Create global config file")
-	configCmd.Flags().StringP("remote", "r", "", "LXD host network name or IP")
 	configCmd.Flags().StringP("user", "u", "ubuntu", "Container username")
 	configCmd.Flags().StringP("baseimage", "b", "dlxbase", "Default base image for new containers")
-	configCmd.Flags().StringP("clientcert", "t", "", "Path to client certificate")
-	configCmd.Flags().StringP("clientkey", "k", "", "Path to client key")
 	configCmd.Flags().StringArrayP("profiles", "p", []string{}, "Profiles to use")
 	configCmd.Flags().StringP("sshkey", "s", "", "Path to ssh private key authorized for HOST")
 }
