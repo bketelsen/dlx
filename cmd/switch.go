@@ -1,22 +1,8 @@
-/*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
 package cmd
 
 import (
-	"fmt"
+	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -24,7 +10,7 @@ import (
 // switchCmd represents the switch command
 var switchCmd = &cobra.Command{
 	Use:   "switch",
-	Short: "A brief description of your command",
+	Short: "Change LXC remote server",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
@@ -32,7 +18,41 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Not Implemented")
+		var err error
+		cfg, lxclient, err = connect()
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+
+		log.Running("Switching remote server to: " + args[0])
+
+		validRemotes := lxcconf.GetRemotes()
+
+		var valid bool
+		for name, _ := range validRemotes {
+			if name == args[0] {
+				valid = true
+			}
+		}
+		if !valid {
+			log.Error("Remote not found")
+			var remotes []string
+			for name, _ := range validRemotes {
+				remotes = append(remotes, name)
+			}
+
+			log.Info("Valid Remotes: " + strings.Join(remotes, ", "))
+			os.Exit(1)
+		}
+		err = lxcconf.SetDefaultRemote(args[0])
+		if err != nil {
+			log.Error(err.Error())
+			os.Exit(1)
+		}
+
+		log.Success("Switched default remote to: " + args[0])
+
 	},
 }
 

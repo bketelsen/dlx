@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -60,7 +59,6 @@ func Create(cmd *cobra.Command) error {
 }
 
 func Check() error {
-	fmt.Println(GetConfigPath())
 	_, err := os.Stat(filepath.Join(GetConfigPath(), "dlx.yaml"))
 	if err != nil {
 		return err
