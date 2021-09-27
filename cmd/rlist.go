@@ -34,6 +34,8 @@ to quickly create a Cobra application.`,
 		for name, remote := range remotes {
 			if name == defremote {
 				name = "*" + name
+			} else {
+				name = " " + name
 			}
 			table.Append([]string{name, remote.Addr})
 

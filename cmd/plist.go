@@ -37,6 +37,8 @@ to quickly create a Cobra application.`,
 		for _, project := range projects {
 			if project.Name == defaultProject {
 				project.Name = "*" + project.Name
+			} else {
+				project.Name = " " + project.Name
 			}
 			table.Append([]string{project.Name, project.Description})
 

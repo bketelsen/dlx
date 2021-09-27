@@ -12,6 +12,9 @@ type LXC struct {
 	Path   string
 }
 
+// GetLXCConfit returns the LXC configuration. It reads the
+// configuration from the default location which depends on the
+// client installation method.
 func GetLXCConfig() (*LXC, error) {
 	c := &LXC{}
 	cfg, path, err := load()
@@ -22,10 +25,28 @@ func GetLXCConfig() (*LXC, error) {
 	c.Path = path
 	return c, nil
 }
+
+// DefaultRemote returns the default remote for the
+// LXD instance.
 func (c *LXC) DefaultRemote() lxcconfig.Remote {
 	return c.Config.Remotes[c.Config.DefaultRemote]
 }
 
+// SetDefaultRemote sets the default remote for the LXD instance.
+func (c *LXC) SetDefaultRemote(remote string) error {
+	c.Config.DefaultRemote = remote
+	return c.Save()
+}
+
+// SetDefaultProject sets the default project for the LXD instance.
+func (c *LXC) SetDefaultProject(newdefault string) error {
+	dp := c.Config.Remotes[c.Config.DefaultRemote]
+	dp.Project = newdefault
+	c.Config.Remotes[c.Config.DefaultRemote] = dp
+	return c.Save()
+}
+
+// GetRemotes returns the list of remotes for the LXD instance.
 func (c *LXC) GetRemotes() map[string]lxcconfig.Remote {
 	var remotes = make(map[string]lxcconfig.Remote)
 	for key, r := range c.Config.Remotes {
@@ -36,6 +57,7 @@ func (c *LXC) GetRemotes() map[string]lxcconfig.Remote {
 	return remotes
 }
 
+// Save writes the LXD configuration to disk.
 func (c *LXC) Save() error {
 	return c.Config.SaveConfig(c.Path)
 }
