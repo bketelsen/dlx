@@ -29,5 +29,5 @@ dlx project list [flags]
 
 ### SEE ALSO
 
-* [dlx project](/docs/cmd/dlx_project)	 - A brief description of your command
+* [dlx project](/docs/cmd/dlx_project)	 - View and manage lxc projects
 

@@ -1,6 +1,6 @@
 ## dlx remote switch
 
-A brief description of your command
+Change LXC remote server
 
 ### Synopsis
 
@@ -29,5 +29,5 @@ dlx remote switch [flags]
 
 ### SEE ALSO
 
-* [dlx remote](/docs/cmd/dlx_remote)	 - A brief description of your command
+* [dlx remote](/docs/cmd/dlx_remote)	 - View and manage LXC remotes
 

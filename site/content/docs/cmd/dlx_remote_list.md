@@ -1,6 +1,6 @@
 ## dlx remote list
 
-A brief description of your command
+List remote LXC servers
 
 ### Synopsis
 
@@ -29,5 +29,5 @@ dlx remote list [flags]
 
 ### SEE ALSO
 
-* [dlx remote](/docs/cmd/dlx_remote)	 - A brief description of your command
+* [dlx remote](/docs/cmd/dlx_remote)	 - View and manage LXC remotes
 

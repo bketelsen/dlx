@@ -1,6 +1,6 @@
 ## dlx remote
 
-A brief description of your command
+View and manage LXC remotes
 
 ### Synopsis
 
@@ -10,10 +10,6 @@ and usage of using your command. For example:
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.
-
-```
-dlx remote [flags]
-```
 
 ### Options
 
@@ -30,6 +26,6 @@ dlx remote [flags]
 ### SEE ALSO
 
 * [dlx](/docs/cmd/dlx)	 - Provision lxd containers for development
-* [dlx remote list](/docs/cmd/dlx_remote_list)	 - A brief description of your command
-* [dlx remote switch](/docs/cmd/dlx_remote_switch)	 - A brief description of your command
+* [dlx remote list](/docs/cmd/dlx_remote_list)	 - List remote LXC servers
+* [dlx remote switch](/docs/cmd/dlx_remote_switch)	 - Change LXC remote server
 

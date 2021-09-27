@@ -1,6 +1,6 @@
 ## dlx project switch
 
-A brief description of your command
+Switch to a different lxc project
 
 ### Synopsis
 
@@ -12,7 +12,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.
 
 ```
-dlx project switch [flags]
+dlx project switch [project] [flags]
 ```
 
 ### Options
@@ -29,5 +29,5 @@ dlx project switch [flags]
 
 ### SEE ALSO
 
-* [dlx project](/docs/cmd/dlx_project)	 - A brief description of your command
+* [dlx project](/docs/cmd/dlx_project)	 - View and manage lxc projects
 
