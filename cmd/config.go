@@ -1,8 +1,3 @@
-// Copyright (c) 2019 bketelsen
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 package cmd
 
 import (
@@ -27,6 +22,9 @@ var configCmd = &cobra.Command{
 		}
 
 		if createConfig {
+			if verbose {
+				log.Info("Creating dlx config file")
+			}
 			err := config.Create(cmd)
 			if err != nil {
 				log.Error("Error creating config file: " + err.Error())
@@ -35,7 +33,6 @@ var configCmd = &cobra.Command{
 			log.Success("Default configuration file created")
 			os.Exit(0)
 		}
-		cfg, err = config.Get()
 
 	},
 }
@@ -43,14 +40,6 @@ var configCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(configCmd)
 
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// configCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
 	configCmd.Flags().BoolP("create", "c", false, "Create global config file")
 	configCmd.Flags().StringP("user", "u", "ubuntu", "Container username")
 	configCmd.Flags().StringP("baseimage", "b", "dlxbase", "Default base image for new containers")

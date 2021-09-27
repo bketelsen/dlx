@@ -10,7 +10,7 @@ import (
 // rlistCmd represents the rlist command
 var rlistCmd = &cobra.Command{
 	Use:   "list",
-	Short: "A brief description of your command",
+	Short: "List remote LXC servers",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 

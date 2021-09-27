@@ -86,6 +86,9 @@ var createCmd = &cobra.Command{
 		}
 
 		host := lxcconf.Config.DefaultRemote
+		if verbose {
+			log.Info("Connecting to " + host)
+		}
 		// Connect to the remote server and perform the SSH handshake.
 		client, err := ssh.Dial("tcp", host+":22", config)
 		if err != nil {
@@ -98,6 +101,10 @@ var createCmd = &cobra.Command{
 		}
 
 		defer newSession.Close()
+
+		if verbose {
+			log.Info("Running provisioning script")
+		}
 		//lxc config device add $container dlxbind disk source=$HOME/projects/$container path=/home/`whoami`/projects/$container
 		output, err := newSession.CombinedOutput("/usr/local/bin/devices " + name)
 		if err != nil {

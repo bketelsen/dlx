@@ -1,8 +1,3 @@
-// Copyright (c) 2019 bketelsen
-//
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 package cmd
 
 import (
@@ -11,7 +6,6 @@ import (
 
 	"github.com/bketelsen/dlx/config"
 	client "github.com/bketelsen/dlx/lxd"
-	"github.com/bketelsen/libgo/events"
 	"github.com/dixonwille/wlog"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -22,7 +16,6 @@ var lxclient *client.Client
 var lxcconf *config.LXC
 var log wlog.UI
 var verbose bool
-var uri string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -61,29 +54,12 @@ func init() {
 	log = wlog.AddConcurrent(log)
 	log = wlog.AddColor(wlog.None, wlog.Red, wlog.Blue, wlog.None, wlog.None, wlog.None, wlog.Cyan, wlog.Green, wlog.Magenta, log)
 
-	eh := &events.Subscriber{
-		Handler: eventHandler,
-	}
-	// Subscribe to an Event
-	events.Subscribe(eh)
-
-}
-
-func eventHandler(e events.Event) {
-	switch t := e.(type) {
-	//case *TopicStart:
-	// check the topic and create if needed
-	//	fmt.Println(t.Topic)
-	default:
-		// we don't care
-		if verbose {
-			log.Info(fmt.Sprintf("\t%T\t %s\n", t, e.Name()))
-		}
-	}
-
 }
 
 func connect() (*config.Config, *client.Client, error) {
+	if verbose {
+		log.Info(fmt.Sprintf("Verbose : %v", verbose))
+	}
 	var err error
 	cfg, err = config.Get()
 	if err != nil {
@@ -100,8 +76,8 @@ func connect() (*config.Config, *client.Client, error) {
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "unable to connect")
 	}
-
-	log.Info("Connected to " + lxcconf.Config.DefaultRemote)
+	defaultProject := lxcconf.DefaultRemote().Project
+	log.Info("Connected to " + lxcconf.Config.DefaultRemote + "/" + defaultProject)
 
 	return cfg, lxclient, err
 
