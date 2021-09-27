@@ -1,3 +1,17 @@
+---
+title: dlx project switch
+description: dlx project switch
+lead: dlx project switch
+date: 2021-09-27T07:23:53-04:00
+lastmod: 2021-09-27T07:23:53-04:00
+draft: false
+images: []
+menu:
+  docs:
+    parent: "cli"
+weight: 100
+toc: true
+---
 ## dlx project switch
 
 Switch to a different lxc project
