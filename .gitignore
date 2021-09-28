@@ -24,8 +24,7 @@ node_modules/
 dist/
 generated/
 .vendor/
-bin/*
+bin/dlx
 gin-bin
 .idea/
-dlx
 .envrc

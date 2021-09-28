@@ -20,7 +20,7 @@ deps:
 	@$(GO_BIN) get ./...
 
 build:
-	@$(GO_BIN) build -v .
+	@$(GO_BIN) build -v -o bin/dlx 
 
 test:
 	@$(GO_BIN) test ./...

@@ -1,0 +1,47 @@
+// Copyright (c) 2019 bketelsen
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+package dlx
+
+import (
+	"os"
+
+	"github.com/bketelsen/dlx/state"
+	"github.com/spf13/cobra"
+)
+
+type CmdStart struct {
+	Cmd    *cobra.Command
+	Global *state.Global
+}
+
+func (c *CmdStart) Command() *cobra.Command {
+
+	// startCmd represents the start command
+	var startCmd = &cobra.Command{
+		Use:   "start",
+		Short: "start a paused container",
+		Long:  `Start a paused container.`,
+		Args:  cobra.MinimumNArgs(1),
+		Run: func(cmd *cobra.Command, args []string) {
+			var err error
+			cfg, lxclient, err = connect()
+			if err != nil {
+				log.Error(err.Error())
+				os.Exit(1)
+			}
+			name = args[0]
+
+			log.Running("Starting container " + name)
+			err = lxclient.ContainerStart(name)
+			if err != nil {
+				log.Error("Error executing command: " + err.Error())
+				os.Exit(1)
+			}
+			log.Success("Container " + name + " started.")
+		},
+	}
+	return startCmd
+}

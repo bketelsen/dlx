@@ -1,0 +1,57 @@
+// Copyright (c) 2019 bketelsen
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
+package dlx
+
+import (
+	"github.com/bketelsen/dlx/state"
+	"github.com/spf13/cobra"
+)
+
+type CmdConnect struct {
+	Global *state.Global
+}
+
+func (c *CmdConnect) Command() *cobra.Command {
+	// connectCmd represents the connect command
+	var connectCmd = &cobra.Command{
+		Use:     "connect",
+		Aliases: []string{"shell"},
+		Short:   "connect to a running container",
+		Long:    `Connect to a running container.`,
+		Args:    cobra.MinimumNArgs(1),
+		RunE:    c.Run,
+	}
+	return connectCmd
+}
+
+func (c *CmdConnect) Run(cmd *cobra.Command, args []string) error {
+	//conf := c.Global.Conf
+	var err error
+	cfg, lxclient, err = connect()
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	/*remote := conf.DefaultRemote
+	d, err := conf.GetInstanceServer(remote)
+	if err != nil {
+		return err
+	}
+	*/
+
+	name = args[0]
+
+	log.Running("Connecting to container " + name)
+
+	err = lxclient.ContainerShell(name)
+	if err != nil {
+		log.Error("Unable to connect: " + err.Error())
+		return err
+	}
+
+	log.Success("Closed connection to container " + name)
+	return nil
+}
