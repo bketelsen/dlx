@@ -15,5 +15,3 @@
 
 
 * Note about LXD_CONF when snap lxc is installed, but running dlx on linux - symlink from snap config to .config/lxc
-
-* Deduplicate code in lxd package, move into dlx commands directly
