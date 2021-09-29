@@ -14,6 +14,7 @@ I built `dlx` because I bounce between laptops frequently and I wanted a consist
 
 	* [lxd](https://linuxcontainers.org) - the container management system that runs on a remote host, either locally on your network or in the cloud.
 	* [dlx](https://github.com/bketelsen/dlx) - client program that runs on your local computer.
+	* distrobuilder - a tool that builds a Linux container image from a template
 	* Optionally [zfs](https://wiki.ubuntu.com/ZFS)
 	* Optionally [tailscale](https://www.tailscale.com)
 
@@ -57,9 +58,9 @@ Using these conventions allows `dlx` to create a container that requires no extr
 
 ## Installation
 
-### Requirements
+See the [documentation](https://dlx.rocks)
 
-## Usage
+## Usage Scenarios
 
 ### Locally
 
