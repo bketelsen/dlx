@@ -52,7 +52,7 @@ func (c *CmdCreate) Run(cmd *cobra.Command, args []string) error {
 	}
 
 	// Connect to LXD
-	remote, name, err := conf.ParseRemote(args[0])
+	remote, _, err := conf.ParseRemote(args[0])
 	if err != nil {
 		return err
 	}
@@ -76,9 +76,8 @@ func (c *CmdCreate) Run(cmd *cobra.Command, args []string) error {
 		bi = cfg.Remotes[c.Global.Conf.DefaultRemote].BaseImage
 	}
 	//err = lxclient.ContainerCreate(name, true, bi, []string{"default"})
-	var source api.ContainerSource
 
-	source = api.ContainerSource{
+	source := api.ContainerSource{
 		Type: "image",
 		//Server:   "https://cloud-images.ubuntu.com/daily",
 		//Alias:    getImage(),

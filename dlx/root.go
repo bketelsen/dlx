@@ -51,6 +51,11 @@ func init() {
 	log = wlog.AddConcurrent(log)
 	log = wlog.AddColor(wlog.None, wlog.Red, wlog.Blue, wlog.None, wlog.None, wlog.None, wlog.Cyan, wlog.Green, wlog.Magenta, log)
 
+	var err error
+	cfg, err = getDlxConfig()
+	if err != nil {
+		log.Error(err.Error())
+	}
 }
 
 func getDlxConfig() (*config.Config, error) {
