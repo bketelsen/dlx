@@ -97,16 +97,12 @@ func (c *CmdExec) Run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf(i18n.G("You can't pass -t or -T at the same time as --mode"))
 	}
 
-	// Connect to the daemon
-	remote, name, err := conf.ParseRemote(args[0])
+	d, err := conf.GetInstanceServer(c.Global.Conf.DefaultRemote)
 	if err != nil {
 		return err
 	}
 
-	d, err := conf.GetInstanceServer(remote)
-	if err != nil {
-		return err
-	}
+	name = args[0]
 
 	// Set the environment
 	env := map[string]string{}

@@ -40,13 +40,7 @@ func (c *CmdProjectSwitch) Run(cmd *cobra.Command, args []string) error {
 
 	conf := c.Global.Conf
 
-	// Connect to the daemon
-	remote, _, err := conf.ParseRemote(args[0])
-	if err != nil {
-		return err
-	}
-
-	d, err := conf.GetInstanceServer(remote)
+	d, err := conf.GetInstanceServer(c.Global.Conf.DefaultRemote)
 	if err != nil {
 		return err
 	}

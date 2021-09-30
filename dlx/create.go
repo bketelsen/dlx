@@ -88,7 +88,7 @@ func (c *CmdCreate) Run(cmd *cobra.Command, args []string) error {
 	req := api.ContainersPost{
 		Name: name,
 		ContainerPut: api.ContainerPut{
-			Profiles: []string{"default"},
+			Profiles: []string{"default"}, // TODO: ? support command line adding profiles
 		},
 		Source: source,
 	}

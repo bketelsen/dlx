@@ -38,13 +38,7 @@ func (c *CmdRemove) Run(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Connect to the daemon
-	remote, name, err := conf.ParseRemote(args[0])
-	if err != nil {
-		return err
-	}
-
-	d, err := conf.GetInstanceServer(remote)
+	d, err := conf.GetInstanceServer(c.Global.Conf.DefaultRemote)
 	if err != nil {
 		return err
 	}

@@ -36,7 +36,6 @@ type Global struct {
 
 func (c *Global) PreRun(cmd *cobra.Command, args []string) error {
 	var err error
-	fmt.Println("Running PRE RUN")
 	// If calling the help, skip pre-run
 	if cmd.Name() == "help" {
 		return nil
@@ -56,7 +55,6 @@ func (c *Global) PreRun(cmd *cobra.Command, args []string) error {
 
 		configDir = path.Join(user.HomeDir, ".config", "lxc")
 	}
-	fmt.Println(configDir)
 
 	c.ConfPath = os.ExpandEnv(path.Join(configDir, "config.yml"))
 

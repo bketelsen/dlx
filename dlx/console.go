@@ -23,14 +23,14 @@ import (
 	"github.com/lxc/lxd/shared/termios"
 )
 
-type cmdConsole struct {
-	global *state.Global
+type CmdConsole struct {
+	Global *state.Global
 
 	flagShowLog bool
 	flagType    string
 }
 
-func (c *cmdConsole) Command() *cobra.Command {
+func (c *CmdConsole) Command() *cobra.Command {
 	cmd := &cobra.Command{}
 	cmd.Use = usage("console", i18n.G("[<remote>:]<instance>"))
 	cmd.Short = i18n.G("Attach to instance consoles")
@@ -47,7 +47,7 @@ as well as retrieve past log entries from it.`))
 	return cmd
 }
 
-func (c *cmdConsole) sendTermSize(control *websocket.Conn) error {
+func (c *CmdConsole) sendTermSize(control *websocket.Conn) error {
 	width, height, err := termios.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return err
@@ -99,11 +99,11 @@ func (er stdinMirror) Read(p []byte) (int, error) {
 	return n, err
 }
 
-func (c *cmdConsole) Run(cmd *cobra.Command, args []string) error {
-	conf := c.global.Conf
+func (c *CmdConsole) Run(cmd *cobra.Command, args []string) error {
+	conf := c.Global.Conf
 
 	// Quick checks.
-	exit, err := c.global.CheckArgs(cmd, args, 1, 1)
+	exit, err := c.Global.CheckArgs(cmd, args, 1, 1)
 	if exit {
 		return err
 	}
@@ -113,17 +113,12 @@ func (c *cmdConsole) Run(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("Unknown output type %q", c.flagType)
 	}
 
-	// Connect to LXD
-	remote, name, err := conf.ParseRemote(args[0])
+	d, err := conf.GetInstanceServer(c.Global.Conf.DefaultRemote)
 	if err != nil {
 		return err
 	}
 
-	d, err := conf.GetInstanceServer(remote)
-	if err != nil {
-		return err
-	}
-
+	name = args[0]
 	// Show the current log if requested
 	if c.flagShowLog {
 		if c.flagType != "console" {
@@ -148,7 +143,7 @@ func (c *cmdConsole) Run(cmd *cobra.Command, args []string) error {
 	return c.Console(d, name)
 }
 
-func (c *cmdConsole) Console(d lxd.InstanceServer, name string) error {
+func (c *CmdConsole) Console(d lxd.InstanceServer, name string) error {
 	if c.flagType == "" {
 		c.flagType = "console"
 	}
@@ -161,7 +156,7 @@ func (c *cmdConsole) Console(d lxd.InstanceServer, name string) error {
 	return fmt.Errorf("Unknown console type %q", c.flagType)
 }
 
-func (c *cmdConsole) console(d lxd.InstanceServer, name string) error {
+func (c *CmdConsole) console(d lxd.InstanceServer, name string) error {
 	// Configure the terminal
 	cfd := int(os.Stdin.Fd())
 
@@ -219,9 +214,9 @@ func (c *cmdConsole) console(d lxd.InstanceServer, name string) error {
 	return nil
 }
 
-func (c *cmdConsole) vga(d lxd.InstanceServer, name string) error {
+func (c *CmdConsole) vga(d lxd.InstanceServer, name string) error {
 	var err error
-	conf := c.global.Conf
+	conf := c.Global.Conf
 
 	// We currently use the control websocket just to abort in case of errors.
 	controlDone := make(chan struct{}, 1)

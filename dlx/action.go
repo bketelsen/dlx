@@ -252,8 +252,8 @@ func (c *CmdAction) doAction(action string, conf *config.Config, nameArg string)
 
 	if action == "stop" && c.flagConsole != "" {
 		// Handle console attach
-		console := cmdConsole{}
-		console.global = c.Global
+		console := CmdConsole{}
+		console.Global = c.Global
 		console.flagType = c.flagConsole
 		return console.Console(d, name)
 	}
@@ -278,8 +278,8 @@ func (c *CmdAction) doAction(action string, conf *config.Config, nameArg string)
 
 	// Handle console attach
 	if c.flagConsole != "" {
-		console := cmdConsole{}
-		console.global = c.Global
+		console := CmdConsole{}
+		console.Global = c.Global
 		console.flagType = c.flagConsole
 		return console.Console(d, name)
 	}

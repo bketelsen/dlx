@@ -13,11 +13,11 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-func (c *cmdConsole) getTERM() (string, bool) {
+func (c *CmdConsole) getTERM() (string, bool) {
 	return "dumb", true
 }
 
-func (c *cmdConsole) controlSocketHandler(control *websocket.Conn) {
+func (c *CmdConsole) controlSocketHandler(control *websocket.Conn) {
 	// TODO: figure out what the equivalent of signal.SIGWINCH is on
 	// windows and use that; for now if you resize your terminal it just
 	// won't work quite correctly.
@@ -27,7 +27,7 @@ func (c *cmdConsole) controlSocketHandler(control *websocket.Conn) {
 	}
 }
 
-func (c *cmdConsole) findCommand(name string) string {
+func (c *CmdConsole) findCommand(name string) string {
 	path, _ := exec.LookPath(name)
 	if path == "" {
 		// Let's see if it's not in the usual location.

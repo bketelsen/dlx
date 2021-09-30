@@ -14,7 +14,7 @@ import (
 	"github.com/lxc/lxd/shared/logger"
 )
 
-func (c *cmdConsole) controlSocketHandler(control *websocket.Conn) {
+func (c *CmdConsole) controlSocketHandler(control *websocket.Conn) {
 	ch := make(chan os.Signal, 10)
 	signal.Notify(ch, unix.SIGWINCH)
 
@@ -32,7 +32,7 @@ func (c *cmdConsole) controlSocketHandler(control *websocket.Conn) {
 	control.WriteMessage(websocket.CloseMessage, closeMsg)
 }
 
-func (c *cmdConsole) findCommand(name string) string {
+func (c *CmdConsole) findCommand(name string) string {
 	path, _ := exec.LookPath(name)
 	return path
 }
