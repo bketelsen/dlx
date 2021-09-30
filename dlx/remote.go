@@ -25,7 +25,7 @@ to quickly create a Cobra application.`,
 	rlistCmd := CmdRemoteList{Cmd: remoteCmd, Global: c.Global}
 	remoteCmd.AddCommand(rlistCmd.Command())
 
-	rswitchCmd := CmdRemoteList{Cmd: remoteCmd, Global: c.Global}
+	rswitchCmd := CmdRemoteSwitch{Cmd: remoteCmd, Global: c.Global}
 	remoteCmd.AddCommand(rswitchCmd.Command())
 	return remoteCmd
 }

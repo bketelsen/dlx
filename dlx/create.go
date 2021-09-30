@@ -151,11 +151,13 @@ func (c *CmdCreate) Run(cmd *cobra.Command, args []string) error {
 
 	host := c.Global.Conf.DefaultRemote
 
+	hostAddr := cfg.Remotes[host].Host
+
 	if verbose {
 		log.Info("Connecting to " + host)
 	}
 	// Connect to the remote server and perform the SSH handshake.
-	client, err := ssh.Dial("tcp", host+":22", config)
+	client, err := ssh.Dial("tcp", hostAddr+":22", config)
 	if err != nil {
 		log.Error("unable to connect:" + err.Error())
 	}
