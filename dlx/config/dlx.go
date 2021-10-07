@@ -46,7 +46,7 @@ func Create(cmd *cobra.Command, conf *lxcconf.Config) error {
 	}
 
 	for name, r := range conf.Remotes {
-		if r.Protocol == "lxd" {
+		if r.Protocol == "lxd" || r.Protocol == "" {
 			config.Remotes[name] = Remote{
 				User:          user,
 				Host:          name,
