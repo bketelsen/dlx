@@ -2,8 +2,8 @@
 title: dlx completion fish
 description: dlx completion fish
 lead: dlx completion fish
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -37,14 +37,19 @@ dlx completion fish [flags]
 ### Options
 
 ```
-  -h, --help              help for fish
       --no-descriptions   disable completion descriptions
 ```
 
 ### Options inherited from parent commands
 
 ```
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO

@@ -2,8 +2,8 @@
 title: dlx
 description: dlx
 lead: dlx
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -14,37 +14,34 @@ toc: true
 ---
 ## dlx
 
-Provision lxd containers for development
 
-### Synopsis
-
-dlx provisions lxd containers for local development.
-See https://dlx.rocks for full documentation.
-
-```
-dlx [flags]
-```
 
 ### Options
 
 ```
-  -h, --help      help for dlx
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO
 
 * [dlx completion](/docs/cmd/dlx_completion)	 - generate the autocompletion script for the specified shell
 * [dlx config](/docs/cmd/dlx_config)	 - manage global configurations
-* [dlx connect](/docs/cmd/dlx_connect)	 - connect to a running container
+* [dlx connect](/docs/cmd/dlx_connect)	 - Connect to a login shell of an instance
+* [dlx console](/docs/cmd/dlx_console)	 - Attach to instance consoles
 * [dlx create](/docs/cmd/dlx_create)	 - Create a container
-* [dlx exec](/docs/cmd/dlx_exec)	 - Execute a command in a container
+* [dlx exec](/docs/cmd/dlx_exec)	 - Execute commands in instances
 * [dlx list](/docs/cmd/dlx_list)	 - list containers
+* [dlx lxc](/docs/cmd/dlx_lxc)	 - Command line client for LXD
+* [dlx monitor](/docs/cmd/dlx_monitor)	 - monitor lxd events
 * [dlx project](/docs/cmd/dlx_project)	 - View and manage lxc projects
 * [dlx remote](/docs/cmd/dlx_remote)	 - View and manage LXC remotes
 * [dlx remove](/docs/cmd/dlx_remove)	 - remove a container
-* [dlx start](/docs/cmd/dlx_start)	 - start a paused container
-* [dlx stop](/docs/cmd/dlx_stop)	 - stop a running container
-* [dlx version](/docs/cmd/dlx_version)	 - version of dlx
-* [dlx watch](/docs/cmd/dlx_watch)	 - watch
+* [dlx start](/docs/cmd/dlx_start)	 - Start instances
+* [dlx stop](/docs/cmd/dlx_stop)	 - Stop instances
 

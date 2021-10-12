@@ -2,8 +2,8 @@
 title: dlx config
 description: dlx config
 lead: dlx config
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -25,7 +25,6 @@ dlx config [flags]
 ```
   -b, --baseimage string       Default base image for new containers (default "dlxbase")
   -c, --create                 Create global config file
-  -h, --help                   help for config
   -p, --profiles stringArray   Profiles to use
   -s, --sshkey string          Path to ssh private key authorized for HOST
   -u, --user string            Container username (default "ubuntu")
@@ -34,10 +33,16 @@ dlx config [flags]
 ### Options inherited from parent commands
 
 ```
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO
 
-* [dlx](/docs/cmd/dlx)	 - Provision lxd containers for development
+* [dlx](/docs/cmd/dlx)	 - 
 

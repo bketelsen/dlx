@@ -2,8 +2,8 @@
 title: dlx start
 description: dlx start
 lead: dlx start
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -14,29 +14,40 @@ toc: true
 ---
 ## dlx start
 
-start a paused container
+Start instances
 
 ### Synopsis
 
-Start a paused container.
+Description:
+  Start instances
+
+
 
 ```
-dlx start [flags]
+dlx start [<remote>:]<instance> [[<remote>:]<instance>...] [flags]
 ```
 
 ### Options
 
 ```
-  -h, --help   help for start
+      --all                   Run against all instances
+      --console[="console"]   Immediately attach to the console
+      --stateless             Ignore the instance state
 ```
 
 ### Options inherited from parent commands
 
 ```
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO
 
-* [dlx](/docs/cmd/dlx)	 - Provision lxd containers for development
+* [dlx](/docs/cmd/dlx)	 - 
 

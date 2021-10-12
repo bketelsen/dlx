@@ -2,8 +2,8 @@
 title: dlx project switch
 description: dlx project switch
 lead: dlx project switch
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -29,16 +29,16 @@ to quickly create a Cobra application.
 dlx project switch [project] [flags]
 ```
 
-### Options
-
-```
-  -h, --help   help for switch
-```
-
 ### Options inherited from parent commands
 
 ```
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO

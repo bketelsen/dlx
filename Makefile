@@ -18,9 +18,13 @@ tidy:
 
 deps:
 	@$(GO_BIN) get ./...
+	@$(GO_BIN) install github.com/gohugoio/hugo@latest
 
 build:
 	@$(GO_BIN) build -v -o bin/dlx 
+
+docs: build
+	./bin/dlx docs
 
 test:
 	@$(GO_BIN) test ./...

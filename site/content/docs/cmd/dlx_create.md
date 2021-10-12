@@ -2,8 +2,8 @@
 title: dlx create
 description: dlx create
 lead: dlx create
-date: 2021-09-27T07:23:53-04:00
-lastmod: 2021-09-27T07:23:53-04:00
+date: 2021-10-12T10:25:15Z
+lastmod: 2021-10-12T10:25:15Z
 draft: false
 images: []
 menu:
@@ -28,16 +28,21 @@ dlx create [name] [flags]
 
 ```
   -b, --baseimage string   (optional) base image to use
-  -h, --help               help for create
 ```
 
 ### Options inherited from parent commands
 
 ```
-  -v, --verbose   verbose logging
+      --debug         Show all debug messages
+      --force-local   Force using the local unix socket
+  -h, --help          Print help
+      --project       Override the source project
+  -q, --quiet         Don't show progress information
+  -v, --verbose       Show all information messages
+      --version       Print version number
 ```
 
 ### SEE ALSO
 
-* [dlx](/docs/cmd/dlx)	 - Provision lxd containers for development
+* [dlx](/docs/cmd/dlx)	 - 
 
