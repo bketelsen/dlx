@@ -59,6 +59,8 @@ func main() {
 	stopCmd := dlx.CmdStop{Global: &globalCmd}
 	app.AddCommand(stopCmd.Command())
 
+	monitorCmd := dlx.CmdMonitor{Global: &globalCmd}
+	app.AddCommand(monitorCmd.Command())
 	consoleCmd := dlx.CmdConsole{Global: &globalCmd}
 	app.AddCommand(consoleCmd.Command())
 	// Run the main command and handle errors

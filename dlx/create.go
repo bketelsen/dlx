@@ -6,17 +6,11 @@
 package dlx
 
 import (
-	"net"
-
-	"io/ioutil"
-
 	"github.com/bketelsen/dlx/state"
 	"github.com/lxc/lxd/shared/api"
 	"github.com/pkg/errors"
 
 	"github.com/spf13/cobra"
-
-	"golang.org/x/crypto/ssh"
 )
 
 var (
@@ -124,61 +118,5 @@ func (c *CmdCreate) Run(cmd *cobra.Command, args []string) error {
 
 	log.Success("Created container " + name)
 
-	log.Running("Provisioning container " + name)
-
-	key, err := ioutil.ReadFile(cfg.Remotes[c.Global.Conf.DefaultRemote].SSHPrivateKey)
-	if err != nil {
-		log.Error("unable to read private key" + err.Error())
-		return err
-	}
-
-	// Create the Signer for this private key.
-	signer, err := ssh.ParsePrivateKey(key)
-	if err != nil {
-		log.Error("unable to parse private key" + err.Error())
-	}
-
-	config := &ssh.ClientConfig{
-		User: cfg.Remotes[c.Global.Conf.DefaultRemote].User,
-		Auth: []ssh.AuthMethod{
-			// Use the PublicKeys method for remote authentication.
-			ssh.PublicKeys(signer),
-		},
-		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
-			return nil
-		},
-	}
-
-	host := c.Global.Conf.DefaultRemote
-
-	hostAddr := cfg.Remotes[host].Host
-
-	if verbose {
-		log.Info("Connecting to " + host)
-	}
-	// Connect to the remote server and perform the SSH handshake.
-	client, err := ssh.Dial("tcp", hostAddr+":22", config)
-	if err != nil {
-		log.Error("unable to connect:" + err.Error())
-	}
-	defer client.Close()
-	newSession, err := client.NewSession()
-	if err != nil {
-		log.Error("unable to connect:" + err.Error())
-	}
-
-	defer newSession.Close()
-
-	if verbose {
-		log.Info("Running provisioning script")
-	}
-	//lxc config device add $container dlxbind disk source=$HOME/projects/$container path=/home/`whoami`/projects/$container
-	output, err := newSession.CombinedOutput("/usr/local/bin/devices " + name)
-	if err != nil {
-		log.Error("unable to run command:" + err.Error())
-		log.Error(string(output))
-	}
-	log.Success("Provisioned container " + name)
-	newSession.Close()
 	return err
 }
