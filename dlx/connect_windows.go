@@ -4,7 +4,6 @@
 package dlx
 
 import (
-	"io"
 	"os"
 	"os/signal"
 
@@ -15,22 +14,11 @@ import (
 	"github.com/lxc/lxd/shared/logger"
 )
 
-// Windows doesn't process ANSI sequences natively, so we wrap
-// os.Stdout for improved user experience for Windows client
-type WrappedWriteCloser struct {
-	io.Closer
-	wrapper io.Writer
-}
-
-func (wwc *WrappedWriteCloser) Write(p []byte) (int, error) {
-	return wwc.wrapper.Write(p)
-}
-
-func (c *cmdConnect) getTERM() (string, bool) {
+func (c *CmdConnect) getTERM() (string, bool) {
 	return "dumb", true
 }
 
-func (c *cmdConnect) controlSocketHandler(control *websocket.Conn) {
+func (c *CmdConnect) controlSocketHandler(control *websocket.Conn) {
 	ch := make(chan os.Signal, 10)
 	signal.Notify(ch, os.Interrupt)
 
@@ -53,7 +41,7 @@ func (c *cmdConnect) controlSocketHandler(control *websocket.Conn) {
 	}
 }
 
-func (c *cmdConnect) forwardSignal(control *websocket.Conn, sig windows.Signal) error {
+func (c *CmdConnect) forwardSignal(control *websocket.Conn, sig windows.Signal) error {
 	logger.Debugf("Forwarding signal: %s", sig)
 
 	msg := api.InstanceExecControl{}

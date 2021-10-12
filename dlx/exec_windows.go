@@ -26,11 +26,11 @@ func (wwc *WrappedWriteCloser) Write(p []byte) (int, error) {
 	return wwc.wrapper.Write(p)
 }
 
-func (c *cmdExec) getTERM() (string, bool) {
+func (c *CmdExec) getTERM() (string, bool) {
 	return "dumb", true
 }
 
-func (c *cmdExec) controlSocketHandler(control *websocket.Conn) {
+func (c *CmdExec) controlSocketHandler(control *websocket.Conn) {
 	ch := make(chan os.Signal, 10)
 	signal.Notify(ch, os.Interrupt)
 
@@ -53,7 +53,7 @@ func (c *cmdExec) controlSocketHandler(control *websocket.Conn) {
 	}
 }
 
-func (c *cmdExec) forwardSignal(control *websocket.Conn, sig windows.Signal) error {
+func (c *CmdExec) forwardSignal(control *websocket.Conn, sig windows.Signal) error {
 	logger.Debugf("Forwarding signal: %s", sig)
 
 	msg := api.InstanceExecControl{}
