@@ -1,0 +1,11 @@
+# ~/.config/systemd/user/dlx.service
+[Unit]
+Description=DLX LXD Admin
+Documentation=https://dlx.rocks
+
+[Service]
+Environment=LXD_DIR=/var/snap/lxd/common/lxd
+ExecStart=/home/bjk/bin/dlx monitor --project=default --type=lifecycle
+
+[Install]
+WantedBy=multi-user.target

@@ -31,8 +31,9 @@ func (c *CmdMonitor) Command() *cobra.Command {
 	var removeCmd = &cobra.Command{
 		Use:   "monitor",
 		Short: "monitor lxd events",
-		Long:  `Monitor watches lxd events.`,
-		RunE:  c.Run,
+		Long: `Monitor watches lxd events. It is meant to be run continuously
+on the LXD server to provision instances as they are created.`,
+		RunE: c.Run,
 	}
 
 	removeCmd.Flags().BoolVar(&c.flagAllProjects, "all-projects", false, "Show events from all projects")
