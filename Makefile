@@ -7,11 +7,9 @@ install:
 
 clean:
 	@rm -rf dist/
-	@rm -rf ./dlx
 
 reset: install
 	@rm -rf ~/.dlx
-	@dlx config -t
 
 tidy:
 	@$(GO_BIN) mod tidy
@@ -19,6 +17,7 @@ tidy:
 deps:
 	@$(GO_BIN) get ./...
 	@$(GO_BIN) install github.com/gohugoio/hugo@latest
+	@$(GO_BIN) install github.com/goreleaser/goreleaser@latest
 
 build:
 	@$(GO_BIN) build -v -o bin/dlx 
