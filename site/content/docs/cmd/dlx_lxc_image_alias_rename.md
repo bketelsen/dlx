@@ -2,8 +2,8 @@
 title: dlx lxc image alias rename
 description: dlx lxc image alias rename
 lead: dlx lxc image alias rename
-date: 2021-10-12T10:25:15Z
-lastmod: 2021-10-12T10:25:15Z
+date: 2021-10-12T10:37:58Z
+lastmod: 2021-10-12T10:37:58Z
 draft: false
 images: []
 menu:
