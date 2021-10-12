@@ -19,6 +19,14 @@ DLX is a cli tool for LXD to quickly provision opinionated development environme
 
 DLX is especially delightful if you install it on a spare computer or laptop that you aren't currently using.
 
+### Why DLX?
+
+DLX is optimized for rapidly spinning up development environments. While there's nothing inherently development-centric about DLX, it was built with by a developer who switches projects frequently, and also switches between multiple computers frequently. DLX lets your create and destroy development environments quickly, and lets you access them from anywhere using standard development tools like SSH or VS Code Remote Development.
+
+DLX gives you a stable container for development that feels like a full VM. LXD runs a full `init` in each container, so you can install required services like databases but keep them separate from other projects.
+
+If you set up LXD with ZFS storage, you get the additional benefit of copy-on-write storage, so you can have dozens of containers on the host but the base operating system files are only stored once.
+
 ### Components
 
 DLX has two components:
