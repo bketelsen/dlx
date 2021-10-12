@@ -70,13 +70,6 @@ Locally I have an LXD server running headless in my closet. I have LXD using a b
 
 I also have an instance of LXD running in the cloud. The LXD server is using the default `lxdbr0` bridge to route traffic to and from the containers. The `dlxbase` image is configured to install Tailscale in each container. After the container is provisioned I use `dlx connect` to access the container and run `tailscale up` to authorize the container (this could be automated with a Tailscale Personal Access Token, but I haven't done this yet). Because I have Magic DNS configured on my Tailscale account, the containers are available by hostname in DNS lookups. SSH and VS Code Remote SSH work the same as they do locally.
 
-## Cattle vs Pets
-
-[Cattle not Pets](https://www.informit.com/articles/article.aspx?p=2743758) explains the analogy. For the purposes of `dlx`, the cattle vs. pets analogy refers to the ability to use LXD's "projects" feature to create containers in a separate namespace from the default. You might use this feature to create containers for long-lived services on your network.
-
-Development environments are considered short-term, and you might want to create a new container for each project you're working on. Services running longer term can live in a separate namespace, keeping them separate from the development environments, and preventing them from showing up in CLI output unless you explicitly select those projects.
-
-This is an advanced and optional feature. See the docs for more details about LXD projects and the support in `dlx` for them.
 
 ## Security
 

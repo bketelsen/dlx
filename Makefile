@@ -40,9 +40,3 @@ update:
 
 release-test:
 	@$(GO_BIN) test -race ./...
-
-server-install:
-	./scripts/lxd.sh
-	./scripts/distrobuilder.sh
-	./scripts/debootstrap.sh
-	chmod +x ./scripts/devices && sudo cp ./scripts/devices /usr/local/bin/
