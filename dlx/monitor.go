@@ -8,12 +8,18 @@ package dlx
 import (
 	"encoding/json"
 	"fmt"
+	"io"
+	"io/ioutil"
+	"os"
+	"os/signal"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/bketelsen/dlx/state"
 	lxd "github.com/lxc/lxd/client"
 	"github.com/lxc/lxd/shared/api"
+	"github.com/lxc/lxd/shared/i18n"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )
@@ -132,7 +138,7 @@ func (c *CmdMonitor) processEvent(event api.Event, d lxd.InstanceServer) {
 		if err != nil {
 			log.Error(err.Error())
 		}
-		if e.Action == "instance-created" {
+		if e.Action == "instance-started" {
 			// now do the stuff
 			project := state.GetProject(c.Global.FlagProject)
 
@@ -148,7 +154,30 @@ func (c *CmdMonitor) processEvent(event api.Event, d lxd.InstanceServer) {
 				return
 			}
 			name := filepath.Base(e.Source)
+			// wait for cloud-init
+			log.Running("Waiting for cloud-init to finish: " + name)
 			// Mount the project directory into container FS
+			time.Sleep(time.Second * 5)
+			maxwait := 300
+			sleeptime := 3
+			for i := 0; i < maxwait; i += sleeptime {
+
+				buf, resp, err := fileGetWrapper(d, name, "/var/lib/cloud/instance/boot-finished")
+				if err == nil {
+					fmt.Println(resp)
+					contents, err := ioutil.ReadAll(buf)
+					if err != nil {
+						log.Error(errors.Wrap(err, "reading boot-finished").Error())
+						return
+					}
+					fmt.Println(string(contents))
+					break
+				}
+				log.Info(".")
+				time.Sleep(time.Second * time.Duration(sleeptime))
+			}
+			log.Success("cloud-init finished")
+
 			devname := "persist"
 			devSource := "source=" + project.InstanceMountPath(name)
 			devPath := "path=" + project.ContainerMountPath()
@@ -221,4 +250,33 @@ func addDevice(d lxd.InstanceServer, name string, args []string) error {
 	}
 
 	return nil
+}
+
+func fileGetWrapper(server lxd.InstanceServer, inst string, path string) (buf io.ReadCloser, resp *lxd.InstanceFileResponse, err error) {
+	// Signal handling
+	chSignal := make(chan os.Signal, 1)
+	signal.Notify(chSignal, os.Interrupt)
+
+	// Operation handling
+	chDone := make(chan bool)
+	go func() {
+		buf, resp, err = server.GetInstanceFile(inst, path)
+		close(chDone)
+	}()
+
+	count := 0
+	for {
+		select {
+		case <-chDone:
+			return buf, resp, err
+		case <-chSignal:
+			count++
+
+			if count == 3 {
+				return nil, nil, fmt.Errorf(i18n.G("User signaled us three times, exiting. The remote operation will keep running"))
+			}
+
+			fmt.Println(i18n.G("Early server side processing of file transfer requests cannot be canceled (interrupt two more times to force)"))
+		}
+	}
 }
