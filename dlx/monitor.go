@@ -154,29 +154,36 @@ func (c *CmdMonitor) processEvent(event api.Event, d lxd.InstanceServer) {
 				return
 			}
 			name := filepath.Base(e.Source)
-			// wait for cloud-init
-			log.Running("Waiting for cloud-init to finish: " + name)
-			// Mount the project directory into container FS
-			time.Sleep(time.Second * 5)
-			maxwait := 300
-			sleeptime := 3
-			for i := 0; i < maxwait; i += sleeptime {
 
-				buf, resp, err := fileGetWrapper(d, name, "/var/lib/cloud/instance/boot-finished")
-				if err == nil {
-					fmt.Println(resp)
-					contents, err := ioutil.ReadAll(buf)
-					if err != nil {
-						log.Error(errors.Wrap(err, "reading boot-finished").Error())
-						return
+			log.Running("Checking if cloud-init exists")
+			// Mount the project directory into container FS
+
+			_, _, err := fileGetWrapper(d, name, "/usr/bin/cloud-init")
+			if err == nil {
+
+				// wait for cloud-init
+				log.Running("Waiting for cloud-init to finish: " + name)
+				time.Sleep(time.Second * 5)
+				maxwait := 300
+				sleeptime := 3
+				for i := 0; i < maxwait; i += sleeptime {
+
+					buf, resp, err := fileGetWrapper(d, name, "/var/lib/cloud/instance/boot-finished")
+					if err == nil {
+						fmt.Println(resp)
+						contents, err := ioutil.ReadAll(buf)
+						if err != nil {
+							log.Error(errors.Wrap(err, "reading boot-finished").Error())
+							return
+						}
+						fmt.Println(string(contents))
+						break
 					}
-					fmt.Println(string(contents))
-					break
+					log.Info(".")
+					time.Sleep(time.Second * time.Duration(sleeptime))
 				}
-				log.Info(".")
-				time.Sleep(time.Second * time.Duration(sleeptime))
+				log.Success("cloud-init finished")
 			}
-			log.Success("cloud-init finished")
 
 			devname := "persist"
 			devSource := "source=" + project.InstanceMountPath(name)
