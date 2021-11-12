@@ -30,7 +30,7 @@ func init() {
 
 var Projects = make(map[string]*Project)
 
-const configDirName = "dlxpersist"
+const configDirName = "projects"
 
 type Project struct {
 	Name               string
